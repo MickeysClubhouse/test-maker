@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomJSONInterceptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.interceptors</a> &gt; <span class="el_source">CustomJSONInterceptor.java</span></div><h1>CustomJSONInterceptor.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.interceptors;
+
+import cn.cstqb.exam.testmaker.configuration.ApplicationConfigContext;
+import com.opensymphony.xwork2.ActionContext;
+import com.opensymphony.xwork2.ActionInvocation;
+import com.opensymphony.xwork2.config.entities.ResultConfig;
+import com.opensymphony.xwork2.inject.Inject;
+import com.opensymphony.xwork2.interceptor.AbstractInterceptor;
+import com.opensymphony.xwork2.interceptor.PreResultListener;
+import com.opensymphony.xwork2.util.ValueStack;
+import com.opensymphony.xwork2.util.WildcardUtil;
+import org.apache.struts2.ServletActionContext;
+import org.apache.struts2.StrutsConstants;
+import org.apache.struts2.StrutsStatics;
+import org.apache.struts2.dispatcher.FilterDispatcher;
+import org.apache.struts2.json.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/2/11
+ * Time: 16:04
+ */
+public class CustomJSONInterceptor extends AbstractInterceptor {
+    private static final long serialVersionUID = 4950170304212158803L;
+<span class="nc" id="L37">    private static final Logger logger = LoggerFactory.getLogger(CustomJSONInterceptor.class);</span>
+<span class="nc" id="L38">    private boolean enableGZIP = false;</span>
+    private boolean wrapWithComments;
+    private boolean prefix;
+<span class="nc" id="L41">    private String defaultEncoding = &quot;ISO-8859-1&quot;;</span>
+<span class="nc" id="L42">    private boolean ignoreHierarchy = true;</span>
+    private String root;
+    private List&lt;Pattern&gt; excludeProperties;
+    private List&lt;Pattern&gt; includeProperties;
+    private JSONPopulator populator;
+<span class="nc" id="L47">    private JSONCleaner dataCleaner = null;</span>
+<span class="nc" id="L48">    private boolean debug = false;</span>
+<span class="nc" id="L49">    private boolean noCache = false;</span>
+    private boolean excludeNullProperties;
+    private String callbackParameter;
+    private String contentType;
+<span class="nc" id="L53">    private ApplicationConfigContext configContext = ApplicationConfigContext.getInstance();</span>
+    private String defaultDateFormat;
+
+<span class="nc" id="L56">    public CustomJSONInterceptor() {</span>
+<span class="nc" id="L57">        defaultDateFormat = configContext.getDefaultDateFormat();</span>
+<span class="nc" id="L58">        populator = new JSONPopulator(defaultDateFormat);</span>
+<span class="nc" id="L59">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public String intercept(ActionInvocation invocation) throws Exception {
+<span class="nc" id="L63">        HttpServletRequest request = ServletActionContext.getRequest();</span>
+<span class="nc" id="L64">        HttpServletResponse response = ServletActionContext.getResponse();</span>
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (response.isCommitted()) {</span>
+<span class="nc" id="L67">            return invocation.invoke();</span>
+        }
+
+<span class="nc" id="L70">        String contentType = request.getHeader(&quot;content-type&quot;);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (contentType != null) {</span>
+            int iSemicolonIdx;
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if ((iSemicolonIdx = contentType.indexOf(&quot;;&quot;)) != -1)</span>
+<span class="nc" id="L74">                contentType = contentType.substring(0, iSemicolonIdx);</span>
+        }
+
+<span class="nc" id="L77">        Object rootObject = null;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (this.root != null) {</span>
+<span class="nc" id="L79">            ValueStack stack = invocation.getStack();</span>
+<span class="nc" id="L80">            rootObject = stack.findValue(this.root);</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (rootObject == null) {</span>
+<span class="nc" id="L83">                throw new RuntimeException(&quot;Invalid root expression: '&quot; + this.root + &quot;'.&quot;);</span>
+            }
+        }
+
+<span class="nc bnc" id="L87" title="All 4 branches missed.">        if ((contentType != null) &amp;&amp; contentType.equalsIgnoreCase(&quot;application/json&quot;)) {</span>
+            // load JSON object
+<span class="nc" id="L89">            Object obj = JSONUtil.deserialize(request.getReader());</span>
+
+<span class="nc bnc" id="L91" title="All 2 branches missed.">            if (obj instanceof Map) {</span>
+<span class="nc" id="L92">                Map json = (Map) obj;</span>
+
+                // clean up the values
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                if (dataCleaner != null)</span>
+<span class="nc" id="L96">                    dataCleaner.clean(&quot;&quot;, json);</span>
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (rootObject == null) // model overrides action</span>
+<span class="nc" id="L99">                    rootObject = invocation.getStack().peek();</span>
+
+                // populate fields
+<span class="nc" id="L102">                populator.populateObject(rootObject, json);</span>
+<span class="nc" id="L103">            } else {</span>
+<span class="nc" id="L104">                logger.error(&quot;Unable to deserialize JSON object from request&quot;);</span>
+<span class="nc" id="L105">                throw new JSONException(&quot;Unable to deserialize JSON object from request&quot;);</span>
+            }
+
+
+<span class="nc" id="L109">            invocation.addPreResultListener(new PreResultListener() {</span>
+                public void beforeResult(ActionInvocation invocation, String resultCode) {
+<span class="nc" id="L111">                    Map resultsMap = invocation.getProxy().getConfig().getResults();</span>
+<span class="nc" id="L112">                    ResultConfig finalResultConfig = (ResultConfig) resultsMap.get(resultCode);</span>
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                    if (finalResultConfig == null) {</span>
+<span class="nc" id="L115">                        return;</span>
+                    }
+                    // do something interesting with the 'to-be' executed result
+<span class="nc" id="L118">                    ActionContext actionContext = invocation.getInvocationContext();</span>
+<span class="nc" id="L119">                    HttpServletRequest request = (HttpServletRequest) actionContext.get(StrutsStatics.HTTP_REQUEST);</span>
+<span class="nc" id="L120">                    HttpServletResponse response = (HttpServletResponse) actionContext.get(StrutsStatics.HTTP_RESPONSE);</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">                    boolean writeGzip = enableGZIP &amp;&amp; JSONUtil.isGzipInRequest(request);</span>
+
+                    Object rootObject;
+<span class="nc" id="L124">                    rootObject = findRootObject(invocation);</span>
+<span class="nc" id="L125">                    Map&lt;String, String&gt; params = finalResultConfig.getParams();</span>
+
+<span class="nc" id="L127">                    String errorCodeStr = params.get(&quot;errorCode&quot;);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">                    int errorCode = errorCodeStr != null ? Integer.parseInt(errorCodeStr) : -1;</span>
+                    try {
+<span class="nc" id="L130">                        String json = createJSONString(request, rootObject);</span>
+<span class="nc" id="L131">                        logger.debug(&quot;CustomJSONInterceptor.beforeResult: json string{}&quot;, json);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                        if (!response.isCommitted()) {</span>
+<span class="nc" id="L133">                            writeToResponse(response, json, writeGzip, errorCode, errorCode);</span>
+                        } else {
+<span class="nc" id="L135">                            logger.warn(&quot;CustomJSONInterceptor.beforeResult: response committed before write result. status: {}&quot;, response.getStatus() );</span>
+                        }
+<span class="nc" id="L137">                    } catch (IOException | JSONException e) {</span>
+<span class="nc" id="L138">                        e.printStackTrace();</span>
+<span class="nc" id="L139">                    }</span>
+
+<span class="nc" id="L141">                }</span>
+
+            });
+        }
+<span class="nc" id="L145">        return invocation.invoke();</span>
+    }
+
+    protected String createJSONString(HttpServletRequest request, Object rootObject) throws JSONException {
+<span class="nc" id="L149">        String json = JSONUtil.serialize(rootObject, excludeProperties, includeProperties, ignoreHierarchy,</span>
+                JSONWriter.ENUM_AS_BEAN_DEFAULT, excludeNullProperties, defaultDateFormat);
+<span class="nc" id="L151">        json = addCallbackIfApplicable(request, json);</span>
+<span class="nc" id="L152">        return json;</span>
+    }
+
+    protected Object findRootObject(ActionInvocation invocation) {
+        Object rootObject;
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (this.root != null) {</span>
+<span class="nc" id="L158">            ValueStack stack = invocation.getStack();</span>
+<span class="nc" id="L159">            rootObject = stack.findValue(root);</span>
+<span class="nc" id="L160">        } else {</span>
+<span class="nc" id="L161">            rootObject = invocation.getStack().peek(); // model overrides action</span>
+        }
+<span class="nc" id="L163">        return rootObject;</span>
+    }
+
+    protected String addCallbackIfApplicable(HttpServletRequest request, String json) {
+<span class="nc bnc" id="L167" title="All 4 branches missed.">        if ((callbackParameter != null) &amp;&amp; (callbackParameter.length() &gt; 0)) {</span>
+<span class="nc" id="L168">            String callbackName = request.getParameter(callbackParameter);</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">            if ((callbackName != null) &amp;&amp; (callbackName.length() &gt; 0))</span>
+<span class="nc" id="L170">                json = callbackName + &quot;(&quot; + json + &quot;)&quot;;</span>
+        }
+<span class="nc" id="L172">        return json;</span>
+    }
+
+    protected void writeToResponse(HttpServletResponse response, String json, boolean gzip, int statusCode, int errorCode) throws IOException {
+<span class="nc" id="L176">        JSONUtil.writeJSONToResponse(new SerializationParams(response, this.defaultEncoding, wrapWithComments,</span>
+                json, false, gzip, noCache, statusCode, errorCode, prefix, contentType));
+<span class="nc" id="L178">    }</span>
+
+    /**
+     * Wrap generated JSON with comments. Only used if SMD is enabled.
+     *
+     * @param wrapWithComments
+     */
+    public void setWrapWithComments(boolean wrapWithComments) {
+<span class="nc" id="L186">        this.wrapWithComments = wrapWithComments;</span>
+<span class="nc" id="L187">    }</span>
+
+    @Inject(StrutsConstants.STRUTS_I18N_ENCODING)
+    public void setDefaultEncoding(String val) {
+<span class="nc" id="L191">        this.defaultEncoding = val;</span>
+<span class="nc" id="L192">    }</span>
+
+    /**
+     * Ignore properties defined on base classes of the root object.
+     *
+     * @param ignoreHierarchy
+     */
+    public void setIgnoreHierarchy(boolean ignoreHierarchy) {
+<span class="nc" id="L200">        this.ignoreHierarchy = ignoreHierarchy;</span>
+<span class="nc" id="L201">    }</span>
+
+    /**
+     * Sets the root object to be deserialized, defaults to the Action
+     *
+     * @param root OGNL expression of root object to be serialized
+     */
+    public void setRoot(String root) {
+<span class="nc" id="L209">        this.root = root;</span>
+<span class="nc" id="L210">    }</span>
+
+    /**
+     * Sets the JSONPopulator to be used
+     *
+     * @param populator JSONPopulator
+     */
+    public void setJSONPopulator(JSONPopulator populator) {
+<span class="nc" id="L218">        this.populator = populator;</span>
+<span class="nc" id="L219">    }</span>
+
+    /**
+     * Sets the JSONCleaner to be used
+     *
+     * @param dataCleaner JSONCleaner
+     */
+    public void setJSONCleaner(JSONCleaner dataCleaner) {
+<span class="nc" id="L227">        this.dataCleaner = dataCleaner;</span>
+<span class="nc" id="L228">    }</span>
+
+    /**
+     * @return true if debugging is turned on
+     */
+    public boolean getDebug() {
+<span class="nc" id="L234">        Boolean devModeOverride = FilterDispatcher.getDevModeOverride();</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">        return devModeOverride != null ? devModeOverride.booleanValue() : this.debug;</span>
+    }
+
+    /**
+     * Turns debugging on or off
+     *
+     * @param debug true or false
+     */
+    public void setDebug(boolean debug) {
+<span class="nc" id="L244">        this.debug = debug;</span>
+<span class="nc" id="L245">    }</span>
+
+    @Inject(StrutsConstants.STRUTS_DEVMODE)
+    public void setDevMode(
+            String mode) {
+<span class="nc" id="L250">        setDebug(&quot;true&quot;.equalsIgnoreCase(mode));</span>
+<span class="nc" id="L251">    }</span>
+
+    /**
+     * Sets a comma-delimited list of regular expressions to match properties
+     * that should be excluded from the JSON output.
+     *
+     * @param commaDelim A comma-delimited list of regular expressions
+     */
+    public void setExcludeProperties(String commaDelim) {
+<span class="nc" id="L260">        Set&lt;String&gt; excludePatterns = JSONUtil.asSet(commaDelim);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (excludePatterns != null) {</span>
+<span class="nc" id="L262">            this.excludeProperties = new ArrayList&lt;Pattern&gt;(excludePatterns.size());</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            for (String pattern : excludePatterns) {</span>
+<span class="nc" id="L264">                this.excludeProperties.add(Pattern.compile(pattern));</span>
+<span class="nc" id="L265">            }</span>
+        }
+<span class="nc" id="L267">    }</span>
+
+    /**
+     * Sets a comma-delimited list of wildcard expressions to match
+     * properties that should be excluded from the JSON output.
+     *
+     * @param commaDelim A comma-delimited list of wildcard expressions
+     */
+    public void setExcludeWildcards(String commaDelim) {
+<span class="nc" id="L276">        Set&lt;String&gt; excludePatterns = JSONUtil.asSet(commaDelim);</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">        if (excludePatterns != null) {</span>
+<span class="nc" id="L278">            this.excludeProperties = new ArrayList&lt;Pattern&gt;(excludePatterns.size());</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">            for (String pattern : excludePatterns) {</span>
+<span class="nc" id="L280">                this.excludeProperties.add(WildcardUtil.compileWildcardPattern(pattern));</span>
+<span class="nc" id="L281">            }</span>
+        }
+<span class="nc" id="L283">    }</span>
+
+    /**
+     * Sets a comma-delimited list of regular expressions to match properties
+     * that should be included from the JSON output.
+     *
+     * @param commaDelim A comma-delimited list of regular expressions
+     */
+    public void setIncludeProperties(String commaDelim) {
+<span class="nc" id="L292">        includeProperties = JSONUtil.processIncludePatterns(JSONUtil.asSet(commaDelim), JSONUtil.REGEXP_PATTERN);</span>
+<span class="nc" id="L293">    }</span>
+
+    /**
+     * Sets a comma-delimited list of wildcard expressions to match
+     * properties that should be included from the JSON output.  The
+     * standard boilerplate (id, error, debug) are automatically included,
+     * as appropriate, so you only need to provide patterns for the
+     * contents of &quot;result&quot;.
+     *
+     * @param commaDelim A comma-delimited list of wildcard expressions
+     */
+    public void setIncludeWildcards(String commaDelim) {
+<span class="nc" id="L305">        includeProperties = JSONUtil.processIncludePatterns(JSONUtil.asSet(commaDelim), JSONUtil.WILDCARD_PATTERN);</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">        if (includeProperties != null) {</span>
+<span class="nc" id="L307">            includeProperties.add(Pattern.compile(&quot;id&quot;));</span>
+<span class="nc" id="L308">            includeProperties.add(Pattern.compile(&quot;result&quot;));</span>
+<span class="nc" id="L309">            includeProperties.add(Pattern.compile(&quot;error&quot;));</span>
+<span class="nc" id="L310">            includeProperties.add(WildcardUtil.compileWildcardPattern(&quot;error.code&quot;));</span>
+        }
+<span class="nc" id="L312">    }</span>
+
+    /**
+     * Returns the appropriate set of includes, based on debug setting.
+     * Derived classes can override if there are additional, custom
+     * debug-only parameters.
+     */
+    protected List getIncludeProperties() {
+<span class="nc bnc" id="L320" title="All 4 branches missed.">        if (includeProperties != null &amp;&amp; getDebug()) {</span>
+<span class="nc" id="L321">            List&lt;Pattern&gt; list = new ArrayList&lt;Pattern&gt;(includeProperties);</span>
+<span class="nc" id="L322">            list.add(Pattern.compile(&quot;debug&quot;));</span>
+<span class="nc" id="L323">            list.add(WildcardUtil.compileWildcardPattern(&quot;error.*&quot;));</span>
+<span class="nc" id="L324">            return list;</span>
+        } else {
+<span class="nc" id="L326">            return includeProperties;</span>
+        }
+    }
+
+    public boolean isEnableGZIP() {
+<span class="nc" id="L331">        return enableGZIP;</span>
+    }
+
+    /**
+     * Setting this property to &quot;true&quot; will compress the output.
+     *
+     * @param enableGZIP Enable compressed output
+     */
+    public void setEnableGZIP(boolean enableGZIP) {
+<span class="nc" id="L340">        this.enableGZIP = enableGZIP;</span>
+<span class="nc" id="L341">    }</span>
+
+    public boolean isNoCache() {
+<span class="nc" id="L344">        return noCache;</span>
+    }
+
+    /**
+     * Add headers to response to prevent the browser from caching the response
+     *
+     * @param noCache
+     */
+    public void setNoCache(boolean noCache) {
+<span class="nc" id="L353">        this.noCache = noCache;</span>
+<span class="nc" id="L354">    }</span>
+
+    public boolean isExcludeNullProperties() {
+<span class="nc" id="L357">        return excludeNullProperties;</span>
+    }
+
+    /**
+     * Do not serialize properties with a null value
+     *
+     * @param excludeNullProperties
+     */
+    public void setExcludeNullProperties(boolean excludeNullProperties) {
+<span class="nc" id="L366">        this.excludeNullProperties = excludeNullProperties;</span>
+<span class="nc" id="L367">    }</span>
+
+    public void setCallbackParameter(String callbackParameter) {
+<span class="nc" id="L370">        this.callbackParameter = callbackParameter;</span>
+<span class="nc" id="L371">    }</span>
+
+    public String getCallbackParameter() {
+<span class="nc" id="L374">        return callbackParameter;</span>
+    }
+
+    /**
+     * Add &quot;{} &amp;&amp; &quot; to generated JSON
+     *
+     * @param prefix
+     */
+    public void setPrefix(boolean prefix) {
+<span class="nc" id="L383">        this.prefix = prefix;</span>
+<span class="nc" id="L384">    }</span>
+
+    public void setContentType(String contentType) {
+<span class="nc" id="L387">        this.contentType = contentType;</span>
+<span class="nc" id="L388">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

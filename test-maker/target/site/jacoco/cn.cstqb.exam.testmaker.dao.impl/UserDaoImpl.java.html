@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao.impl</a> &gt; <span class="el_source">UserDaoImpl.java</span></div><h1>UserDaoImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao.impl;
+
+import cn.cstqb.exam.testmaker.dao.UserDao;
+import cn.cstqb.exam.testmaker.entities.User;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.inject.persist.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/26
+ * Time: 19:52
+ */
+<span class="fc" id="L23">public class UserDaoImpl extends GenericJpaDaoImpl&lt;User,Integer&gt; implements UserDao {</span>
+
+    @Override
+    @Transactional
+    public List&lt;String&gt; getAllUserNames() {
+<span class="nc" id="L28">        EntityManager em = provider.get();</span>
+<span class="nc" id="L29">        Query query = em.createNativeQuery(String.format(&quot;SELECT username FROM %s&quot;, tableName));</span>
+<span class="nc" id="L30">        return query.getResultList();</span>
+    }
+
+    /**
+     * Finds the user with the provided user name from DB
+     *
+     * @param userName The user name to look for
+     * @return The User object matching the user name or &lt;i&gt;null&lt;/i&gt; if not found.
+     */
+    @Override
+    @Transactional
+    public User findUser(String userName) {
+<span class="nc" id="L42">        EntityManager em = provider.get();</span>
+<span class="nc" id="L43">        User user = null;</span>
+        try {
+<span class="nc" id="L45">            user=em.createNamedQuery(&quot;User.findByUserName&quot;, User.class)</span>
+<span class="nc" id="L46">                .setParameter(&quot;username&quot;, userName)</span>
+<span class="nc" id="L47">            .getSingleResult();</span>
+<span class="nc" id="L48">        } catch (NoResultException e) {</span>
+<span class="nc" id="L49">            logger.warn(&quot;User not found for {}&quot;, userName);</span>
+<span class="nc" id="L50">        }</span>
+
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L53">            logger.debug(&quot;User details for [{}] : {}&quot;, userName, user);</span>
+        }
+<span class="nc" id="L55">        return user;</span>
+    }
+
+    @Override
+    @Transactional
+    public List&lt;User&gt; findActiveUsers() {
+<span class="nc" id="L61">        EntityManager em = provider.get();</span>
+//        TypedQuery&lt;User&gt; query = em.createQuery(&quot;SELECT u FROM User u LEFT OUTER JOIN FETCH u.projects WHERE u.enabled =:enabled ORDER BY u.id &quot;, User.class);
+<span class="nc" id="L63">        TypedQuery&lt;User&gt; query = em.createQuery(&quot;SELECT u FROM User u WHERE u.enabled =:enabled ORDER BY u.id &quot;, User.class);</span>
+<span class="nc" id="L64">        return query</span>
+<span class="nc" id="L65">                .setParameter(&quot;enabled&quot;, true)</span>
+<span class="nc" id="L66">                .getResultList();</span>
+    }
+
+    /**
+     * Check if the provided email exists in db or not.
+     *
+     * @param email cannot be null or empty
+     * @return
+     */
+    @Override
+    @Transactional
+    public boolean checkEmailExists(String email) {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        Preconditions.checkArgument(!Strings.isNullOrEmpty(email),&quot;Email address to check cannot be null/empty!&quot;);</span>
+<span class="nc" id="L79">        EntityManager em = provider.get();</span>
+<span class="nc" id="L80">        Query query = em.createNativeQuery(&quot;SELECT EXISTS (SELECT id FROM User u WHERE u.email =:email) &quot;);</span>
+<span class="nc" id="L81">        query.setParameter(&quot;email&quot;, email);</span>
+<span class="nc" id="L82">        Number result= (Number) query.getSingleResult();</span>
+<span class="nc" id="L83">        logger.debug(&quot;UserDaoImpl.checkEmailExists: return value from DB: {}&quot;, result );</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        return result.intValue() != 0;</span>
+    }
+
+    @Override
+    @Transactional
+    public boolean checkUserNameExists(String username) {
+<span class="nc" id="L90">        EntityManager em = provider.get();</span>
+<span class="nc" id="L91">        TypedQuery&lt;Long&gt; query = em.createQuery(&quot;SELECT count(u) FROM User u WHERE u.username =:username &quot;, Long.class);</span>
+<span class="nc" id="L92">        query.setParameter(&quot;username&quot;, username);</span>
+<span class="nc" id="L93">        Long result= query.getSingleResult();</span>
+<span class="nc" id="L94">        logger.debug(&quot;UserDaoImpl.checkUserNameExists: return value from DB: {}&quot;, result );</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        return result &gt; 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

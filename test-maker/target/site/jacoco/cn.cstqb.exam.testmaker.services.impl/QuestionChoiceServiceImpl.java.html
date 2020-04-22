@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionChoiceServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">QuestionChoiceServiceImpl.java</span></div><h1>QuestionChoiceServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import java.util.Iterator;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import cn.cstqb.exam.testmaker.dao.QuestionDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
+import cn.cstqb.exam.testmaker.dao.QuestionChoiceDao;
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.entities.QuestionChoice;
+import cn.cstqb.exam.testmaker.guice.DaoModule;
+import cn.cstqb.exam.testmaker.services.IQuestionChoiceService;
+
+public class QuestionChoiceServiceImpl implements IQuestionChoiceService {
+<span class="fc" id="L22">	private Logger logger = LoggerFactory.getLogger(getClass());</span>
+	private QuestionChoiceDao questionChoiceDao;
+    private QuestionDao questionDao;
+
+    @Inject
+<span class="fc" id="L27">    public QuestionChoiceServiceImpl(QuestionChoiceDao questionChoiceDao, QuestionDao questionDao) {</span>
+<span class="fc" id="L28">        this.questionChoiceDao = questionChoiceDao;</span>
+<span class="fc" id="L29">        this.questionDao = questionDao;</span>
+<span class="fc" id="L30">    }</span>
+
+    /**
+	 * Create or update a question choice
+	 * @param questionChoice
+	 */
+	@Override
+	public void createOrUpdate(QuestionChoice questionChoice) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">		Preconditions.checkArgument(questionChoice != null,</span>
+				&quot;Invalid question choice.&quot;);
+<span class="nc bnc" id="L40" title="All 2 branches missed.">		Preconditions.checkArgument(questionChoice.getIsCorrectAnswer() != null</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">				&amp;&amp; !Strings.isNullOrEmpty(questionChoice.getContent()),</span>
+				&quot;The content of question choice cannot be null or empty&quot;);
+<span class="nc" id="L43">		QuestionChoice persisted = questionChoiceDao.findById(questionChoice</span>
+<span class="nc" id="L44">				.getId());</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">		if (persisted == null) {</span>
+<span class="nc" id="L46">			questionChoiceDao.create(questionChoice);</span>
+		} else {
+<span class="nc" id="L48">			questionChoiceDao.update(questionChoice);</span>
+		}
+<span class="nc" id="L50">	}</span>
+
+	/**
+	 * delete a question choice
+	 * @param questionChoice
+	 */
+	@Override
+	public void delete(QuestionChoice questionChoice) {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		Preconditions.checkArgument(questionChoice != null,</span>
+				&quot;Invalid question choice.&quot;);
+<span class="nc" id="L60">		questionChoiceDao.delete(questionChoice);</span>
+<span class="nc" id="L61">	}</span>
+
+	/**
+	 * find the question to which question choice belong
+	 * @param questionChoice
+	 * @return
+	 */
+	@Override
+	public Question findQuestion(QuestionChoice questionChoice) {
+<span class="nc" id="L70">		return questionChoice.getQuestion();</span>
+	}
+
+	/**
+	 * find the question choice with the provided id
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public QuestionChoice findQuestionChoice(int id) {
+<span class="nc" id="L80">		return questionChoiceDao.findById(id);</span>
+	}
+
+	@Override
+	public List&lt;QuestionChoice&gt; findQuestionChoices(QuestionChoice questionChoice) {
+<span class="nc" id="L85">		return questionChoiceDao.findResultList(&quot;question&quot;, questionChoice.getQuestion());</span>
+	}
+
+	@Override
+	public List&lt;QuestionChoice&gt; findQuestionChoices(Question question) {
+<span class="nc" id="L90">		return questionChoiceDao.findResultList(&quot;question&quot;, question);</span>
+	}
+
+    /**
+     * Find question choices by question id
+     *
+     * @param questionId ID of the question to be searched
+     * @return all choices for the question
+     */
+    @Override
+    public List&lt;QuestionChoice&gt; findQuestionChoices(int questionId) {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        Preconditions.checkArgument(questionId&gt;0);</span>
+<span class="nc" id="L102">        Question question = questionDao.findById(questionId);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (question == null) {</span>
+<span class="nc" id="L104">            logger.error(&quot;QuestionChoiceServiceImpl.findQuestionChoices: No question found for ID: {}&quot;, questionId );</span>
+<span class="nc" id="L105">            return null;</span>
+        }
+<span class="nc" id="L107">        return findQuestionChoices(question);</span>
+    }
+
+	@Override
+	public QuestionChoice findLastQuestionChoice() {
+<span class="nc" id="L112">		return questionChoiceDao.last();</span>
+	}
+
+	@Override
+	public boolean haveSameLabel(QuestionChoice questionChoice) {
+<span class="nc" id="L117">        Preconditions.checkNotNull(questionChoice);</span>
+<span class="nc" id="L118">        Preconditions.checkArgument(questionChoice.validate(), &quot;Question choice invalid： %s&quot;, questionChoice);</span>
+<span class="nc" id="L119">        List&lt;QuestionChoice&gt; questionChoices = findQuestionChoices(questionChoice);</span>
+
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        for (QuestionChoice choice : questionChoices) {</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if ((choice.getChoiceLabel() == questionChoice.getChoiceLabel()// same label</span>
+<span class="nc bnc" id="L123" title="All 4 branches missed.">                    &amp;&amp; (questionChoice.getId() == null || questionChoice.getId() &lt; 1)) ||</span>
+<span class="nc bnc" id="L124" title="All 4 branches missed.">                    (choice.getChoiceLabel() == questionChoice.getChoiceLabel() &amp;&amp; !questionChoice.getId().equals(choice.getId()))){</span>
+<span class="nc" id="L125">                logger.error(&quot;QuestionChoiceServiceImpl.haveSameLabel: There's already one choice with same choice label: {}&quot;, choice);</span>
+<span class="nc" id="L126">                return true;</span>
+            }
+<span class="nc" id="L128">        }</span>
+<span class="nc" id="L129">        return false;</span>
+    }
+
+
+	@Override
+	public boolean correctAnswerMatchType(QuestionChoice questionChoice) {
+<span class="nc" id="L135">        Preconditions.checkNotNull(questionChoice);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">         if (questionChoice.getQuestion().isMultipleChoice()) return true;</span>
+
+<span class="nc" id="L138">        List&lt;QuestionChoice&gt; questionChoices = findQuestionChoices(questionChoice);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (questionChoice.isValidID()){</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            for (QuestionChoice choice : questionChoices) {</span>
+<span class="nc bnc" id="L141" title="All 4 branches missed.">               if (choice.getIsCorrectAnswer() &amp;&amp; questionChoice.getId().equals(choice.getId())){</span>
+<span class="nc" id="L142">                   return true;</span>
+               }
+<span class="nc" id="L144">            }</span>
+        }
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        for (QuestionChoice choice : questionChoices) {</span>
+<span class="nc bnc" id="L147" title="All 4 branches missed.">            if (choice.getIsCorrectAnswer() &amp;&amp; questionChoice.getIsCorrectAnswer()){</span>
+<span class="nc" id="L148">                return false;</span>
+            }
+<span class="nc" id="L150">        }</span>
+
+<span class="nc" id="L152">        return true;</span>
+    }
+
+	public boolean correctAnswerMatchType(Question question) {
+<span class="nc" id="L156">		int count = 0;</span>
+<span class="nc" id="L157">		Preconditions.checkNotNull(question);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		if (question.isMultipleChoice()) return true;</span>
+
+<span class="nc" id="L160">		List&lt;QuestionChoice&gt; questionChoices = findQuestionChoices(question);</span>
+
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		for (QuestionChoice choice : questionChoices) {</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">			if (choice.getIsCorrectAnswer()){</span>
+<span class="nc" id="L164">				count++;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">				if(count &gt; 1) return false;</span>
+			}
+<span class="nc" id="L167">		}</span>
+<span class="nc" id="L168">		return true;</span>
+	}
+
+	@Override
+	public boolean exists(QuestionChoice questionChoice) {
+<span class="nc" id="L173">		QuestionChoice persisted = null;</span>
+<span class="nc bnc" id="L174" title="All 4 branches missed.">		if (questionChoice.getId() != null &amp;&amp; questionChoice.getId() &gt; 0) {</span>
+<span class="nc" id="L175">			persisted = questionChoiceDao.findById(questionChoice.getId());</span>
+		}
+<span class="nc bnc" id="L177" title="All 2 branches missed.">		return persisted != null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JsonSerializer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.json.serialization</a> &gt; <span class="el_source">JsonSerializer.java</span></div><h1>JsonSerializer.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.json.serialization;
+
+import cn.cstqb.exam.testmaker.configuration.ApplicationConfigContext;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/7
+ * Time: 21:23
+ */
+public class JsonSerializer {
+<span class="fc" id="L30">    private static final Logger logger = LoggerFactory.getLogger(JsonSerializer.class);</span>
+    private ObjectMapper mapper;
+
+<span class="fc" id="L33">    private static final ApplicationConfigContext configContext = ApplicationConfigContext.getInstance();</span>
+
+<span class="fc" id="L35">    public JsonSerializer() {</span>
+<span class="fc" id="L36">        this.mapper = new ObjectMapper();</span>
+<span class="fc" id="L37">    }</span>
+
+    @Inject
+    private void init() {
+<span class="fc" id="L41">        logger.debug(&quot;JsonSerializer.init: Initializing ObjectMapper...&quot;);</span>
+<span class="fc" id="L42">        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);</span>
+<span class="fc" id="L43">        mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);</span>
+//        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+<span class="fc" id="L45">        SimpleDateFormat dateFormat = new SimpleDateFormat(configContext.getDefaultDateFormat(), Locale.SIMPLIFIED_CHINESE);</span>
+<span class="fc" id="L46">        mapper.setDateFormat(dateFormat);</span>
+<span class="fc" id="L47">    }</span>
+
+    public void write(File output, Object value) throws IOException {
+<span class="nc" id="L50">        logger.debug(&quot;JsonSerializer.write: writing value to json {}&quot;, output );</span>
+<span class="nc" id="L51">        mapper.writeValue(output, value);</span>
+<span class="nc" id="L52">    }</span>
+
+    public void write(Path path, Object value) throws IOException {
+<span class="nc" id="L55">        write(path.toFile(),value);</span>
+<span class="nc" id="L56">    }</span>
+
+    public String write(Object value) throws JsonProcessingException {
+<span class="nc" id="L59">        return mapper.writeValueAsString(value);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

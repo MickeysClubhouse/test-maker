@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">QuestionServiceImpl.java</span></div><h1>QuestionServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import cn.cstqb.exam.testmaker.dao.QuestionDao;
+import cn.cstqb.exam.testmaker.dao.QuestionTypeDao;
+import cn.cstqb.exam.testmaker.entities.*;
+import cn.cstqb.exam.testmaker.services.IProjectService;
+import cn.cstqb.exam.testmaker.services.IQuestionLanguageService;
+import cn.cstqb.exam.testmaker.services.IQuestionService;
+import cn.cstqb.exam.testmaker.services.IUserService;
+import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.security.auth.login.AccountNotFoundException;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/29
+ * Time: 19:39
+ */
+public class QuestionServiceImpl implements IQuestionService {
+<span class="fc" id="L28">    private Logger logger = LoggerFactory.getLogger(getClass());</span>
+    private IProjectService projectService;
+    @Inject
+    private IQuestionLanguageService languageService;
+    @Inject
+    private QuestionTypeDao typeDao;
+    @Inject
+    private IUserService userService;
+
+    private QuestionDao dao;
+
+    @Inject
+<span class="fc" id="L40">    public QuestionServiceImpl(IProjectService projectService, QuestionDao dao) {</span>
+<span class="fc" id="L41">        this.projectService = projectService;</span>
+<span class="fc" id="L42">        this.dao = dao;</span>
+<span class="fc" id="L43">    }</span>
+
+    /**
+     * Create or update a question
+     *
+     * @param question
+     */
+    @Override
+    public void saveOrUpdate(Question question) {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (question == null) {</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L54">                logger.debug(&quot;Question is null. Operation aborted.&quot;);</span>
+            }
+<span class="nc" id="L56">            return;</span>
+        }
+
+
+<span class="nc" id="L60">        Question persisted = dao.findById(question.getId());</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (persisted == null) {</span>
+<span class="nc" id="L62">            checkState(question.validateBasicFields(), &quot;Missing required fields in question: %s&quot;, question);</span>
+<span class="nc" id="L63">            dao.create(question);</span>
+        } else {
+<span class="nc" id="L65">            checkState(question.validate(), &quot;Missing required fields in question: %s&quot;, question);</span>
+<span class="nc" id="L66">            dao.update(question);</span>
+        }
+<span class="nc" id="L68">    }</span>
+
+    /**
+     * delete a question
+     *
+     * @param question
+     */
+    @Override
+    public void delete(Question question) {
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (question == null) return;</span>
+<span class="nc" id="L78">        dao.delete(question);</span>
+<span class="nc" id="L79">    }</span>
+
+    /**
+     * find all questions with the given project
+     *
+     * @param project
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; findAll(Project project) {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        checkArgument(project != null);</span>
+<span class="nc" id="L90">        return dao.findAll(project);</span>
+    }
+
+    @Override
+    public List&lt;Question&gt; findAll(Project project, int pageSize, int pageNumber) {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        checkArgument(project != null);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        checkArgument(pageSize &gt; 1, &quot;Page size must be greater than 1.&quot;);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        checkArgument(pageNumber &gt; 0);</span>
+<span class="nc" id="L98">        return dao.findResultList(&quot;project&quot;, project, pageSize, pageNumber);</span>
+    }
+
+    /**
+     * Find all questions with the given status
+     *
+     * @param status
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; find(Project project, QuestionStatus status) {
+<span class="nc bnc" id="L109" title="All 6 branches missed.">        checkArgument(status != null &amp;&amp; status.validate() &amp;&amp; status.isValidID());</span>
+<span class="nc" id="L110">        logger.debug(&quot;QuestionServiceImpl.find: finding all questions with status: {}&quot;, status.getName());</span>
+<span class="nc" id="L111">        return dao.findByStatus(project, status);</span>
+    }
+
+    /**
+     * Finds all questions for which the user is the author in the given project
+     *
+     * @param project The project
+     * @param author  The user from the project
+     * @return The list of questions the user in the position of author
+     */
+    @Override
+    public List&lt;Question&gt; findByAuthor(Project project, User author) {
+<span class="nc bnc" id="L123" title="All 4 branches missed.">        checkArgument(project != null &amp;&amp; author != null);</span>
+//        checkState(project.getUsers().contains(author), &quot;The user %s is not found in the project [%s]&quot;, author.getUsername(), project.getName());
+<span class="nc" id="L125">        return dao.findByAuthor(project, author);</span>
+    }
+
+    /**
+     * @param project
+     * @param username
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; findByAuthor(Project project, String username) throws AccountNotFoundException {
+<span class="nc bnc" id="L135" title="All 4 branches missed.">        checkArgument(project != null &amp;&amp; project.isValidID());</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (!userService.isUserNameExists(username)) {</span>
+<span class="nc" id="L138">            throw new AccountNotFoundException(String.format(&quot;No such user: %s&quot;, username));</span>
+        }
+<span class="nc" id="L140">        return dao.findByAuthor(project, username);</span>
+    }
+
+    /**
+     * Finds all questions for which the user is the reviewer in the given project
+     *
+     * @param project  The project
+     * @param reviewer The user from the project
+     * @return The list of questions the user in the position of reviewer
+     */
+    @Override
+    public List&lt;Question&gt; findByReviewer(Project project, String reviewer) {
+<span class="nc bnc" id="L152" title="All 4 branches missed.">        checkArgument(project != null &amp;&amp; project.isValidID());</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(reviewer));</span>
+<span class="nc" id="L154">        return dao.findByReviewer(project, reviewer);</span>
+    }
+
+    /**
+     * Finds all questions for which the user is the QA in the given project
+     *
+     * @param project The project
+     * @param QA      The user from the project
+     * @return The list of questions the user in the position of QA
+     */
+    @Override
+    public List&lt;Question&gt; findByQA(Project project, String QA) {
+<span class="nc bnc" id="L166" title="All 4 branches missed.">        checkArgument(project != null &amp;&amp; project.isValidID());</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(QA));</span>
+<span class="nc" id="L168">        return dao.findByQA(project, QA);</span>
+    }
+
+    @Override
+    public List&lt;Question&gt; findAll(String projectName) {
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(projectName));</span>
+<span class="nc" id="L174">        Project project = projectService.find(projectName);</span>
+<span class="nc" id="L175">        return findAll(project);</span>
+    }
+
+    /**
+     * find all questions
+     *
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; findAll() {
+<span class="nc" id="L185">        return dao.findAll();</span>
+    }
+
+    /**
+     * @param pageSize
+     * @param pageNumber
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; findAll(int pageSize, int pageNumber) {
+<span class="nc" id="L195">        return dao.findAll(pageSize, pageNumber);</span>
+    }
+
+    /**
+     * Gets all question languages
+     *
+     * @return
+     */
+    @Override
+    public List&lt;QuestionLanguage&gt; findLanguages() {
+<span class="nc" id="L205">        return languageService.findAll();</span>
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public List&lt;QuestionType&gt; findTypes() {
+<span class="nc" id="L213">        return typeDao.findAll();</span>
+    }
+
+    /**
+     *
+     */
+    @Override
+    public Question findQuestion(int id) {
+<span class="nc" id="L221">        return dao.findById(id);</span>
+    }
+
+    /**
+     *
+     */
+    @Override
+    public boolean exists(Question question) {
+<span class="nc" id="L229">        Question persisted = null;</span>
+<span class="nc bnc" id="L230" title="All 4 branches missed.">        if (question.getId() != null &amp;&amp; question.getId() &gt; 0) {</span>
+<span class="nc" id="L231">            persisted = dao.findById(question.getId());</span>
+        }
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        return persisted != null;</span>
+    }
+
+    @Override
+    public int size() {
+<span class="nc" id="L238">        return dao.size().intValue();</span>
+    }
+
+    /**
+     * judge if the number of answer for the given question match the question type
+     *
+     * @param question
+     * @return
+     */
+    @Override
+    public boolean ifCorrectAnswersMatchType(Question question) {
+        //FIXME: the choices field will be removed from question entity
+/*		List&lt;QuestionChoice&gt; questionChoices = (List)question.getChoices();
+        int correctNum = 0;
+		for (QuestionChoice questionChoice : questionChoices) {
+			if (questionChoice.getIsCorrectAnswer()) {
+				correctNum++;
+			}
+		}
+		if (correctNum == 0) {
+			return true;
+		}
+		if (!question.isMultipleChoice()) {
+			return correctNum==1;
+		} else {
+			return correctNum&gt;1;
+		}*/
+<span class="nc" id="L265">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

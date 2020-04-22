@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListProjectQuestionsByRole.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.projects.current</a> &gt; <span class="el_source">ListProjectQuestionsByRole.java</span></div><h1>ListProjectQuestionsByRole.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.projects.current;
+
+import cn.cstqb.exam.testmaker.actions.question.ListQuestionsByRole;
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.Project;
+import cn.cstqb.exam.testmaker.entities.QuestionRole;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/17
+ * Time: 22:48
+ */
+<span class="nc" id="L14">public class ListProjectQuestionsByRole extends ListQuestionsByRole {</span>
+    /**
+     * This is a replacement for validate() method in ActionSupport in that the posted json
+     * data is not serialized yet in ActionSupport validate() method.
+     *
+     * @return The result string of the first error.
+     * @see cn.cstqb.exam.testmaker.configuration.Constants
+     */
+    @Override
+    public void validateInput() {
+<span class="nc" id="L24">        userValidator.validateUserName(username);</span>
+<span class="nc" id="L25">        project = (Project) session.get(Constants.ATTR_PROJECT);</span>
+<span class="nc" id="L26">    }</span>
+
+    /**
+     * The real action should be defined in this method. Do not use execute. otherwise you get nothing
+     *
+     * @return &lt;b&gt;null&lt;/b&gt; or empty string if action is successful; otherwise return your error result
+     * @throws Exception
+     */
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L36">        logger.debug(&quot;ListProjectQuestionsByAuthor.executeImpl: finding questions for username [#0] in current project #1.&quot;, username,project.getName() );</span>
+<span class="nc" id="L37">        loadQuestions(QuestionRole.Author,project);</span>
+<span class="nc" id="L38">        return null;</span>
+    }
+
+    /**
+     * Loads QA questions
+     * @return
+     * @throws Exception
+     */
+    public String qa() throws Exception {
+<span class="nc" id="L47">        validateInput();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (hasActionErrors()) {</span>
+<span class="nc" id="L49">            return Constants.RESULT_FORM_INVALID;</span>
+        }
+<span class="nc" id="L51">        loadQuestions(QuestionRole.QA,project);</span>
+<span class="nc" id="L52">        return SUCCESS;</span>
+    }
+
+    /**
+     * Loads questions for reviewers
+     * @return
+     * @throws Exception
+     */
+    public String reviewer() throws Exception {
+<span class="nc" id="L61">        validateInput();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (hasActionErrors()) {</span>
+<span class="nc" id="L63">            return Constants.RESULT_FORM_INVALID;</span>
+        }
+<span class="nc" id="L65">        loadQuestions(QuestionRole.Reviewer,project);</span>
+<span class="nc" id="L66">        return SUCCESS;</span>
+    }
+
+    /**
+     * Loads questions for author role
+     * @return
+     * @throws Exception
+     */
+    public String author() throws Exception {
+<span class="nc" id="L75">        validateInput();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (hasActionErrors()) {</span>
+<span class="nc" id="L77">            return Constants.RESULT_FORM_INVALID;</span>
+        }
+<span class="nc" id="L79">        loadQuestions(QuestionRole.Author,project);</span>
+<span class="nc" id="L80">        return SUCCESS;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

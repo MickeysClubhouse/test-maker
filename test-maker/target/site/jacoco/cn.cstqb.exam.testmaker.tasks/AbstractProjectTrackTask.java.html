@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractProjectTrackTask.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.tasks</a> &gt; <span class="el_source">AbstractProjectTrackTask.java</span></div><h1>AbstractProjectTrackTask.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.tasks;
+
+import cn.cstqb.exam.testmaker.configuration.AppInjector;
+import cn.cstqb.exam.testmaker.configuration.ApplicationConfigContext;
+import cn.cstqb.exam.testmaker.mailing.MailMessenger;
+import cn.cstqb.exam.testmaker.mailing.MailNotificationFactory;
+import cn.cstqb.exam.testmaker.services.IProjectService;
+import cn.cstqb.exam.testmaker.services.IReportingService;
+import com.google.inject.Injector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/4/3
+ * Time: 16:29
+ */
+public abstract class AbstractProjectTrackTask implements Runnable{
+<span class="nc" id="L22">    protected final Logger logger = LoggerFactory.getLogger(getClass());</span>
+<span class="nc" id="L23">    protected static Injector injector = AppInjector.getInstance().getInjector();</span>
+    @Inject protected IReportingService reportingService;
+<span class="nc" id="L25">    protected ApplicationConfigContext configContext = ApplicationConfigContext.getInstance();</span>
+
+
+    @Inject protected IProjectService projectService;
+    @Inject protected MailNotificationFactory mailFactory;
+    @Inject protected MailMessenger messenger;
+
+<span class="nc" id="L32">    protected AbstractProjectTrackTask() {</span>
+<span class="nc" id="L33">        injector.injectMembers(this);</span>
+<span class="nc" id="L34">    }</span>
+
+    abstract void executeImpl();
+
+    /**
+     * When an object implementing interface &lt;code&gt;Runnable&lt;/code&gt; is used
+     * to create a thread, starting the thread causes the object's
+     * &lt;code&gt;run&lt;/code&gt; method to be called in that separately executing
+     * thread.
+     * &lt;p/&gt;
+     * The general contract of the method &lt;code&gt;run&lt;/code&gt; is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+<span class="nc" id="L51">        executeImpl();</span>
+<span class="nc" id="L52">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

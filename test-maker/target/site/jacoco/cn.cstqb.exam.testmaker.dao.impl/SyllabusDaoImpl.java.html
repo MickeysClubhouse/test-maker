@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SyllabusDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao.impl</a> &gt; <span class="el_source">SyllabusDaoImpl.java</span></div><h1>SyllabusDaoImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao.impl;
+
+import cn.cstqb.exam.testmaker.dao.SyllabusDao;
+import cn.cstqb.exam.testmaker.entities.Chapter;
+import cn.cstqb.exam.testmaker.entities.KnowledgePoint;
+import cn.cstqb.exam.testmaker.entities.Project;
+import cn.cstqb.exam.testmaker.entities.Syllabus;
+
+import com.google.common.base.Strings;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/25
+ * Time: 23:08
+ */
+<span class="fc" id="L30">public class SyllabusDaoImpl extends GenericJpaDaoImpl&lt;Syllabus, Integer&gt; implements SyllabusDao {</span>
+
+	/**
+	 * find the syllabus with the given level
+	 * @param syllabus
+	 * @return The syllabus object matching the level or &lt;i&gt;null&lt;/i&gt; if not
+	 *         found
+	 */
+    @Transactional
+	@Override
+	public Syllabus findSyllabus(Syllabus syllabus) {
+<span class="nc" id="L41">        Syllabus persisted=null;</span>
+<span class="nc" id="L42">        Integer id = syllabus.getId();</span>
+<span class="nc bnc" id="L43" title="All 4 branches missed.">        if (id != null &amp;&amp; id &gt; 0) {</span>
+<span class="nc" id="L44">            persisted = findById(id);</span>
+<span class="nc bnc" id="L45" title="All 4 branches missed.">        } else if(!Strings.isNullOrEmpty(syllabus.getLevel()) &amp;&amp; !Strings.isNullOrEmpty(syllabus.getVersion())) {</span>
+<span class="nc" id="L46">            EntityManager em = provider.get();</span>
+            try {
+<span class="nc" id="L48">                persisted = em.createQuery(&quot;SELECT s FROM Syllabus s WHERE s.level=:level and s.version=:version&quot;, Syllabus.class)</span>
+<span class="nc" id="L49">                        .setParameter(&quot;level&quot;, syllabus.getLevel())</span>
+<span class="nc" id="L50">                        .setParameter(&quot;version&quot;, syllabus.getVersion())</span>
+<span class="nc" id="L51">                        .getSingleResult();</span>
+<span class="nc" id="L52">            } catch (NoResultException e) {</span>
+<span class="nc" id="L53">                return null;</span>
+<span class="nc" id="L54">            }</span>
+        }
+<span class="nc" id="L56">        return persisted;</span>
+	}
+
+    @Override
+    @Transactional
+    public List&lt;Syllabus&gt; findAll() {
+<span class="nc" id="L62">        EntityManager em = provider.get();</span>
+<span class="nc" id="L63">        return em.createQuery(&quot;SELECT s FROM Syllabus s ORDER BY s.level ASC&quot;, Syllabus.class).getResultList();</span>
+    }
+
+    /**
+     * Retrieve syllabuses from the server depending on the given the flag to include disabled syllabuses or not
+     *
+     * @param includeDisabled true to get all syllabuses; &lt;b&gt;false&lt;/b&gt; to include only active ones
+     * @return a list of syllabuses
+     */
+    @Override
+    public List&lt;Syllabus&gt; findSyllabuses(boolean includeDisabled) {
+<span class="nc" id="L74">        logger.debug(&quot;SyllabusDaoImpl.findSyllabuses: includeDisabled: {}&quot;,includeDisabled);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (includeDisabled) return findAll();</span>
+
+<span class="nc" id="L77">        EntityManager em = provider.get();</span>
+<span class="nc" id="L78">        return em.createQuery(&quot;SELECT s FROM Syllabus s WHERE s.isDisabled = FALSE ORDER BY s.level ASC&quot;, Syllabus.class)</span>
+<span class="nc" id="L79">                .getResultList();</span>
+    }
+
+    @Override
+    public List&lt;Project&gt; findSyllabuses(Syllabus syllabus) {
+<span class="nc" id="L84">        logger.debug(&quot;SyllabusDaoImpl.findSyllabuses: Finding project using syllabus [{}]&quot;, syllabus.getId() );</span>
+<span class="nc" id="L85">        EntityManager em = provider.get();</span>
+<span class="nc" id="L86">        CriteriaBuilder cb=em.getCriteriaBuilder();</span>
+<span class="nc" id="L87">        CriteriaQuery&lt;Project&gt; cq = cb.createQuery(Project.class);</span>
+<span class="nc" id="L88">        Root&lt;Project&gt; root = cq.from(Project.class);</span>
+<span class="nc" id="L89">        cq.select(root);</span>
+<span class="nc" id="L90">        cq.where(cb.equal(root.get(&quot;syllabus&quot;),syllabus));</span>
+
+<span class="nc" id="L92">        TypedQuery&lt;Project&gt; query = em.createQuery(cq);</span>
+<span class="nc" id="L93">        List&lt;Project&gt; projects=query.getResultList();</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">        if (projects!=null &amp;&amp; logger.isDebugEnabled()) {</span>
+<span class="nc" id="L95">            StringBuilder text = new StringBuilder();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            for (Project project : projects) {</span>
+<span class="nc" id="L97">                text.append(project.getName()).append(&quot;, &quot;);</span>
+<span class="nc" id="L98">            }</span>
+<span class="nc" id="L99">            logger.debug(&quot;SyllabusDaoImpl.findSyllabuses: Syllabus [{}] is being used by projects: [{}]&quot;,syllabus.getId(), text );</span>
+        }
+<span class="nc" id="L101">        return projects;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

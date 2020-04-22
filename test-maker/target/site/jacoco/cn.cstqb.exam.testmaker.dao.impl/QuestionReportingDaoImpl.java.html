@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionReportingDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao.impl</a> &gt; <span class="el_source">QuestionReportingDaoImpl.java</span></div><h1>QuestionReportingDaoImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao.impl;
+
+import cn.cstqb.exam.testmaker.dao.QuestionReportingDao;
+import cn.cstqb.exam.testmaker.entities.Project;
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.reporting.QuestionTaskEntry;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import java.util.*;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/30
+ * Time: 20:32
+ */
+public class QuestionReportingDaoImpl extends QuestionDaoImpl implements QuestionReportingDao {
+
+    private Calendar calendar;
+
+<span class="nc" id="L22">    public QuestionReportingDaoImpl() {</span>
+<span class="nc" id="L23">        calendar = Calendar.getInstance();</span>
+<span class="nc" id="L24">    }</span>
+
+    /**
+     * Get the questions which are within the warning threshold
+     *
+     * @param project
+     * @param username
+     * @param threshold
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; getExpiringQuestions(Project project, String username, int threshold) {
+<span class="nc" id="L36">        EntityManager em = provider.get();</span>
+<span class="nc" id="L37">        calendar.add(Calendar.DAY_OF_MONTH, threshold);</span>
+<span class="nc" id="L38">        Date thresholdDate = calendar.getTime();</span>
+<span class="nc" id="L39">        logger.debug(&quot;QuestionReportingDaoImpl.getExpiringQuestions: threshold date: {}&quot;, thresholdDate );</span>
+<span class="nc" id="L40">        TypedQuery&lt;Question&gt; query = em.createQuery(&quot;SELECT q FROM Question q JOIN q.reviewers as r WHERE q.project =:project &quot; +</span>
+                &quot;AND(  ( q.author.username =:username AND q.authoringFinishDate &lt;=:thresholdDate)&quot; +
+                &quot;OR ( r.username =:username AND q.reviewingFinishDate &lt;=:thresholdDate)&quot; +
+                &quot;)&quot;,
+                    Question.class)
+<span class="nc" id="L45">                .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L46">                .setParameter(&quot;username&quot;,username)</span>
+<span class="nc" id="L47">                .setParameter(&quot;thresholdDate&quot;,thresholdDate)</span>
+                ;
+<span class="nc" id="L49">        return query.getResultList();</span>
+    }
+
+    public List&lt;Question&gt; getExpiredQuestions(Project project, String username) {
+<span class="nc" id="L53">        EntityManager em = provider.get();</span>
+<span class="nc" id="L54">        calendar.add(Calendar.DAY_OF_MONTH, -1);</span>
+<span class="nc" id="L55">        Date thresholdDate = calendar.getTime();</span>
+<span class="nc" id="L56">        logger.debug(&quot;QuestionReportintDaoImpl.getExpiredQuestions: threshold date: {}&quot;, thresholdDate);</span>
+<span class="nc" id="L57">        TypedQuery&lt;Question&gt; query = em.createQuery(&quot;SELECT q from Question q JOIN q.reviewers as r WHERE q.project = :project &quot; +</span>
+                &quot;AND(  ( q.author.username =:username AND q.authoringFinishDate =:thresholdDate)&quot; +
+                &quot;OR ( r.username =:username AND q.reviewingFinishDate =:thresholdDate)&quot; +
+                &quot;)&quot;,
+                    Question.class)
+<span class="nc" id="L62">                .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L63">                .setParameter(&quot;username&quot;, username)</span>
+<span class="nc" id="L64">                .setParameter(&quot;thresholdDate&quot;, thresholdDate)</span>
+                ;
+<span class="nc" id="L66">        return query.getResultList();</span>
+    }
+
+    /**
+     * @param project
+     * @param threshold
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; getExpiringQuestions(Project project, int threshold) {
+<span class="nc" id="L76">        EntityManager em = provider.get();</span>
+<span class="nc" id="L77">        calendar.add(Calendar.DAY_OF_MONTH, threshold);</span>
+<span class="nc" id="L78">        Date thresholdDate = calendar.getTime();</span>
+<span class="nc" id="L79">        logger.debug(&quot;QuestionReportingDaoImpl.getExpiringQuestions: threshold date: {}&quot;, thresholdDate );</span>
+<span class="nc" id="L80">        TypedQuery&lt;Question&gt; query = em.createQuery(&quot;SELECT q FROM Question q JOIN q.reviewers as r WHERE q.project =:project &quot; +</span>
+                        &quot;AND (  q.authoringFinishDate &lt;=:thresholdDate OR q.reviewingFinishDate &lt;=:thresholdDate)&quot;,
+                Question.class)
+<span class="nc" id="L83">                .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L84">                .setParameter(&quot;thresholdDate&quot;,thresholdDate);</span>
+<span class="nc" id="L85">        return query.getResultList();</span>
+
+    }
+
+    /**
+     * Finds the question statistics for the project and user
+     *
+     * @param project
+     * @param username
+     * @return
+     */
+    @Override
+    public Set&lt;QuestionTaskEntry&gt; getTasks(Project project, String username) {
+<span class="nc" id="L98">        Set&lt;QuestionTaskEntry&gt; tasks = new TreeSet&lt;&gt;(new Comparator&lt;QuestionTaskEntry&gt;() {</span>
+            @Override
+            public int compare(QuestionTaskEntry o1, QuestionTaskEntry o2) {
+<span class="nc" id="L101">                return o1.getType().name().compareTo(o2.getType().name());</span>
+            }
+        });
+<span class="nc" id="L104">        tasks.add(getAuthorTask(project, username));</span>
+<span class="nc" id="L105">        tasks.add(getReviewerTask(project, username));</span>
+<span class="nc" id="L106">        tasks.add(getQATask(project, username));</span>
+<span class="nc" id="L107">        return tasks;</span>
+    }
+
+    @Override
+    public QuestionTaskEntry getProjectSummary(Project project) {
+<span class="nc" id="L112">        EntityManager em = provider.get();</span>
+<span class="nc" id="L113">        Long total=0l;</span>
+
+        try {
+<span class="nc" id="L116">            total = em.createQuery(&quot;SELECT count(DISTINCT q) FROM Question q WHERE q.project =:project &quot;,</span>
+                    Long.class)
+<span class="nc" id="L118">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L119">                    .getSingleResult();</span>
+<span class="nc" id="L120">        } catch (Exception e) {</span>
+<span class="nc" id="L121">            logger.error(&quot;QuestionStatisticsDaoImpl.getProjectSummary: {}&quot;,e );</span>
+<span class="nc" id="L122">        }</span>
+
+<span class="nc" id="L124">        Long pending=0l;</span>
+        try {
+<span class="nc" id="L126">            pending = em.createQuery(&quot;SELECT count(DISTINCT q) FROM Question q WHERE q.project =:project &quot; +</span>
+                            &quot;AND q.status.isFinish = FALSE &quot;,
+                    Long.class)
+<span class="nc" id="L129">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L130">                    .getSingleResult();</span>
+<span class="nc" id="L131">        } catch (Exception e) {</span>
+<span class="nc" id="L132">            logger.error(&quot;QuestionStatisticsDaoImpl.getProjectSummary: {}&quot;,e );</span>
+<span class="nc" id="L133">        }</span>
+
+<span class="nc" id="L135">        QuestionTaskEntry entry = new QuestionTaskEntry(QuestionTaskEntry.EntryType.ALL, total, pending);</span>
+
+<span class="nc" id="L137">        logger.info(&quot;QuestionStatisticsDaoImpl.getProjectSummary: task summary: {}&quot;,  entry );</span>
+<span class="nc" id="L138">        return entry;</span>
+    }
+
+    @Override
+    public QuestionTaskEntry getTaskSummary(Project project, String username) {
+<span class="nc" id="L143">        EntityManager em = provider.get();</span>
+<span class="nc" id="L144">        Long total=0l;</span>
+
+        try {
+<span class="nc" id="L147">            total = em.createQuery(&quot;SELECT count(DISTINCT q) FROM Question q JOIN q.reviewers as r WHERE q.project =:project &quot; +</span>
+                            &quot;AND ( q.author.username =:user OR r.username =:user OR q.qualityAdmin.username =:user)&quot;,
+                    Long.class)
+<span class="nc" id="L150">                    .setParameter(&quot;user&quot;, username)</span>
+<span class="nc" id="L151">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L152">                    .getSingleResult();</span>
+<span class="nc" id="L153">        } catch (Exception e) {</span>
+<span class="nc" id="L154">            logger.error(&quot;QuestionStatisticsDaoImpl.getTaskSummary: {}&quot;,e );</span>
+<span class="nc" id="L155">        }</span>
+
+<span class="nc" id="L157">        Long pending=0l;</span>
+        try {
+<span class="nc" id="L159">            pending = em.createQuery(&quot;SELECT count(DISTINCT q) FROM Question q JOIN q.reviewers as r WHERE q.project =:project &quot; +</span>
+                            &quot;AND q.status.isFinish = FALSE &quot; +
+                            &quot;AND ( q.author.username =:user OR r.username =:user OR q.qualityAdmin.username =:user)&quot;,
+                    Long.class)
+<span class="nc" id="L163">                    .setParameter(&quot;user&quot;, username)</span>
+<span class="nc" id="L164">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L165">                    .getSingleResult();</span>
+<span class="nc" id="L166">        } catch (Exception e) {</span>
+<span class="nc" id="L167">            logger.error(&quot;QuestionStatisticsDaoImpl.getTaskSummary: {}&quot;,e );</span>
+<span class="nc" id="L168">        }</span>
+
+<span class="nc" id="L170">        QuestionTaskEntry entry = new QuestionTaskEntry(QuestionTaskEntry.EntryType.ALL, total, pending);</span>
+
+<span class="nc" id="L172">        logger.info(&quot;QuestionStatisticsDaoImpl.getAuthorTask: task summary for {}: {}&quot;, username, entry );</span>
+<span class="nc" id="L173">        return entry;</span>
+    }
+
+    public QuestionTaskEntry getAuthorTask(Project project, String username) {
+<span class="nc" id="L177">        EntityManager em = provider.get();</span>
+<span class="nc" id="L178">        Long total=0l;</span>
+
+        try {
+<span class="nc" id="L181">            total = em.createQuery(&quot;SELECT distinct count(q) FROM Question q WHERE q.author.username =:author AND q.project =:project&quot;, Long.class)</span>
+<span class="nc" id="L182">                    .setParameter(&quot;author&quot;, username)</span>
+<span class="nc" id="L183">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L184">                    .getSingleResult();</span>
+<span class="nc" id="L185">        } catch (Exception e) {</span>
+<span class="nc" id="L186">            logger.error(&quot;QuestionStatisticsDaoImpl.getAuthorTask: {}&quot;,e );</span>
+<span class="nc" id="L187">        }</span>
+
+<span class="nc" id="L189">        logger.info(&quot;QuestionStatisticsDaoImpl.getAuthorTask: {} questions in total for {}&quot;, total, username);</span>
+
+
+<span class="nc" id="L192">        Long pending=0l;</span>
+        try {
+<span class="nc" id="L194">            pending = em.createQuery(&quot;SELECT count(q) FROM Question q WHERE q.author.username =:author AND q.project =:project AND q.status.accessibleByAuthor = true&quot;, Long.class)</span>
+<span class="nc" id="L195">                    .setParameter(&quot;author&quot;, username)</span>
+<span class="nc" id="L196">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L197">                    .getSingleResult();</span>
+<span class="nc" id="L198">        } catch (Exception e) {</span>
+<span class="nc" id="L199">            logger.error(&quot;QuestionStatisticsDaoImpl.getAuthorTask: {}&quot;,e );</span>
+<span class="nc" id="L200">        }</span>
+
+<span class="nc" id="L202">        QuestionTaskEntry entry = new QuestionTaskEntry(QuestionTaskEntry.EntryType.AUTHOR, total, pending);</span>
+
+<span class="nc" id="L204">        logger.info(&quot;QuestionStatisticsDaoImpl.getAuthorTask: task summary for {}: {}&quot;, username, entry );</span>
+<span class="nc" id="L205">        return entry;</span>
+    }
+
+    @Override
+    public QuestionTaskEntry getReviewerTask(Project project, String username) {
+<span class="nc" id="L210">        EntityManager em = provider.get();</span>
+<span class="nc" id="L211">        Long total=0l;</span>
+
+        try {
+<span class="nc" id="L214">            total = em.createQuery(&quot;SELECT count(q) FROM Question q JOIN q.reviewers as r &quot; +</span>
+                    &quot;WHERE r.username =:username AND q.project =:project&quot;, Long.class)
+<span class="nc" id="L216">                    .setParameter(&quot;username&quot;, username)</span>
+<span class="nc" id="L217">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L218">                    .getSingleResult();</span>
+<span class="nc" id="L219">        } catch (Exception e) {</span>
+<span class="nc" id="L220">            logger.error(&quot;QuestionStatisticsDaoImpl.getReviewerTask: {}&quot;,e );</span>
+<span class="nc" id="L221">        }</span>
+
+<span class="nc" id="L223">        logger.info(&quot;QuestionStatisticsDaoImpl.getReviewerTask: {} questions in total for {}&quot;, total, username);</span>
+
+
+<span class="nc" id="L226">        Long pending=0l;</span>
+        try {
+<span class="nc" id="L228">            pending = em.createQuery(&quot;SELECT count(q) FROM Question q JOIN q.reviewers as r &quot; +</span>
+                    &quot;WHERE r.username =:username AND q.project =:project AND q.status.accessibleByReviewer = TRUE&quot;, Long.class)
+<span class="nc" id="L230">                    .setParameter(&quot;username&quot;, username)</span>
+<span class="nc" id="L231">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L232">                    .getSingleResult();</span>
+<span class="nc" id="L233">        } catch (Exception e) {</span>
+<span class="nc" id="L234">            logger.error(&quot;QuestionStatisticsDaoImpl.getReviewerTask: {}&quot;,e );</span>
+<span class="nc" id="L235">        }</span>
+
+<span class="nc" id="L237">        QuestionTaskEntry entry = new QuestionTaskEntry(QuestionTaskEntry.EntryType.REVIEWER, total, pending);</span>
+
+<span class="nc" id="L239">        logger.info(&quot;QuestionStatisticsDaoImpl.getReviewerTask: task summary for {}: {}&quot;, username, entry );</span>
+<span class="nc" id="L240">        return entry;</span>
+    }
+
+    @Override
+    public QuestionTaskEntry getQATask(Project project, String username) {
+<span class="nc" id="L245">        EntityManager em = provider.get();</span>
+<span class="nc" id="L246">        Long total=0l;</span>
+
+        try {
+<span class="nc" id="L249">            total = em.createQuery(&quot;SELECT count(q) FROM Question q WHERE q.qualityAdmin.username =:username AND q.project =:project&quot;, Long.class)</span>
+<span class="nc" id="L250">                    .setParameter(&quot;username&quot;, username)</span>
+<span class="nc" id="L251">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L252">                    .getSingleResult();</span>
+<span class="nc" id="L253">        } catch (Exception e) {</span>
+<span class="nc" id="L254">            logger.error(&quot;QuestionStatisticsDaoImpl.getQATask: {}&quot;,e );</span>
+<span class="nc" id="L255">        }</span>
+
+<span class="nc" id="L257">        logger.info(&quot;QuestionStatisticsDaoImpl.getQATask: {} questions in total for {}&quot;, total, username);</span>
+
+
+<span class="nc" id="L260">        Long pending=0l;</span>
+        try {
+<span class="nc" id="L262">            pending = em.createQuery(&quot;SELECT count(q) FROM Question q WHERE q.qualityAdmin.username =:username AND q.project =:project AND q.status.accessibleByQualityAdmin = TRUE &quot;, Long.class)</span>
+<span class="nc" id="L263">                    .setParameter(&quot;username&quot;, username)</span>
+<span class="nc" id="L264">                    .setParameter(&quot;project&quot;, project)</span>
+<span class="nc" id="L265">                    .getSingleResult();</span>
+<span class="nc" id="L266">        } catch (Exception e) {</span>
+<span class="nc" id="L267">            logger.error(&quot;QuestionStatisticsDaoImpl.getQATask: {}&quot;,e );</span>
+<span class="nc" id="L268">        }</span>
+
+<span class="nc" id="L270">        QuestionTaskEntry entry = new QuestionTaskEntry(QuestionTaskEntry.EntryType.QA, total, pending);</span>
+
+<span class="nc" id="L272">        logger.info(&quot;QuestionStatisticsDaoImpl.getQATask: task summary for {}: {}&quot;, username, entry );</span>
+<span class="nc" id="L273">        return entry;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

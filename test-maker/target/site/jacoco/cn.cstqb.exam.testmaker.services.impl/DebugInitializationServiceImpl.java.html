@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DebugInitializationServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">DebugInitializationServiceImpl.java</span></div><h1>DebugInitializationServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import cn.cstqb.exam.testmaker.entities.*;
+import cn.cstqb.exam.testmaker.exceptions.EntityPersistenceException;
+import cn.cstqb.exam.testmaker.modules.ISyllabusModuleWorker;
+import cn.cstqb.exam.testmaker.services.*;
+import com.google.common.base.Strings;
+
+import javax.inject.Inject;
+import java.text.DecimalFormat;
+import java.util.Locale;
+import java.util.Random;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/26
+ * Time: 22:52
+ */
+<span class="nc" id="L20">public class DebugInitializationServiceImpl implements IDebugInitializationService {</span>
+
+    @Inject private IUserService userService;
+    @Inject private IProjectService projectService;
+    @Inject private IKnowledgePointService pointService;
+    @Inject private ISyllabusModuleWorker syllabusWorker;
+    @Inject private IQuestionLanguageService languageService;
+    @Inject private IQuestionTypeService typeService;
+    @Inject private IQuestionStatusService statusService;
+
+<span class="nc" id="L30">    private int count=5;</span>
+<span class="nc" id="L31">    private Random random = new Random();</span>
+<span class="nc" id="L32">    private DecimalFormat decimalFormat = new DecimalFormat(&quot;000&quot;);</span>
+
+    @Override
+    public void setCount(int count) {
+<span class="nc" id="L36">        this.count=count;</span>
+<span class="nc" id="L37">    }</span>
+
+    @Override
+    public int getCount() {
+<span class="nc" id="L41">        return count;</span>
+    }
+
+    @Override
+    public void initSyllabus() {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (syllabusWorker.findAll().size() &gt;= count) {</span>
+<span class="nc" id="L47">            return;</span>
+        }
+
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L51">            String idStr = decimalFormat.format(i + 1);</span>
+<span class="nc" id="L52">            Syllabus syllabus = new Syllabus(&quot;TEST-LEVEL-&quot; + idStr, &quot;Version 1.&quot; + idStr);</span>
+            try {
+<span class="nc" id="L54">                syllabusWorker.createOrUpdate(syllabus);</span>
+<span class="nc" id="L55">            } catch (Exception e) {</span>
+<span class="nc" id="L56">                e.printStackTrace();</span>
+<span class="nc" id="L57">                continue;</span>
+<span class="nc" id="L58">            }</span>
+<span class="nc" id="L59">            initChapters(syllabus);</span>
+        }
+<span class="nc" id="L61">    }</span>
+
+    private void initChapters(Syllabus syllabus) {
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L65">            String idStr = decimalFormat.format(i + 1);</span>
+<span class="nc" id="L66">            Chapter chapter = new Chapter(&quot;TEST CHAPTER &quot;+idStr, syllabus);</span>
+<span class="nc" id="L67">            chapter.setNumber(String.format(&quot;%d.%d&quot;, random.nextInt(20), i));</span>
+            try {
+<span class="nc" id="L69">                syllabusWorker.createOrUpdate(chapter);</span>
+<span class="nc" id="L70">            } catch (EntityPersistenceException e) {</span>
+<span class="nc" id="L71">                e.printStackTrace();</span>
+<span class="nc" id="L72">            }</span>
+<span class="nc" id="L73">            initKnowledgePoints(chapter,i+1);</span>
+        }
+<span class="nc" id="L75">    }</span>
+
+    private void initKnowledgePoints(Chapter chapter, int chapterNumber) {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if(pointService.findAll().size()&gt;=count) return;</span>
+<span class="nc" id="L79">        Random random = new Random();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L81">            String idStr = decimalFormat.format(i + 1);</span>
+<span class="nc" id="L82">            KnowledgePoint point = new KnowledgePoint(String.format(&quot;%s.%s.%s&quot;, chapterNumber,chapterNumber, idStr), &quot;Knowledge point &quot;+idStr, String.format(&quot;K%d&quot;,random.nextInt(5)), (short) (random.nextInt(3)+1), chapter);</span>
+            try {
+<span class="nc" id="L84">                syllabusWorker.createOrUpdate(point);</span>
+<span class="nc" id="L85">            } catch (EntityPersistenceException e) {</span>
+<span class="nc" id="L86">                e.printStackTrace();</span>
+<span class="nc" id="L87">            }</span>
+        }
+<span class="nc" id="L89">    }</span>
+
+    @Override
+    public void initUsers() {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if(userService.findAllUsers().size()&gt;=count) return;</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L95">            String idStr = decimalFormat.format(i + 1);</span>
+<span class="nc" id="L96">            String username = String.format(&quot;user-%s&quot;, idStr);</span>
+<span class="nc" id="L97">            User user = new User(username);</span>
+<span class="nc" id="L98">            user.setEmail(String.format(&quot;%s@test.com&quot;, username));</span>
+<span class="nc" id="L99">            user.setFullName(String.format(&quot;User %s&quot;, idStr));</span>
+<span class="nc" id="L100">            user.setPassword(&quot;test123&quot;);</span>
+<span class="nc" id="L101">            userService.createUser(user);</span>
+        }
+<span class="nc" id="L103">    }</span>
+
+    @Override
+    public void initQuestionAttributes() {
+<span class="nc" id="L107">        initLanguages();</span>
+<span class="nc" id="L108">        initQuestionTypes();</span>
+<span class="nc" id="L109">        initQuestionStatuses();</span>
+<span class="nc" id="L110">    }</span>
+
+    private void initLanguages(){
+<span class="nc" id="L113">        int existingRecords=languageService.findAll().size();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if(existingRecords&gt;=count) return;</span>
+<span class="nc" id="L115">        Locale[] locales=Locale.getAvailableLocales();</span>
+<span class="nc" id="L116">        int _count=count;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        for (int i = 0; i &lt; _count; i++) {</span>
+<span class="nc" id="L118">            Locale locale = locales[i];</span>
+<span class="nc" id="L119">            String name = locale.getDisplayName();</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (!Strings.isNullOrEmpty(name)) {</span>
+<span class="nc" id="L121">                QuestionLanguage language = new QuestionLanguage(locale.getDisplayName());</span>
+<span class="nc" id="L122">                languageService.saveOrUpdate(language);</span>
+<span class="nc" id="L123">            }else {</span>
+<span class="nc" id="L124">                _count++;</span>
+            }
+        }
+<span class="nc" id="L127">    }</span>
+
+    private void initQuestionTypes() {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if(typeService.findAll().size()&gt;=count) return;</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L132">            QuestionType type = new QuestionType(String.format(&quot;类型 %s&quot;, decimalFormat.format(i+1)));</span>
+<span class="nc" id="L133">            typeService.saveOrUpdate(type);</span>
+        }
+<span class="nc" id="L135">    }</span>
+
+    private void initQuestionStatuses(){
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if(statusService.findAllStatuses().size() &gt;=count) return;</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        for (int i = 0; i &lt; count; i++) {</span>
+<span class="nc" id="L140">            QuestionStatus status = new QuestionStatus(String.format(&quot;状态 %s&quot;, decimalFormat.format(i+1)));</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            status.setStart(i==0);</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            status.setFinish(i== count-1);</span>
+<span class="nc" id="L143">            statusService.saveOrUpdate(status);</span>
+        }
+<span class="nc" id="L145">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

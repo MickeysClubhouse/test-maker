@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthenticationFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.filters</a> &gt; <span class="el_source">AuthenticationFilter.java</span></div><h1>AuthenticationFilter.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.filters;
+
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.User;
+import com.opensymphony.xwork2.ActionInvocation;
+import org.apache.struts2.ServletActionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Map;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/24
+ * Time: 15:25
+ */
+@WebFilter(filterName = &quot;loginFilter&quot;)
+<span class="nc" id="L25">public class AuthenticationFilter implements Filter {</span>
+<span class="nc" id="L26">    private Logger logger = LoggerFactory.getLogger(getClass());</span>
+    private String contextPath;
+
+<span class="nc" id="L29">    public void destroy() {}</span>
+
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
+<span class="nc" id="L32">        HttpServletRequest request = ((HttpServletRequest) req);</span>
+<span class="nc" id="L33">        String requestURL =request.getServletPath();</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L35">            logger.debug(&quot;{} - Requesting URL: {}&quot;, this.getClass().getSimpleName(), requestURL);</span>
+        }
+<span class="nc" id="L37">        boolean shouldProceed = needToHandle(requestURL);</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (!shouldProceed) {</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">            if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L40">                logger.debug(&quot;No need to check further. Passing on...&quot;);</span>
+            }
+<span class="nc" id="L42">            chain.doFilter(req, resp);</span>
+<span class="nc" id="L43">            return;</span>
+        }
+
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L47">            logger.debug(&quot;Protected area accessed. Inspecting if the user is authenticated or not.&quot;);</span>
+        }
+
+        //check if user is authenticated
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (!isAuthenticated(request)) {</span>
+            //get login url from request URL
+<span class="nc" id="L53">            StringBuilder result = new StringBuilder(contextPath);</span>
+<span class="nc bnc" id="L54" title="All 4 branches missed.">            if (requestURL.startsWith(&quot;/admin/&quot;)||requestURL.equals(&quot;/admin&quot;)) {</span>
+<span class="nc" id="L55">                result.append(&quot;/admin/&quot;);</span>
+            } else {
+<span class="nc" id="L57">                result.append(&quot;/&quot;);</span>
+            }
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            if (logger.isInfoEnabled()) {</span>
+<span class="nc" id="L60">                logger.info(&quot;Redirecting to login URLs: {}&quot;, result);</span>
+            }
+<span class="nc" id="L62">            ((HttpServletResponse) resp).sendRedirect(result.toString());</span>
+<span class="nc" id="L63">            return;</span>
+        }
+
+        //now the user is already authenticated
+<span class="nc" id="L67">        User user = getUser(request);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L69">            logger.debug(&quot;Authenticated user: {}&quot;, user.getUsername());</span>
+        }
+
+<span class="nc" id="L72">        chain.doFilter(req, resp);</span>
+<span class="nc" id="L73">    }</span>
+
+    public void init(FilterConfig config) throws ServletException {
+<span class="nc" id="L76">        contextPath=config.getServletContext().getContextPath();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L78">            logger.debug(&quot;{} Context Path: {}&quot;, this.getClass().getSimpleName(), contextPath);</span>
+        }
+<span class="nc" id="L80">    }</span>
+
+    private boolean isAuthenticated(HttpServletRequest request) {
+<span class="nc" id="L83">        User user = getUser(request);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        boolean isAuthenticated = user != null;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            logger.debug(&quot;isAuthenticated? {} {}&quot;, isAuthenticated, isAuthenticated?user.getUsername():&quot;&quot;);</span>
+        }
+<span class="nc" id="L88">        return isAuthenticated;</span>
+    }
+
+    private User getUser(HttpServletRequest request) {
+<span class="nc" id="L92">        HttpSession session = request.getSession();</span>
+<span class="nc" id="L93">        User user = (User) session.getAttribute(Constants.ATTR_USER);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            logger.debug(&quot;Loaded user:{}&quot;, user != null ? user.getUsername() : &quot;&quot;);</span>
+        }
+<span class="nc" id="L97">        return user;</span>
+    }
+
+    protected void checkUser(HttpServletRequest request) {
+<span class="nc" id="L101">        String requestURL = request.getServletPath();</span>
+<span class="nc" id="L102">        User user = getUser(request);</span>
+
+        //if the user is not admin and accessing admin console. return index page
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (requestURL.startsWith(&quot;/admin/&quot;) &amp;&amp; !user.isAdmin()) {</span>
+        }
+
+<span class="nc" id="L108">    }</span>
+
+    private boolean needToHandle(String requestURL) {
+        //index page
+<span class="nc bnc" id="L112" title="All 4 branches missed.">        if (requestURL.equals(&quot;/&quot;)||requestURL.equals(&quot;/admin/&quot;)) return false;</span>
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if(requestURL.matches(&quot;/.*(login|index).action$&quot;)) return false;</span>
+<span class="nc" id="L115">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

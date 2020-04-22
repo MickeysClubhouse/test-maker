@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthenticationInterceptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.interceptors</a> &gt; <span class="el_source">AuthenticationInterceptor.java</span></div><h1>AuthenticationInterceptor.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.interceptors;
+
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.User;
+import com.opensymphony.xwork2.ActionInvocation;
+import com.opensymphony.xwork2.interceptor.Interceptor;
+import org.apache.struts2.ServletActionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/21
+ * Time: 19:36
+ */
+<span class="nc" id="L19">public class AuthenticationInterceptor implements Interceptor {</span>
+<span class="nc" id="L20">    protected final Logger logger = LoggerFactory.getLogger(getClass());</span>
+    /**
+     * Called to let an interceptor clean up any resources it has allocated.
+     */
+    @Override
+    public void destroy() {
+
+<span class="nc" id="L27">    }</span>
+
+    /**
+     * Called after an interceptor is created, but before any requests are processed using
+     * {@link #intercept(com.opensymphony.xwork2.ActionInvocation) intercept} , giving
+     * the Interceptor a chance to initialize any needed resources.
+     */
+    @Override
+<span class="nc" id="L35">    public void init() {}</span>
+
+    /**
+     * Allows the Interceptor to do some processing on the request before and/or after the rest of the processing of the
+     * request by the {@link com.opensymphony.xwork2.ActionInvocation} or to short-circuit the processing and just return a String return code.
+     *
+     * @param invocation the action invocation
+     * @return the return code, either returned from {@link com.opensymphony.xwork2.ActionInvocation#invoke()}, or from the interceptor itself.
+     * @throws Exception any system-level error, as defined in {@link com.opensymphony.xwork2.Action#execute()}.
+     */
+    @Override
+    public String intercept(ActionInvocation invocation) throws Exception {
+<span class="nc" id="L47">        String requestURL = ServletActionContext.getRequest().getServletPath();</span>
+<span class="nc" id="L48">        logger.debug(&quot;{} Requested URL: {}&quot;, this.getClass().getSimpleName(), requestURL);</span>
+
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if(!needToHandle(requestURL)) return invocation.invoke();</span>
+<span class="nc" id="L51">        logger.debug(&quot;Protected area accessed. Inspecting if the user is authenticated or not.&quot;);</span>
+
+        //check if user is authenticated
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if(!isAuthenticated(invocation)) {</span>
+            //get login url from request URL
+<span class="nc" id="L56">            String result = null;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (requestURL.matches(&quot;/web/admin/?&quot;)||</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                    requestURL.matches(&quot;/web/admin/.+\\.action&quot;)) {</span>
+<span class="nc" id="L59">                result = Constants.RESULT_LOGIN_ADMIN;</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">            }else if(requestURL.matches(&quot;/web/client/?&quot;) || requestURL.matches(&quot;/web/client/.+\\.action&quot;)) {</span>
+<span class="nc" id="L61">                result = Constants.RESULT_LOGIN;</span>
+            }
+<span class="nc" id="L63">            logger.info(&quot;Returning login result: {}&quot;, result);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            return result!=null?result:Constants.RESULT_USER_NOT_AUTHENTICATED;</span>
+        }
+
+        //now the user is already authenticated
+
+<span class="nc" id="L69">        return invocation.invoke();</span>
+    }
+
+    protected boolean needToHandle(String requestURL) {
+        //index page
+<span class="nc bnc" id="L74" title="All 4 branches missed.">        if (requestURL.equals(&quot;/web/client/&quot;)||requestURL.equals(&quot;/web/admin/&quot;)) return false;</span>
+
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        return !requestURL.matches(&quot;/.*(login|index|authenticate|login-admin|logout|debug.*).action$&quot;);</span>
+    }
+
+    private boolean isAuthenticated(ActionInvocation invocation) throws Exception {
+<span class="nc" id="L80">        Map&lt;String, Object&gt; sessionAttributes = invocation.getInvocationContext().getSession();</span>
+
+        //return false if the session attributes map is empty because no user is saved in the session
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if(sessionAttributes.isEmpty()) return false;</span>
+
+<span class="nc" id="L85">        User user = getUser(invocation);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        boolean isAuthenticated = user != null;</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        logger.debug(&quot;isAuthenticated? {} {}&quot;, isAuthenticated, isAuthenticated?user.getUsername():&quot;&quot;);</span>
+<span class="nc" id="L88">        return isAuthenticated;</span>
+    }
+
+    private User getUser(ActionInvocation invocation) {
+<span class="nc" id="L92">        Map&lt;String, Object&gt; sessionAttributes = invocation.getInvocationContext().getSession();</span>
+<span class="nc" id="L93">        User user = (User) sessionAttributes.get(Constants.ATTR_USER);</span>
+        //protecting admin area
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        logger.debug(&quot;Loaded user:{}&quot;, user != null?user.getUsername():&quot;&quot;);</span>
+<span class="nc" id="L96">        return user;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

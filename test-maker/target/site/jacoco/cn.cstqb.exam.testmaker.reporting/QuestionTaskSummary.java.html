@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionTaskSummary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.reporting</a> &gt; <span class="el_source">QuestionTaskSummary.java</span></div><h1>QuestionTaskSummary.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.reporting;
+
+import cn.cstqb.exam.testmaker.entities.Project;
+
+import java.util.Set;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/30
+ * Time: 20:35
+ */
+public class QuestionTaskSummary {
+    private String username;
+    private Project project;
+    private Set&lt;QuestionTaskEntry&gt; entries;
+
+<span class="nc" id="L18">    public QuestionTaskSummary(String username, Project project, Set&lt;QuestionTaskEntry&gt; entries) {</span>
+<span class="nc" id="L19">        this.username = username;</span>
+<span class="nc" id="L20">        this.project = project;</span>
+<span class="nc" id="L21">        this.entries = entries;</span>
+<span class="nc" id="L22">    }</span>
+
+<span class="nc" id="L24">    public QuestionTaskSummary() {</span>
+<span class="nc" id="L25">    }</span>
+
+    public String getUsername() {
+<span class="nc" id="L28">        return username;</span>
+    }
+
+    public void setUsername(String username) {
+<span class="nc" id="L32">        this.username = username;</span>
+<span class="nc" id="L33">    }</span>
+
+    public Project getProject() {
+<span class="nc" id="L36">        return project;</span>
+    }
+
+    public void setProject(Project project) {
+<span class="nc" id="L40">        this.project = project;</span>
+<span class="nc" id="L41">    }</span>
+
+    public Set&lt;QuestionTaskEntry&gt; getEntries() {
+<span class="nc" id="L44">        return entries;</span>
+    }
+
+    public void setEntries(Set&lt;QuestionTaskEntry&gt; entries) {
+<span class="nc" id="L48">        this.entries = entries;</span>
+<span class="nc" id="L49">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

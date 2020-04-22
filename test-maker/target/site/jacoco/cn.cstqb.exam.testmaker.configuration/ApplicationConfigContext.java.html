@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationConfigContext.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.configuration</a> &gt; <span class="el_source">ApplicationConfigContext.java</span></div><h1>ApplicationConfigContext.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.configuration;
+
+import cn.cstqb.exam.testmaker.entities.Project;
+import cn.cstqb.exam.testmaker.entities.User;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
+import com.typesafe.config.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.google.common.base.Preconditions.checkArgument;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/16
+ * Time: 16:14
+ */
+public class ApplicationConfigContext {
+<span class="fc" id="L25">    private Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+    private Config config;
+    private final ConfigParseOptions parseOptions;
+    private ConfigResolveOptions resolveOptions;
+    private static ApplicationConfigContext instance;
+
+<span class="fc" id="L32">    ApplicationConfigContext() {</span>
+<span class="fc" id="L33">        parseOptions = ConfigParseOptions.defaults().setSyntax(ConfigSyntax.CONF);</span>
+<span class="fc" id="L34">        resolveOptions=ConfigResolveOptions.defaults();</span>
+        //loads default config only
+<span class="fc" id="L36">        Config defaultConfig = ConfigFactory.load();</span>
+
+        /*
+         * If application-test.conf is found in the classpath, the custom file
+         * set in entry &lt;em&gt;config-file.path&lt;/em&gt;in default conf will be ignored
+         */
+<span class="fc" id="L42">        Config customConfig = null;</span>
+<span class="fc" id="L43">        String testConf = &quot;application-test&quot;;</span>
+<span class="fc" id="L44">        URL url=this.getClass().getClassLoader().getResource(String.format(&quot;%s.conf&quot;, testConf));</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (url!=null) {</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L47">                logger.debug(&quot;Loading testing config: {}&quot;, url);</span>
+            }
+<span class="nc" id="L49">            customConfig = ConfigFactory.load(testConf, parseOptions, resolveOptions);</span>
+        }
+
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">            logger.debug(&quot;Custom configuration origin: {}&quot;, customConfig!=null?customConfig.origin():null);</span>
+        }
+
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (customConfig != null) {</span>
+<span class="nc" id="L57">            this.config = ConfigFactory.load(customConfig).withFallback(defaultConfig);</span>
+        } else {
+<span class="fc" id="L59">            this.config = defaultConfig;</span>
+        }
+
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * This is the entry point for getting application configuration
+     * @return
+     */
+    public static ApplicationConfigContext getInstance() {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (instance == null) {</span>
+<span class="fc" id="L70">            instance=new ApplicationConfigContext();</span>
+        }
+<span class="fc" id="L72">        return instance;</span>
+    }
+
+    public Config getConfig() {
+<span class="fc" id="L76">        return config;</span>
+    }
+
+    public Properties getJPAProperties() {
+<span class="fc" id="L80">        Properties properties = new Properties();</span>
+<span class="fc" id="L81">        Config _conf = this.config.getConfig(&quot;jpa&quot;);</span>
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (Map.Entry&lt;String, ConfigValue&gt; entry : _conf.entrySet()) {</span>
+<span class="fc" id="L84">            properties.setProperty(entry.getKey(), entry.getValue().unwrapped().toString());</span>
+<span class="fc" id="L85">        }</span>
+<span class="fc" id="L86">        return properties;</span>
+    }
+
+    /**
+     * Get question difficulty levels from application configuration
+     * @return A map of difficulty levels. The key is integer which is saved into database while the value is
+     * the label used for display.
+     */
+    public Map&lt;Integer, String&gt; getQuestionDifficultyLevels() {
+<span class="fc" id="L95">        Map&lt;Integer, String&gt; levels = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L96">        Config _conf = this.config.getConfig(&quot;cstqb.difficulty&quot;);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (Map.Entry&lt;String, ConfigValue&gt; entry : _conf.entrySet()) {</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">            if (logger.isDebugEnabled()) {</span>
+<span class="fc" id="L99">                logger.debug(&quot;difficulty level: [{}]&quot;,entry.getKey());</span>
+            }
+<span class="fc" id="L101">            String key = entry.getKey().replaceAll(&quot;\&quot;\\s*&quot;, &quot;&quot;);</span>
+<span class="fc" id="L102">            levels.put(Integer.parseInt(key), entry.getValue().unwrapped().toString());</span>
+<span class="fc" id="L103">        }</span>
+<span class="fc" id="L104">        return levels;</span>
+    }
+
+    public String getDefaultDateFormat() {
+<span class="fc" id="L108">        return this.config.getString(&quot;application.date-format&quot;);</span>
+    }
+
+    public String getUploadBaseDir() {
+<span class="fc" id="L112">        String baseDir = this.config.getString(&quot;application.uploads.dir&quot;);</span>
+<span class="fc" id="L113">        logger.debug(&quot;ApplicationConfigContext.getUploadBaseDir: {}&quot;,baseDir );</span>
+<span class="fc" id="L114">        return baseDir;</span>
+    }
+
+    public String getUploadBackUpDir(Project project) {
+<span class="nc" id="L118">    	String backupDir = String.format(&quot;%s/%d/%s&quot;,</span>
+<span class="nc" id="L119">                this.getRepositoryBaseDir(),</span>
+<span class="nc" id="L120">                project.getId(),</span>
+<span class="nc" id="L121">                this.getConfigValue(&quot;application.uploads.dir&quot;)</span>
+                );
+<span class="nc" id="L123">    	logger.debug(&quot;ApplicationConfigContext.getUploadBackUpDir: {}&quot;, backupDir);</span>
+<span class="nc" id="L124">    	return backupDir;</span>
+    }
+
+    public String getExportDir(Project project) {
+<span class="nc" id="L128">        return String.format(&quot;%s/%s/%s&quot;,</span>
+<span class="nc" id="L129">                getRepositoryBaseDir(),</span>
+<span class="nc" id="L130">                project.getId(),</span>
+<span class="nc" id="L131">                config.getString(&quot;application.export.dir-name&quot;)</span>
+                );
+    }
+
+    public String getRepositoryBaseDir() {
+<span class="nc" id="L136">        return this.config.getString(&quot;application.repository.dir&quot;);</span>
+    }
+    /**
+     *
+     * @param key
+     * @return
+     */
+    public String getConfigValue(String key) {
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(key));</span>
+<span class="nc" id="L145">        return this.config.getString(key);</span>
+    }
+
+    /**
+     * Gets the threshold value for warning of expiring tasks
+     * @return
+     */
+    public int getWarningThreshold() {
+        try {
+<span class="nc" id="L154">            return this.config.getInt(&quot;monitoring.expiring.warning-threshold&quot;);</span>
+<span class="nc" id="L155">        } catch (Exception e) {</span>
+<span class="nc" id="L156">            return 5;</span>
+        }
+    }
+
+    public User getBuiltInUser() {
+<span class="nc" id="L161">        User user = new User();</span>
+<span class="nc" id="L162">        Config builtInUser = config.getConfig(&quot;application.built-in.user&quot;);</span>
+<span class="nc" id="L163">        user.setUsername(builtInUser.getString(&quot;username&quot;));</span>
+<span class="nc" id="L164">        user.setFullName(builtInUser.getString(&quot;fullName&quot;));</span>
+<span class="nc" id="L165">        user.setPassword(builtInUser.getString(&quot;password&quot;));</span>
+<span class="nc" id="L166">        user.setEmail(builtInUser.getString(&quot;email&quot;));</span>
+<span class="nc" id="L167">        user.setPhone(builtInUser.getString(&quot;phone&quot;));</span>
+<span class="nc" id="L168">        user.setAdmin(true);</span>
+<span class="nc" id="L169">        return user;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L174">        return MoreObjects.toStringHelper(this)</span>
+<span class="nc" id="L175">                .add(&quot;config&quot;, config)</span>
+<span class="nc" id="L176">                .toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

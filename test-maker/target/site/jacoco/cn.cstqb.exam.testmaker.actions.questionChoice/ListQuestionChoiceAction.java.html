@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListQuestionChoiceAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.questionChoice</a> &gt; <span class="el_source">ListQuestionChoiceAction.java</span></div><h1>ListQuestionChoiceAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.questionChoice;
+
+import java.util.List;
+
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.entities.QuestionChoice;
+import org.apache.struts2.json.annotations.JSON;
+
+<span class="nc" id="L10">public class ListQuestionChoiceAction extends BaseQuestionChoiceAction {</span>
+
+	private int questionId;
+	private List&lt;QuestionChoice&gt; choices;
+
+	@Override
+<span class="nc" id="L16">	public void validateInput() {};</span>
+
+	@Override
+	protected String executeImpl() throws Exception {
+<span class="nc" id="L20">        logger.debug(&quot;ListQuestionChoiceAction.executeImpl: Finding all choices for question #0&quot;, questionId );</span>
+<span class="nc" id="L21">        choices = questionChoiceService.findQuestionChoices(questionId);</span>
+<span class="nc" id="L22">		logger.info(&quot;ListQuestionChoiceAction.executeImpl: Found aaData {}&quot;, choices.size()+&quot;&quot;);</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">		if (choices == null) {</span>
+<span class="nc" id="L24">			return Constants.RESULT_NOT_FOUND;</span>
+		}
+<span class="nc" id="L26">		return null;</span>
+	}
+
+    public List&lt;QuestionChoice&gt; getChoices() {
+<span class="nc" id="L30">        return choices;</span>
+    }
+
+    public void setChoices(List&lt;QuestionChoice&gt; choices) {
+<span class="nc" id="L34">        this.choices = choices;</span>
+<span class="nc" id="L35">    }</span>
+
+    @JSON(serialize = false)
+    public int getQuestionId() {
+<span class="nc" id="L39">        return questionId;</span>
+    }
+
+    public void setQuestionId(int questionId) {
+<span class="nc" id="L43">        this.questionId = questionId;</span>
+<span class="nc" id="L44">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

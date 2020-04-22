@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionImageServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">QuestionImageServiceImpl.java</span></div><h1>QuestionImageServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+
+import cn.cstqb.exam.testmaker.dao.QuestionImageDao;
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.entities.QuestionImage;
+import cn.cstqb.exam.testmaker.services.IQuestionImageService;
+
+public class QuestionImageServiceImpl implements IQuestionImageService{
+<span class="nc" id="L17">	private Logger Logger = LoggerFactory.getLogger(getClass());</span>
+	private QuestionImageDao dao;
+	
+	@Inject
+<span class="nc" id="L21">	public QuestionImageServiceImpl(QuestionImageDao dao){</span>
+<span class="nc" id="L22">		this.dao = dao;</span>
+<span class="nc" id="L23">	}</span>
+	
+	@Override
+	public void saveOrUpdate(QuestionImage questionImage) {
+<span class="nc bnc" id="L27" title="All 2 branches missed.">		Preconditions.checkArgument(questionImage != null);</span>
+<span class="nc" id="L28">		QuestionImage persisted = dao.findById(questionImage.getId());</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">		if (persisted == null) {</span>
+<span class="nc" id="L30">			dao.create(questionImage);</span>
+		} else {
+<span class="nc" id="L32">			dao.update(questionImage);</span>
+		}
+<span class="nc" id="L34">	}</span>
+
+	@Override
+	public void delete(QuestionImage questionImage) {
+<span class="nc bnc" id="L38" title="All 4 branches missed.">		Preconditions.checkArgument(questionImage != null &amp;&amp; questionImage.getId() &gt; 0);</span>
+<span class="nc" id="L39">		dao.delete(questionImage);</span>
+<span class="nc" id="L40">	}</span>
+
+	@Override
+	public List&lt;QuestionImage&gt; listQuestionImagesByQuestion(Question question) {
+<span class="nc" id="L44">		return dao.findResultList(&quot;question&quot;, question);</span>
+	}
+
+	@Override
+	public boolean exists(QuestionImage questionImage) {
+<span class="nc" id="L49">		QuestionImage persisted = null;</span>
+<span class="nc bnc" id="L50" title="All 4 branches missed.">		if (questionImage.getId() != null &amp;&amp; questionImage.getId() &gt; 0) {</span>
+<span class="nc" id="L51">			persisted = dao.findById(questionImage.getId());</span>
+		}
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		return persisted != null;</span>
+	}
+
+	@Override
+	public QuestionImage findQuestionImage(int id) {
+<span class="nc" id="L58">		return dao.findById(id);</span>
+	}
+	
+	@Override
+	public QuestionImage findQuestionImage(QuestionImage questionImage) {
+<span class="nc" id="L63">		return dao.findById(questionImage.getId());</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

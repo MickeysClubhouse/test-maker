@@ -2,7 +2,7 @@
 Test set: sandbox.freemarker.TemplateConfigurationTest
 -------------------------------------------------------------------------------
 Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.001 sec <<< FAILURE!
-sandbox.freemarker.TemplateConfigurationTest  Time elapsed: 0 sec  <<< ERROR!
+sandbox.freemarker.TemplateConfigurationTest  Time elapsed: 0.001 sec  <<< ERROR!
 java.lang.IllegalStateException: Persistence service was already initialized.
 	at com.google.common.base.Preconditions.checkState(Preconditions.java:173)
 	at com.google.inject.persist.jpa.JpaPersistService.start(JpaPersistService.java:104)

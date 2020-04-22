@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GetCurrentProjectAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.projects.current</a> &gt; <span class="el_source">GetCurrentProjectAction.java</span></div><h1>GetCurrentProjectAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.projects.current;
+
+import cn.cstqb.exam.testmaker.actions.projects.BaseProjectAction;
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.Project;
+import cn.cstqb.exam.testmaker.entities.User;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/8
+ * Time: 21:59
+ *
+ * Loads the project for the current logged in use
+ */
+<span class="nc" id="L16">public class GetCurrentProjectAction  extends BaseCurrentProjectAction {</span>
+    private Project project;
+
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L21">        this.project = projectService.find(sessionProject.getId());</span>
+<span class="nc" id="L22">        logger.debug(&quot;GetCurrentProjectAction.executeImpl: #0&quot;, project.toString());</span>
+<span class="nc" id="L23">        return null;</span>
+    }
+
+    public Project getProject() {
+<span class="nc" id="L27">        return project;</span>
+    }
+
+    public void setProject(Project project) {
+<span class="nc" id="L31">        this.project = project;</span>
+<span class="nc" id="L32">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListSort.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.util</a> &gt; <span class="el_source">ListSort.java</span></div><h1>ListSort.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.util;
+
+import java.lang.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created by wushuang on 2015/12/10.
+ */
+<span class="nc" id="L15">public class ListSort {</span>
+    public static &lt;T&gt; void sortList(List&lt;T&gt; list, final String sortField, final String sortMode) {
+<span class="nc bnc" id="L17" title="All 4 branches missed.">        if (list == null || list.size() &lt; 2) {</span>
+<span class="nc" id="L18">            return;</span>
+        }
+<span class="nc" id="L20">        Collections.sort(list, new Comparator&lt;T&gt;() {</span>
+            @Override
+            public int compare(T o1, T o2) {
+                try {
+<span class="nc" id="L24">                    Class clazz = o1.getClass();</span>
+<span class="nc" id="L25">                    Field field = clazz.getDeclaredField(sortField); //获取成员变量</span>
+<span class="nc" id="L26">                    field.setAccessible(true); //设置成可访问状态</span>
+<span class="nc" id="L27">                    String typeName = field.getType().getName().toLowerCase(); //转换成小写</span>
+
+<span class="nc" id="L29">                    Object v1 = field.get(o1); //获取field的值</span>
+<span class="nc" id="L30">                    Object v2 = field.get(o2); //获取field的值</span>
+
+<span class="nc bnc" id="L32" title="All 4 branches missed.">                    boolean ASC_order = (sortMode == null || &quot;ASC&quot;.equalsIgnoreCase(sortMode));</span>
+
+                    //判断字段数据类型，并比较大小
+<span class="nc bnc" id="L35" title="All 2 branches missed.">                    if(typeName.endsWith(&quot;string&quot;)) {</span>
+<span class="nc" id="L36">                        String value1 = v1.toString();</span>
+<span class="nc" id="L37">                        String value2 = v2.toString();</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L40" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;short&quot;)) {</span>
+<span class="nc" id="L41">                        Short value1 = Short.parseShort(v1.toString());</span>
+<span class="nc" id="L42">                        Short value2 = Short.parseShort(v2.toString());</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L45" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;byte&quot;)) {</span>
+<span class="nc" id="L46">                        Byte value1 = Byte.parseByte(v1.toString());</span>
+<span class="nc" id="L47">                        Byte value2 = Byte.parseByte(v2.toString());</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L50" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;char&quot;)) {</span>
+<span class="nc" id="L51">                        Integer value1 = (int)(v1.toString().charAt(0));</span>
+<span class="nc" id="L52">                        Integer value2 = (int)(v2.toString().charAt(0));</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L55" title="All 4 branches missed.">                    else if(typeName.endsWith(&quot;int&quot;) || typeName.endsWith(&quot;integer&quot;)) {</span>
+<span class="nc" id="L56">                        Integer value1 = Integer.parseInt(v1.toString());</span>
+<span class="nc" id="L57">                        Integer value2 = Integer.parseInt(v2.toString());</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;long&quot;)) {</span>
+<span class="nc" id="L61">                        Long value1 = Long.parseLong(v1.toString());</span>
+<span class="nc" id="L62">                        Long value2 = Long.parseLong(v2.toString());</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;float&quot;)) {</span>
+<span class="nc" id="L66">                        Float value1 = Float.parseFloat(v1.toString());</span>
+<span class="nc" id="L67">                        Float value2 = Float.parseFloat(v2.toString());</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;double&quot;)) {</span>
+<span class="nc" id="L71">                        Double value1 = Double.parseDouble(v1.toString());</span>
+<span class="nc" id="L72">                        Double value2 = Double.parseDouble(v2.toString());</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;boolean&quot;)) {</span>
+<span class="nc" id="L76">                        Boolean value1 = Boolean.parseBoolean(v1.toString());</span>
+<span class="nc" id="L77">                        Boolean value2 = Boolean.parseBoolean(v2.toString());</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;date&quot;)) {</span>
+<span class="nc" id="L81">                        Date value1 = (Date)(v1);</span>
+<span class="nc" id="L82">                        Date value2 = (Date)(v2);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+<span class="nc bnc" id="L85" title="All 2 branches missed.">                    else if(typeName.endsWith(&quot;timestamp&quot;)) {</span>
+<span class="nc" id="L86">                        Timestamp value1 = (Timestamp)(v1);</span>
+<span class="nc" id="L87">                        Timestamp value2 = (Timestamp)(v2);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                        return ASC_order ? value1.compareTo(value2) : value2.compareTo(value1);</span>
+                    }
+                    else {
+                        //调用对象的compareTo()方法比较大小
+<span class="nc" id="L92">                        Method method = field.getType().getDeclaredMethod(&quot;compareTo&quot;, new Class[]{field.getType()});</span>
+<span class="nc" id="L93">                        method.setAccessible(true); //设置可访问权限</span>
+<span class="nc" id="L94">                        int result  = (Integer)method.invoke(v1, new Object[]{v2});</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                        return ASC_order ? result : result*(-1);</span>
+                    }
+                }
+<span class="nc" id="L98">                catch (Exception e) {</span>
+<span class="nc" id="L99">                    String err = e.getLocalizedMessage();</span>
+<span class="nc" id="L100">                    System.out.println(err);</span>
+<span class="nc" id="L101">                    e.printStackTrace();</span>
+                }
+
+<span class="nc" id="L104">                return 0; //未知类型，无法比较大小</span>
+            }
+        });
+<span class="nc" id="L107">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

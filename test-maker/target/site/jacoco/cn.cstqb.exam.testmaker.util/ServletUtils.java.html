@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ServletUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.util</a> &gt; <span class="el_source">ServletUtils.java</span></div><h1>ServletUtils.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.util;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/4/5
+ * Time: 16:10
+ */
+<span class="nc" id="L12">public class ServletUtils {</span>
+    public static String getRelativeUrl(
+            HttpServletRequest request ) {
+
+<span class="nc" id="L16">        String baseUrl = null;</span>
+
+<span class="nc bnc" id="L18" title="All 2 branches missed.">        if ( ( request.getServerPort() == 80 ) ||</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">                ( request.getServerPort() == 443 ) )</span>
+<span class="nc" id="L20">            baseUrl =</span>
+<span class="nc" id="L21">                    request.getScheme() + &quot;://&quot; +</span>
+<span class="nc" id="L22">                            request.getServerName() +</span>
+<span class="nc" id="L23">                            request.getContextPath();</span>
+        else
+<span class="nc" id="L25">            baseUrl =</span>
+<span class="nc" id="L26">                    request.getScheme() + &quot;://&quot; +</span>
+<span class="nc" id="L27">                            request.getServerName() + &quot;:&quot; + request.getServerPort() +</span>
+<span class="nc" id="L28">                            request.getContextPath();</span>
+
+<span class="nc" id="L30">        StringBuffer buf = request.getRequestURL();</span>
+
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        if ( request.getQueryString() != null ) {</span>
+<span class="nc" id="L33">            buf.append( &quot;?&quot; );</span>
+<span class="nc" id="L34">            buf.append( request.getQueryString() );</span>
+        }
+
+<span class="nc" id="L37">        return buf.substring( baseUrl.length() );</span>
+    }
+
+    /**
+     * NOT UNIT TESTED Returns the base url (e.g, &lt;tt&gt;http://myhost:8080/myapp&lt;/tt&gt;) suitable for
+     * using in a base tag or building reliable urls.
+     */
+    public static String getBaseUrl( HttpServletRequest request ) {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if ( ( request.getServerPort() == 80 ) ||</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">                ( request.getServerPort() == 443 ) )</span>
+<span class="nc" id="L47">            return request.getScheme() + &quot;://&quot; +</span>
+<span class="nc" id="L48">                    request.getServerName() +</span>
+<span class="nc" id="L49">                    request.getContextPath();</span>
+        else
+<span class="nc" id="L51">            return request.getScheme() + &quot;://&quot; +</span>
+<span class="nc" id="L52">                    request.getServerName() + &quot;:&quot; + request.getServerPort() +</span>
+<span class="nc" id="L53">                    request.getContextPath();</span>
+    }
+
+    /**
+     * Returns the file specified by &lt;tt&gt;path&lt;/tt&gt; as returned by
+     * &lt;tt&gt;ServletContext.getRealPath()&lt;/tt&gt;.
+     */
+    public static File getRealFile(
+            HttpServletRequest request,
+            String path ) {
+
+<span class="nc" id="L64">        return</span>
+<span class="nc" id="L65">                new File( request.getSession().getServletContext().getRealPath( path ) );</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

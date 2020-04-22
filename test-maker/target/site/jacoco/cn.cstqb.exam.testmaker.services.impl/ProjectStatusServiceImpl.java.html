@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectStatusServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">ProjectStatusServiceImpl.java</span></div><h1>ProjectStatusServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+
+import static com.google.common.base.Preconditions.*;
+import cn.cstqb.exam.testmaker.dao.ProjectStatusDao;
+import cn.cstqb.exam.testmaker.entities.ProjectStatus;
+import cn.cstqb.exam.testmaker.services.IProjectStatusService;
+
+
+public class ProjectStatusServiceImpl implements IProjectStatusService{
+<span class="fc" id="L19">	private Logger logger = LoggerFactory.getLogger(getClass());</span>
+	private ProjectStatusDao projectStatusDao;
+
+	@Inject
+<span class="fc" id="L23">	public ProjectStatusServiceImpl(ProjectStatusDao projectStatusDao) {</span>
+<span class="fc" id="L24">		this.projectStatusDao = projectStatusDao;</span>
+<span class="fc" id="L25">	}</span>
+
+	/**
+	 * Create or update a project status
+	 * @param projectStatus
+	 */
+	@Override
+	public void saveOrUpdate(ProjectStatus projectStatus) {
+<span class="nc bnc" id="L33" title="All 2 branches missed.">		checkArgument(projectStatus != null, &quot;Invalid project status&quot;);</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">		checkArgument(!Strings.isNullOrEmpty(projectStatus.getName()), &quot;the name of project status cannot be null or empty&quot;);</span>
+<span class="nc" id="L35">		ProjectStatus persisted = projectStatusDao.findById(projectStatus.getId());</span>
+
+        /*
+         * try to search by name if id is not available since name is unique for project status
+         */
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (persisted == null) {</span>
+<span class="nc" id="L41">            persisted = projectStatusDao.findByName(projectStatus.getName());</span>
+        }
+
+        /*
+         * If persisted is still null, this indicates the incoming status is a new one; otherwise, it should be an existing one.
+         */
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (persisted == null) {</span>
+<span class="nc" id="L48">			projectStatusDao.create(projectStatus);</span>
+        } else {
+<span class="nc" id="L50">            persisted.setName(projectStatus.getName());</span>
+<span class="nc" id="L51">            persisted.setStart(projectStatus.isStart());</span>
+<span class="nc" id="L52">            persisted.setFinish(projectStatus.isFinish());</span>
+<span class="nc" id="L53">            logger.info(&quot;ProjectStatusServiceImpl.saveOrUpdate: Merged object: {}&quot;, persisted );</span>
+<span class="nc" id="L54">            projectStatusDao.update(persisted);</span>
+        }
+<span class="nc" id="L56">    }</span>
+
+	/**
+	 * Delete the specific project status
+	 * @param projectStatus
+	 */
+	@Override
+	public void delete(ProjectStatus projectStatus) {
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		checkArgument(projectStatus != null, &quot;Invalid project status&quot;);</span>
+<span class="nc bnc" id="L65" title="All 4 branches missed.">        checkState(projectStatus.validate() &amp;&amp; projectStatus.isValidID(), &quot;The project status name and id cannot be null. Given: %s&quot;, projectStatus);</span>
+<span class="nc" id="L66">        ProjectStatus persisted = projectStatusDao.findById(projectStatus.getId());</span>
+<span class="nc" id="L67">        logger.debug(&quot;ProjectStatusServiceImpl.delete: About to delete ProjectStatus: {}&quot;, persisted );</span>
+<span class="nc" id="L68">        projectStatusDao.delete(persisted);</span>
+<span class="nc" id="L69">	}</span>
+
+	/**
+	 * Find all project status
+	 * @return all project status objects
+	 */
+	@Override
+	public List&lt;ProjectStatus&gt; findAll() {
+<span class="nc" id="L77">		return projectStatusDao.findAll();</span>
+	}
+
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    public ProjectStatus findById(Integer id) {
+<span class="nc bnc" id="L86" title="All 4 branches missed.">        if (id==null || id&lt;1) {</span>
+<span class="nc" id="L87">            logger.error(&quot;ProjectStatusServiceImpl.findById: he object ID must not be null or less than 1: {}&quot;, id );</span>
+<span class="nc" id="L88">            return null;</span>
+        }
+<span class="nc" id="L90">        return projectStatusDao.findById(id);</span>
+    }
+
+    /**
+	 * get the project status object according to the project status name
+	 * @return the project status matching the given name
+	 */
+	@Override
+	public ProjectStatus findByName(String name) {
+<span class="nc" id="L99">		return projectStatusDao.findByName(name);</span>
+	}
+
+    @Override
+    public ProjectStatus findStartState() {
+<span class="nc" id="L104">        return projectStatusDao.findStart();</span>
+    }
+
+    @Override
+    public boolean canAddStartStatus() {
+<span class="nc" id="L109">        return projectStatusDao.canAddStartStatus();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

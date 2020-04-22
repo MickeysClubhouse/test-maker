@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import cn.cstqb.exam.testmaker.configuration.ApplicationConfigContext;
+import cn.cstqb.exam.testmaker.dao.UserDao;
+import cn.cstqb.exam.testmaker.entities.User;
+import cn.cstqb.exam.testmaker.services.IUserService;
+import cn.cstqb.exam.testmaker.util.HashUtil;
+import com.google.common.base.Strings;
+import com.typesafe.config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.security.auth.login.AccountLockedException;
+import javax.security.auth.login.AccountNotFoundException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginException;
+import java.util.Date;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/8
+ * Time: 22:05
+ */
+public class UserServiceImpl implements IUserService {
+<span class="fc" id="L31">    private Logger logger = LoggerFactory.getLogger(getClass());</span>
+    private UserDao userDao;
+    @Inject ApplicationConfigContext configContext;
+
+    @Inject
+<span class="fc" id="L36">    public UserServiceImpl(UserDao userDao) {</span>
+<span class="fc" id="L37">        this.userDao = userDao;</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * Creates the specified user in the backend DB
+     *
+     * @param user The user to be created.
+     */
+    @Override
+    public void createUser(User user) {
+<span class="nc bnc" id="L47" title="All 6 branches missed.">        checkArgument(user !=null &amp;&amp; user.getUsername()!=null &amp;&amp; user.getEmail()!=null,</span>
+                &quot;Invalid user data. User name : %s&quot;, user);
+<span class="nc" id="L49">        userDao.create(user);</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * Checks if the given user name is already used by someone else.
+     * This method is used when creating new users.
+     *
+     * @param username The user name to be checked
+     * @return True if the user name can be found in the database; Otherwise false.
+     */
+    @Override
+    public boolean isUserNameExists(String username) {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username), &quot;The user name cannot be empty or null.&quot;);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L63">            logger.debug(&quot;Checking if username [{}] exists.&quot;, username);</span>
+        }
+<span class="nc" id="L65">        return userDao.checkUserNameExists(username);</span>
+    }
+
+    /**
+     * Check if the provided email exists in the DB. Email address should be unique in this system since it will be used for notification
+     * and password related stuff
+     *
+     * @param email
+     * @return
+     */
+    @Override
+    public boolean isEmailExists(String email) {
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(email));</span>
+<span class="nc" id="L78">        return userDao.checkEmailExists(email);</span>
+    }
+
+    /**
+     * Changes password for the given user.
+     *
+     * @param userName    THe user name whose password will be changed
+     * @param oldPassword Old password
+     * @param newPassword New password
+     * @return &lt;b&gt;true&lt;/b&gt; if password is changed successfully. &lt;b&gt;false&lt;/b&gt; is returned if
+     * &lt;ul&gt;
+     * &lt;li&gt;the old password is invalid&lt;/li&gt;
+     * &lt;li&gt;or username does not exist&lt;/li&gt;
+     * &lt;li&gt;or the new password is the same as the old one&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    public boolean changePassword(String userName, String oldPassword, String newPassword) {
+<span class="nc bnc" id="L96" title="All 4 branches missed.">        checkArgument(userName != null &amp;&amp; !userName.isEmpty(), &quot;The user name cannot be empty or null.&quot;);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if(oldPassword.equals(newPassword)) {</span>
+<span class="nc" id="L98">            logger.error(&quot;The new password is the same as the old one!&quot;);</span>
+<span class="nc" id="L99">            return false;</span>
+        }
+<span class="nc" id="L101">        User persisted = findUser(userName);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (persisted == null) {</span>
+<span class="nc" id="L103">            logger.error(&quot;Username does not exist. {}&quot;, userName);</span>
+<span class="nc" id="L104">            return false;</span>
+        }
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (!HashUtil.hash(oldPassword).equals(HashUtil.hash(oldPassword))) {</span>
+<span class="nc" id="L107">            logger.error(&quot;Wrong password for user [{}]&quot;,userName);</span>
+<span class="nc" id="L108">            return false;</span>
+        }
+
+<span class="nc" id="L111">        persisted.setPassword(newPassword);</span>
+<span class="nc" id="L112">        userDao.update(persisted);</span>
+<span class="nc" id="L113">        return true;</span>
+    }
+
+    /**
+     * Attempts a simple authentication check for the given combination of user name and password
+     *
+     * @param userName user name
+     * @param password password
+     * @return &lt;b&gt;True&lt;/b&gt; if authentication succeeds, otherwise false.
+     */
+    @Override
+    public User authenticate(String userName, String password) throws LoginException {
+<span class="nc" id="L125">        return authenticate(userName, password, false);</span>
+    }
+
+    /**
+     * @param userName
+     * @param password
+     * @param requireAdmin
+     * @throws javax.security.auth.login.LoginException
+     */
+    @Override
+    public User authenticate(String userName, String password, boolean requireAdmin) throws LoginException {
+<span class="nc bnc" id="L136" title="All 4 branches missed.">        checkArgument(userName != null &amp;&amp; !userName.isEmpty(), &quot;The user name cannot be empty or null.&quot;);</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">        checkArgument(password != null &amp;&amp; !password.isEmpty(), &quot;The password cannot be empty or null.&quot;);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L139">            logger.debug(&quot;Trying to authenticate user [{}]&quot;, userName);</span>
+        }
+        //user name not found in db
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (!isUserNameExists(userName)) {</span>
+<span class="nc" id="L143">            String msg = String.format(&quot;User name not found: %s&quot;, userName);</span>
+<span class="nc" id="L144">            logger.error(msg);</span>
+<span class="nc" id="L145">            throw new AccountNotFoundException(msg);</span>
+        }
+
+        //if the user provided password hash equals the hash in db, the authentication is thought to be successful.
+<span class="nc" id="L149">        String hashed = HashUtil.hash(password);</span>
+<span class="nc" id="L150">        User user = findUser(userName);</span>
+<span class="nc" id="L151">        String persisted=user.getPassword();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (!hashed.equals(persisted)) {</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">            if (logger.isErrorEnabled()) {</span>
+<span class="nc" id="L154">                logger.error(&quot;Incorrect password for {}&quot;, userName);</span>
+            }
+<span class="nc" id="L156">            throw new FailedLoginException(&quot;Invalid user name or password!&quot;);</span>
+        }
+
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="nc" id="L160">            logger.info(&quot;User name and password check passed!&quot;);</span>
+        }
+
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (!user.isEnabled()) {</span>
+<span class="nc" id="L164">            logger.error(&quot;User is locked: {}&quot;, user.getUsername());</span>
+<span class="nc" id="L165">            throw new AccountLockedException(&quot;Account is locked!&quot;);</span>
+        }
+
+        //check if the user is admin
+<span class="nc bnc" id="L169" title="All 4 branches missed.">        if (!user.isAdmin() &amp;&amp; requireAdmin) {</span>
+<span class="nc" id="L170">            logger.error(&quot;User is not admin: {}&quot;, user.getUsername());</span>
+<span class="nc" id="L171">            throw new FailedLoginException(&quot;Unauthorized access. Admin access required.&quot;);</span>
+        }
+
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="nc" id="L175">            logger.info(&quot;Authentication passed for user: {}&quot;, user.getUsername());</span>
+        }
+<span class="nc" id="L177">        user.setLastLogin(new Date());</span>
+<span class="nc" id="L178">        user.setLoginCount(user.getLoginCount()+1);</span>
+<span class="nc" id="L179">        userDao.update(user);</span>
+<span class="nc" id="L180">        return user;</span>
+    }
+
+    /**
+     * Find the user with the given id.
+     *
+     * @param id Unique user id
+     * @return The User object for the given id
+     */
+    @Override
+    public User findUser(int id) {
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        checkArgument(id&gt;0,&quot;Invalid use id: %s&quot;,id);</span>
+<span class="nc" id="L192">        return userDao.findById(id);</span>
+    }
+
+    /**
+     * Find the user with the given name.
+     *
+     * @param userName The user name
+     * @return The User object or &lt;b&gt;null&lt;/b&gt; if not found.
+     */
+    @Override
+    public User findUser(String userName) {
+<span class="nc bnc" id="L203" title="All 4 branches missed.">        checkArgument(userName != null &amp;&amp; !userName.isEmpty(), &quot;The user name cannot be empty or null.&quot;);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (!isUserNameExists(userName)) {</span>
+<span class="nc" id="L205">            logger.warn(&quot;User name not found in db: {}&quot;, userName);</span>
+<span class="nc" id="L206">            return null;</span>
+        }
+<span class="nc" id="L208">        return userDao.findUser(userName);</span>
+    }
+
+    @Override
+    public List&lt;User&gt; findAllUsers() {
+<span class="nc" id="L213">        return userDao.findAll();</span>
+    }
+
+    /**
+     * Finds all users that are activated
+     *
+     * @return all active users
+     */
+    @Override
+    public List&lt;User&gt; findActivatedUsers() {
+<span class="nc" id="L223">        return userDao.findActiveUsers();</span>
+    }
+
+    /**
+     * @param pageSize
+     * @param pageNumber
+     * @return
+     */
+    @Override
+    public List&lt;User&gt; findUsers(int pageSize, int pageNumber) {
+<span class="nc" id="L233">        return userDao.findAll(pageSize, pageNumber);</span>
+    }
+
+    @Override
+    public int count() {
+<span class="nc" id="L238">        return userDao.size().intValue();</span>
+    }
+
+    @Override
+    public User findFirstUser() {
+<span class="nc" id="L243">        User firstUser = userDao.first();</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        if (firstUser == null) {</span>
+<span class="nc" id="L245">            Config builtInUser=configContext.getConfig().getConfig(&quot;application.built-in.user&quot;);</span>
+<span class="nc" id="L246">            logger.debug(&quot;UserServiceImpl.findFirstUser: built -in: {}&quot;, builtInUser );</span>
+<span class="nc" id="L247">            firstUser = new User(builtInUser.getString(&quot;username&quot;), builtInUser.getString(&quot;password&quot;));</span>
+<span class="nc" id="L248">            logger.info(&quot;There is no user yet. Creating first user as admin. username={}, password=*****&quot;, firstUser.getUsername());</span>
+<span class="nc" id="L249">            firstUser.setEmail(builtInUser.getString(&quot;email&quot;));</span>
+<span class="nc" id="L250">            firstUser.setPhone(builtInUser.getString(&quot;phone&quot;));</span>
+<span class="nc" id="L251">            firstUser.setAdmin(true);</span>
+<span class="nc" id="L252">            firstUser.setFullName(builtInUser.getString(&quot;fullName&quot;));</span>
+<span class="nc" id="L253">            userDao.create(firstUser);</span>
+<span class="nc" id="L254">            logger.info(&quot;Created user: {}&quot;, firstUser);</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        }else if(!firstUser.isAdmin()){</span>
+<span class="nc" id="L256">            firstUser.setAdmin(true);</span>
+<span class="nc" id="L257">            userDao.update(firstUser);</span>
+<span class="nc" id="L258">            logger.debug(&quot;UserServiceImpl.findFirstUser: The first user will be the default system admin. User details: [{}]&quot;, firstUser);</span>
+        }
+<span class="nc" id="L260">        return firstUser;</span>
+    }
+
+    @Override
+    public User createBuiltInUser() {
+<span class="nc" id="L265">        User builtInUser=configContext.getBuiltInUser();</span>
+<span class="nc" id="L266">        userDao.create(builtInUser);</span>
+<span class="nc" id="L267">        return builtInUser;</span>
+    }
+
+    @Override
+    public User update(User user) {
+<span class="nc" id="L272">        checkNotNull(user);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        checkArgument(user.getId()&gt;0);</span>
+<span class="nc" id="L274">        logger.debug(&quot;UserServiceImpl.update: {}&quot;, user);</span>
+<span class="nc" id="L275">        return userDao.update(user);</span>
+    }
+
+    @Override
+    public void updateLastLogin(String username, Date date) {
+<span class="nc bnc" id="L280" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc" id="L281">        checkNotNull(date);</span>
+<span class="nc" id="L282">        User user = findUser(username);</span>
+<span class="nc" id="L283">        user.setLastLogin(date);</span>
+<span class="nc" id="L284">        logger.debug(&quot;UserServiceImpl.updateLastLogin: Set user [{}] last login to {}&quot;, username, date );</span>
+<span class="nc" id="L285">        userDao.update(user);</span>
+<span class="nc" id="L286">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

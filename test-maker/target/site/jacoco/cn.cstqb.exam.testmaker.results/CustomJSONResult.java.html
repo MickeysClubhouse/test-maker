@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomJSONResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.results</a> &gt; <span class="el_source">CustomJSONResult.java</span></div><h1>CustomJSONResult.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.results;
+
+import com.opensymphony.xwork2.ActionContext;
+import com.opensymphony.xwork2.ActionInvocation;
+import org.apache.struts2.StrutsStatics;
+import org.apache.struts2.json.JSONResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/19
+ * Time: 11:37
+ */
+<span class="nc" id="L20">public class CustomJSONResult extends JSONResult {</span>
+<span class="nc" id="L21">    private static final Logger logger = LoggerFactory.getLogger(CustomJSONResult.class);</span>
+    private int errorCode;
+    private String errorMessage;
+
+    public String getErrorMessage() {
+<span class="nc" id="L26">        return errorMessage;</span>
+    }
+
+    public void setErrorMessage(String errorMessage) {
+<span class="nc" id="L30">        this.errorMessage = errorMessage;</span>
+<span class="nc" id="L31">    }</span>
+
+    @Override
+    public void execute(ActionInvocation invocation) throws Exception {
+<span class="nc" id="L35">        ActionContext actionContext = invocation.getInvocationContext();</span>
+<span class="nc" id="L36">        HttpServletRequest request = (HttpServletRequest) actionContext.get(StrutsStatics.HTTP_REQUEST);</span>
+<span class="nc" id="L37">        HttpServletResponse response = (HttpServletResponse) actionContext.get(StrutsStatics.HTTP_RESPONSE);</span>
+
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (response.isCommitted()) {</span>
+<span class="nc" id="L40">            logger.warn(&quot;The response is already committed. Action: {}&quot;, actionContext.getActionInvocation().getAction().getClass().getName());</span>
+<span class="nc" id="L41">            return;</span>
+        }
+        try {
+            Object rootObject;
+<span class="nc" id="L45">            rootObject = readRootObject(invocation);</span>
+<span class="nc" id="L46">            writeToResponse(response, createJSONString(request, rootObject), enableGzip(request));</span>
+<span class="nc" id="L47">        } catch (IOException exception) {</span>
+<span class="nc" id="L48">            logger.error(exception.getMessage(), exception);</span>
+<span class="nc" id="L49">            throw exception;</span>
+<span class="nc" id="L50">        }</span>
+<span class="nc" id="L51">    }</span>
+
+/*    public static void writeJSONToResponse(SerializationParams serializationParams) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (StringUtils.isNotBlank(serializationParams.getSerializedJSON()))
+            stringBuilder.append(serializationParams.getSerializedJSON());
+
+        if (StringUtils.isNotBlank(serializationParams.getWrapPrefix()))
+            stringBuilder.insert(0, serializationParams.getWrapPrefix());
+        else if (serializationParams.isWrapWithComments()) {
+            stringBuilder.insert(0, &quot;*//* &quot;);
+            stringBuilder.append(&quot; *//*&quot;);
+        } else if (serializationParams.isPrefix())
+            stringBuilder.insert(0, &quot;{}&amp;&amp; &quot;);
+
+        if (StringUtils.isNotBlank(serializationParams.getWrapSuffix()))
+            stringBuilder.append(serializationParams.getWrapSuffix());
+
+        String json = stringBuilder.toString();
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(&quot;[JSON]&quot; + json);
+        }
+
+        HttpServletResponse response = serializationParams.getResponse();
+
+        // status or error code
+        if (serializationParams.getStatusCode() &gt; 0)
+            response.setStatus(serializationParams.getStatusCode());
+        else if (serializationParams.getErrorCode() &gt; 0)
+            response.sendError(serializationParams.getErrorCode());
+
+        // content type
+        response.setContentType(serializationParams.getContentType() + &quot;;charset=&quot;
+                + serializationParams.getEncoding());
+
+        if (serializationParams.isNoCache()) {
+            response.setHeader(&quot;Cache-Control&quot;, &quot;no-cache&quot;);
+            response.setHeader(&quot;Expires&quot;, &quot;0&quot;);
+            response.setHeader(&quot;Pragma&quot;, &quot;No-cache&quot;);
+        }
+
+        if (serializationParams.isGzip()) {
+            response.addHeader(&quot;Content-Encoding&quot;, &quot;gzip&quot;);
+            GZIPOutputStream out = null;
+            InputStream in = null;
+            try {
+                out = new GZIPOutputStream(response.getOutputStream());
+                in = new ByteArrayInputStream(json.getBytes(serializationParams.getEncoding()));
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) &gt; 0) {
+                    out.write(buf, 0, len);
+                }
+            } finally {
+                if (in != null)
+                    in.close();
+                if (out != null) {
+                    out.finish();
+                    out.close();
+                }
+            }
+
+        } else {
+            response.setContentLength(json.getBytes(serializationParams.getEncoding()).length);
+            PrintWriter out = response.getWriter();
+            out.print(json);
+        }
+    }*/
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

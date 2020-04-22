@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ServiceModule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.guice</a> &gt; <span class="el_source">ServiceModule.java</span></div><h1>ServiceModule.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.guice;
+
+import cn.cstqb.exam.testmaker.actions.UserValidator;
+import cn.cstqb.exam.testmaker.services.*;
+import cn.cstqb.exam.testmaker.services.impl.*;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/8
+ * Time: 22:11
+ */
+<span class="fc" id="L16">public class ServiceModule extends AbstractModule {</span>
+    /**
+     * Configures a {@link com.google.inject.Binder} via the exposed methods.
+     */
+    @Override
+    protected void configure() {
+<span class="fc" id="L22">        bind(IUserService.class).to(UserServiceImpl.class);</span>
+<span class="fc" id="L23">        bind(ISyllabusService.class).to(SyllabusServiceImpl.class);</span>
+<span class="fc" id="L24">        bind(IChapterService.class).to(ChapterServiceImpl.class);</span>
+<span class="fc" id="L25">        bind(IKnowledgePointService.class).to(KnowledgePointServiceImpl.class);</span>
+<span class="fc" id="L26">        bind(IQuestionService.class).to(QuestionServiceImpl.class);</span>
+<span class="fc" id="L27">        bind(IQuestionStatusService.class).to(QuestionStatusServiceImpl.class);</span>
+<span class="fc" id="L28">        bind(IReviewCommentService.class).to(ReviewCommentServiceImpl.class);</span>
+<span class="fc" id="L29">        bind(IProjectService.class).to(ProjectServiceImpl.class);</span>
+<span class="fc" id="L30">        bind(IProjectStatusService.class).to(ProjectStatusServiceImpl.class);</span>
+<span class="fc" id="L31">        bind(IQuestionChoiceService.class).to(QuestionChoiceServiceImpl.class);</span>
+<span class="fc" id="L32">        bind(IQuestionLanguageService.class).to(QuestionLanguageServiceImpl.class);</span>
+<span class="fc" id="L33">        bind(IQuestionTypeService.class).to(QuestionTypeServiceImpl.class);</span>
+<span class="fc" id="L34">        bind(IQuestionLanguageService.class).to(QuestionLanguageServiceImpl.class);</span>
+<span class="fc" id="L35">        bind(IExportService.class).to(ExportServiceImpl.class);</span>
+<span class="fc" id="L36">        bind(IReportingService.class).to(ReportingServiceImpl.class);</span>
+<span class="fc" id="L37">        bind(IDebugInitializationService.class).to(DebugInitializationServiceImpl.class);</span>
+<span class="fc" id="L38">        bind(IQuestionChoiceImageService.class).to(QuestionChoiceImageServiceImpl.class);</span>
+<span class="fc" id="L39">        bind(IQuestionImageService.class).to(QuestionImageServiceImpl.class);</span>
+<span class="fc" id="L40">        bind(UserValidator.class).in(Singleton.class);</span>
+<span class="fc" id="L41">        bind(IInitializationService.class).to(InitializationServiceImpl.class);</span>
+
+        /*modify by ymf*/
+<span class="fc" id="L44">        bind(IPaperService.class).to(PaperServiceImpl.class);</span>
+<span class="fc" id="L45">        bind(IPaperQuestionService.class).to(PaperQuestionServiceImpl.class);</span>
+
+<span class="fc" id="L47">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

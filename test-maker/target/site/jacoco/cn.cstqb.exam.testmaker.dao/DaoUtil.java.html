@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DaoUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao</a> &gt; <span class="el_source">DaoUtil.java</span></div><h1>DaoUtil.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao;
+
+import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.*;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/26
+ * Time: 1:09
+ */
+<span class="nc" id="L14">public class DaoUtil {</span>
+    /**
+     * Get the actual type arguments a child class has used to extend a generic
+     * base class. (Taken from http://www.artima.com/weblogs/viewpost.jsp?thread=208860. Thanks
+     * mathieu.grenonville for finding this solution!)
+     *
+     * @param baseClass  the base class
+     * @param childClass the child class
+     * @return a list of the raw classes for the actual type arguments.
+     */
+    public static &lt;T&gt; List&lt;Class&lt;?&gt;&gt; getTypeArguments(Class&lt;T&gt; baseClass,
+                                                      Class&lt;? extends T&gt; childClass) {
+<span class="fc" id="L26">        Map&lt;Type, Type&gt; resolvedTypes = new HashMap&lt;Type, Type&gt;();</span>
+<span class="fc" id="L27">        Type type = childClass;</span>
+        // start walking up the inheritance hierarchy until we hit baseClass
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        while (!getClass(type).equals(baseClass)) {</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">            if (type instanceof Class) {</span>
+                // there is no useful information for us in raw types, so just
+                // keep going.
+<span class="fc" id="L33">                type = ((Class) type).getGenericSuperclass();</span>
+            } else {
+<span class="nc" id="L35">                ParameterizedType parameterizedType = (ParameterizedType) type;</span>
+<span class="nc" id="L36">                Class&lt;?&gt; rawType = (Class) parameterizedType.getRawType();</span>
+
+<span class="nc" id="L38">                Type[] actualTypeArguments = parameterizedType</span>
+<span class="nc" id="L39">                        .getActualTypeArguments();</span>
+<span class="nc" id="L40">                TypeVariable&lt;?&gt;[] typeParameters = rawType.getTypeParameters();</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">                for (int i = 0; i &lt; actualTypeArguments.length; i++) {</span>
+<span class="nc" id="L42">                    resolvedTypes</span>
+<span class="nc" id="L43">                            .put(typeParameters[i], actualTypeArguments[i]);</span>
+                }
+
+<span class="nc bnc" id="L46" title="All 2 branches missed.">                if (!rawType.equals(baseClass)) {</span>
+<span class="nc" id="L47">                    type = rawType.getGenericSuperclass();</span>
+                }
+<span class="nc" id="L49">            }</span>
+        }
+
+        // finally, for each actual type argument provided to baseClass,
+        // determine (if possible)
+        // the raw class for that type argument.
+        Type[] actualTypeArguments;
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (type instanceof Class) {</span>
+<span class="nc" id="L57">            actualTypeArguments = ((Class) type).getTypeParameters();</span>
+        } else {
+<span class="fc" id="L59">            actualTypeArguments = ((ParameterizedType) type)</span>
+<span class="fc" id="L60">                    .getActualTypeArguments();</span>
+        }
+<span class="fc" id="L62">        List&lt;Class&lt;?&gt;&gt; typeArgumentsAsClasses = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
+        // resolve types by chasing down type variables.
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        for (Type baseType : actualTypeArguments) {</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            while (resolvedTypes.containsKey(baseType)) {</span>
+<span class="nc" id="L66">                baseType = resolvedTypes.get(baseType);</span>
+            }
+<span class="fc" id="L68">            typeArgumentsAsClasses.add(getClass(baseType));</span>
+        }
+<span class="fc" id="L70">        return typeArgumentsAsClasses;</span>
+    }
+
+    /**
+     * Get the underlying class for a type, or null if the type is a variable
+     * type.
+     *
+     * @param type the type
+     * @return the underlying class
+     */
+    private static Class&lt;?&gt; getClass(Type type) {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (type instanceof Class) {</span>
+<span class="fc" id="L82">            return (Class) type;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        } else if (type instanceof ParameterizedType) {</span>
+<span class="fc" id="L84">            return getClass(((ParameterizedType) type).getRawType());</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        } else if (type instanceof GenericArrayType) {</span>
+<span class="nc" id="L86">            Type componentType = ((GenericArrayType) type)</span>
+<span class="nc" id="L87">                    .getGenericComponentType();</span>
+<span class="nc" id="L88">            Class&lt;?&gt; componentClass = getClass(componentType);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (componentClass != null) {</span>
+<span class="nc" id="L90">                return Array.newInstance(componentClass, 0).getClass();</span>
+            } else {
+<span class="nc" id="L92">                return null;</span>
+            }
+        } else {
+<span class="nc" id="L95">            return null;</span>
+        }
+    }
+
+    /**
+     * This is a helper method to call a method on an Object with the given
+     * parameters. It is used for dispatching to specific DAOs that do not
+     * implement the GenericDAO interface.
+     */
+    public static Object callMethod(Object object, String methodName,
+                                    Object... args) throws NoSuchMethodException,
+            IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException {
+<span class="nc" id="L108">        Class&lt;?&gt;[] paramTypes = new Class&lt;?&gt;[args.length];</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (int i = 0; i &lt; args.length; i++) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            if (args[i] == null)</span>
+<span class="nc" id="L111">                throw new NullPointerException(</span>
+                        &quot;No arguments may be null when using callMethod(Object, String, Object...) because every argument is needed in order to determine the parameter types. Use callMethod(Object, String, Class&lt;?&gt;[], Object...) instead and specify parameter types.&quot;);
+
+<span class="nc" id="L114">            paramTypes[i] = args[i].getClass();</span>
+        }
+
+<span class="nc" id="L117">        return callMethod(object, methodName, paramTypes, args);</span>
+    }
+
+    /**
+     * This is a helper method to call a method on an Object with the given
+     * parameters. It is used for dispatching to specific DAOs that do not
+     * implement the GenericDAO interface.
+     */
+    public static Object callMethod(Object object, String methodName,
+                                    Class&lt;?&gt;[] paramTypes, Object... args)
+            throws NoSuchMethodException, IllegalArgumentException,
+            IllegalAccessException, InvocationTargetException {
+<span class="nc" id="L129">        Method method = getMethod(object.getClass(), methodName, paramTypes);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (method == null)</span>
+<span class="nc" id="L131">            throw new NoSuchMethodException(&quot;Method: &quot; + methodName</span>
+<span class="nc" id="L132">                    + &quot; not found on Class: &quot; + object.getClass());</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (method.isVarArgs()) {</span>
+            // put variable arguments into array as last parameter
+<span class="nc" id="L136">            Object[] allargs = new Object[method.getParameterTypes().length];</span>
+<span class="nc" id="L137">            Object[] vargs = (Object[]) Array.newInstance(method</span>
+<span class="nc" id="L138">                    .getParameterTypes()[method.getParameterTypes().length - 1]</span>
+<span class="nc" id="L139">                    .getComponentType(), args.length</span>
+<span class="nc" id="L140">                    - method.getParameterTypes().length + 1);</span>
+
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            for (int i = 0; i &lt; method.getParameterTypes().length - 1; i++) {</span>
+<span class="nc" id="L143">                allargs[i] = args[i];</span>
+            }
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            for (int i = 0; i &lt; args.length - method.getParameterTypes().length</span>
+<span class="nc" id="L146">                    + 1; i++) {</span>
+<span class="nc" id="L147">                vargs[i] = args[method.getParameterTypes().length - 1 + i];</span>
+            }
+<span class="nc" id="L149">            allargs[method.getParameterTypes().length - 1] = vargs;</span>
+
+<span class="nc" id="L151">            return method.invoke(object, allargs);</span>
+        } else {
+
+<span class="nc" id="L154">            return method.invoke(object, args);</span>
+        }
+    }
+
+    public static Method getMethod(Class&lt;?&gt; klass, String methodName,
+                                   Class&lt;?&gt;... paramTypes) {
+
+<span class="nc" id="L161">        List&lt;Method&gt; candidates = new ArrayList&lt;Method&gt;();</span>
+
+        // NOTE: getMethods() includes inherited methods
+        outer:
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        for (Method method : klass.getMethods()) {</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">            if (method.getName().equals(methodName)) {</span>
+<span class="nc" id="L167">                Class&lt;?&gt;[] methodParamTypes = method.getParameterTypes();</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                if (paramTypes.length == methodParamTypes.length</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">                        || (method.isVarArgs() &amp;&amp; paramTypes.length &gt;= methodParamTypes.length - 1)) {</span>
+                    // method has correct name and # of parameters
+
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                    if (method.isVarArgs()) {</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                        for (int i = 0; i &lt; methodParamTypes.length - 1; i++) {</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">                            if (paramTypes[i] != null</span>
+                                    &amp;&amp; !methodParamTypes[i]
+<span class="nc bnc" id="L176" title="All 2 branches missed.">                                    .isAssignableFrom(paramTypes[i])) {</span>
+<span class="nc" id="L177">                                continue outer;</span>
+                            }
+                        }
+<span class="nc bnc" id="L180" title="All 2 branches missed.">                        if (methodParamTypes.length == paramTypes.length + 1) {</span>
+                            // no param is specified for the optional vararg
+                            // spot
+<span class="nc bnc" id="L183" title="All 2 branches missed.">                        } else if (methodParamTypes.length == paramTypes.length</span>
+                                &amp;&amp; methodParamTypes[paramTypes.length - 1]
+<span class="nc bnc" id="L185" title="All 2 branches missed.">                                .isAssignableFrom(paramTypes[paramTypes.length - 1])) {</span>
+                            // an array is specified for the last param
+                        } else {
+<span class="nc" id="L188">                            Class&lt;?&gt; varClass = methodParamTypes[methodParamTypes.length - 1]</span>
+<span class="nc" id="L189">                                    .getComponentType();</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                            for (int i = methodParamTypes.length - 1; i &lt; paramTypes.length; i++) {</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                                if (paramTypes[i] != null</span>
+                                        &amp;&amp; !varClass
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                                        .isAssignableFrom(paramTypes[i])) {</span>
+<span class="nc" id="L194">                                    continue outer;</span>
+                                }
+                            }
+<span class="nc" id="L197">                        }</span>
+                    } else {
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                        for (int i = 0; i &lt; methodParamTypes.length; i++) {</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">                            if (paramTypes[i] != null</span>
+                                    &amp;&amp; !methodParamTypes[i]
+<span class="nc bnc" id="L202" title="All 2 branches missed.">                                    .isAssignableFrom(paramTypes[i])) {</span>
+<span class="nc" id="L203">                                continue outer;</span>
+                            }
+                        }
+                    }
+<span class="nc" id="L207">                    candidates.add(method);</span>
+                }
+            }
+        }
+
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (candidates.size() == 0) {</span>
+<span class="nc" id="L213">            return null;</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">        } else if (candidates.size() == 1) {</span>
+<span class="nc" id="L215">            return candidates.get(0);</span>
+        } else {
+            // There are several possible methods. Choose the most specific.
+
+            // Throw away any var-args options.
+            // Non var-args methods always beat var-args methods and we're going
+            // to say that if we have two var-args
+            // methods, we cannot choose between the two.
+<span class="nc" id="L223">            Iterator&lt;Method&gt; itr = candidates.iterator();</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">            while (itr.hasNext()) {</span>
+<span class="nc" id="L225">                Method m = itr.next();</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                if (m.isVarArgs()) {</span>
+                    // the exception is if an array is actually specified as the
+                    // last parameter
+<span class="nc bnc" id="L229" title="All 2 branches missed.">                    if (m.getParameterTypes().length != paramTypes.length</span>
+<span class="nc" id="L230">                            || !m.getParameterTypes()[paramTypes.length - 1]</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">                            .isAssignableFrom(paramTypes[paramTypes.length - 1]))</span>
+<span class="nc" id="L232">                        itr.remove();</span>
+                }
+<span class="nc" id="L234">            }</span>
+
+            // If there are no candidates left, that means we had only var-args
+            // methods, which we can't choose
+            // between.
+<span class="nc bnc" id="L239" title="All 2 branches missed.">            if (candidates.size() == 0)</span>
+<span class="nc" id="L240">                return null;</span>
+
+<span class="nc" id="L242">            Method a = candidates.get(0);</span>
+<span class="nc" id="L243">            boolean ambiguous = false;</span>
+
+<span class="nc bnc" id="L245" title="All 2 branches missed.">            for (int j = 1; j &lt; candidates.size(); j++) {</span>
+<span class="nc" id="L246">                Method b = candidates.get(j);</span>
+
+<span class="nc" id="L248">                Class&lt;?&gt;[] aTypes = a.getParameterTypes();</span>
+<span class="nc" id="L249">                Class&lt;?&gt;[] bTypes = b.getParameterTypes();</span>
+
+<span class="nc" id="L251">                int aScore = 0, bScore = 0;</span>
+                // increment score if distance is greater for a given parameter
+<span class="nc bnc" id="L253" title="All 2 branches missed.">                for (int i = 0; i &lt; aTypes.length; i++) {</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">                    if (aTypes[i] != null) {</span>
+<span class="nc" id="L255">                        int distA = getDist(aTypes[i], paramTypes[i]);</span>
+<span class="nc" id="L256">                        int distB = getDist(bTypes[i], paramTypes[i]);</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">                        if (distA &gt; distB) {</span>
+<span class="nc" id="L258">                            bScore++;</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                        } else if (distA &lt; distB) {</span>
+<span class="nc" id="L260">                            aScore++;</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">                        } else if (distA == 1000) { // both are interfaces</span>
+                            // if one interface extends the other, that
+                            // interface is lower in the hierarchy (more
+                            // specific) and wins
+<span class="nc bnc" id="L265" title="All 2 branches missed.">                            if (!aTypes[i].equals(bTypes[i])) {</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">                                if (aTypes[i].isAssignableFrom(bTypes[i]))</span>
+<span class="nc" id="L267">                                    bScore++;</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">                                else if (bTypes[i].isAssignableFrom(aTypes[i]))</span>
+<span class="nc" id="L269">                                    aScore++;</span>
+                            }
+                        }
+                    }
+                }
+
+                // lower score wins
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                if (aScore == bScore) {</span>
+<span class="nc" id="L277">                    ambiguous = true;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                } else if (bScore &gt; aScore) {</span>
+<span class="nc" id="L279">                    a = b; // b wins</span>
+<span class="nc" id="L280">                    ambiguous = false;</span>
+                }
+            }
+
+<span class="nc bnc" id="L284" title="All 2 branches missed.">            if (ambiguous)</span>
+<span class="nc" id="L285">                return null;</span>
+
+<span class="nc" id="L287">            return a;</span>
+        }
+    }
+
+    /**
+     * Greater dist is worse:
+     * &lt;ol&gt;
+     * &lt;li&gt;superClass = Object loses to all
+     * &lt;li&gt;If klass is not an interface, superClass is interface loses to all
+     * other classes
+     * &lt;li&gt;Closest inheritance wins
+     * &lt;/ol&gt;
+     */
+    private static int getDist(Class&lt;?&gt; superClass, Class&lt;?&gt; klass) {
+<span class="nc bnc" id="L301" title="All 2 branches missed.">        if (klass.isArray()) {</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">            if (superClass.isArray()) {</span>
+<span class="nc" id="L303">                superClass = superClass.getComponentType();</span>
+<span class="nc" id="L304">                klass = klass.getComponentType();</span>
+            } else {
+                // superClass must be Object. An array fitting into an Object
+                // must be more general than an array fitting into an Object[]
+                // array.
+<span class="nc" id="L309">                return 3000;</span>
+            }
+        }
+
+<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (superClass.equals(klass))</span>
+<span class="nc" id="L314">            return 0;</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">        if (superClass.equals(Object.class))</span>
+<span class="nc" id="L316">            return 2000; // specifying Object is always the most general</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">        if (superClass.isInterface()) {</span>
+<span class="nc" id="L318">            return 1000;</span>
+        }
+
+<span class="nc" id="L321">        int dist = 0;</span>
+        while (true) {
+<span class="nc" id="L323">            dist++;</span>
+<span class="nc" id="L324">            klass = klass.getSuperclass();</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">            if (superClass.equals(klass))</span>
+<span class="nc" id="L326">                return dist;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

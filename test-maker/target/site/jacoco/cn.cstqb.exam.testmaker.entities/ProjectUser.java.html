@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectUser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.entities</a> &gt; <span class="el_source">ProjectUser.java</span></div><h1>ProjectUser.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.entities;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
+import javax.persistence.*;
+import java.util.Collection;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/24
+ * Time: 8:38
+ */
+//@Entity
+public class ProjectUser extends AbstractBaseEntity {
+
+    @ManyToOne
+    @JoinColumn(name = &quot;PROJECT_ID&quot;, nullable = false)
+    private Project project;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;USER_ID&quot;, nullable = false)
+    private User user;
+
+    @ManyToMany
+    @JoinTable(
+            joinColumns = {
+                    @JoinColumn(name = &quot;PROJECT_USER_ID&quot;),
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = &quot;ROLE_ID&quot;)
+            }
+    )
+    private Collection&lt;Role&gt; roles;
+
+<span class="nc" id="L37">    public ProjectUser(Project project, User user) {</span>
+<span class="nc" id="L38">        this.project = project;</span>
+<span class="nc" id="L39">        this.user = user;</span>
+<span class="nc" id="L40">    }</span>
+
+<span class="nc" id="L42">    public ProjectUser() {</span>
+<span class="nc" id="L43">    }</span>
+
+    public Project getProject() {
+<span class="nc" id="L46">        return project;</span>
+    }
+
+    public void setProject(Project project) {
+<span class="nc" id="L50">        this.project = project;</span>
+<span class="nc" id="L51">    }</span>
+
+    public User getUser() {
+<span class="nc" id="L54">        return user;</span>
+    }
+
+    public void setUser(User user) {
+<span class="nc" id="L58">        this.user = user;</span>
+<span class="nc" id="L59">    }</span>
+
+    public Collection&lt;Role&gt; getRoles() {
+<span class="nc" id="L62">        return roles;</span>
+    }
+
+    public void setRoles(Collection&lt;Role&gt; roles) {
+<span class="nc" id="L66">        this.roles = roles;</span>
+<span class="nc" id="L67">    }</span>
+
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L73" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="nc" id="L75">        ProjectUser that = (ProjectUser) o;</span>
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        return Objects.equal(this.project, that.project) &amp;&amp;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                Objects.equal(this.user, that.user) &amp;&amp;</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                Objects.equal(this.roles, that.roles) &amp;&amp;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                Objects.equal(this.id, that.id) &amp;&amp;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                Objects.equal(this.createdOn, that.createdOn) &amp;&amp;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                Objects.equal(this.updatedOn, that.updatedOn);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L87">        return Objects.hashCode(project, user, roles, id, createdOn, updatedOn);</span>
+    }
+
+
+    @Override
+    public String toString() {
+<span class="nc" id="L93">        return MoreObjects.toStringHelper(this)</span>
+<span class="nc" id="L94">                .add(&quot;id&quot;, id)</span>
+<span class="nc" id="L95">                .add(&quot;project&quot;, project)</span>
+<span class="nc" id="L96">                .add(&quot;user&quot;, user)</span>
+<span class="nc" id="L97">                .add(&quot;roles&quot;, roles)</span>
+<span class="nc" id="L98">                .add(&quot;createdOn&quot;, createdOn)</span>
+<span class="nc" id="L99">                .add(&quot;updatedOn&quot;, updatedOn)</span>
+<span class="nc" id="L100">                .toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

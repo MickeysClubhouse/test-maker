@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionTypeServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">QuestionTypeServiceImpl.java</span></div><h1>QuestionTypeServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.inject.Inject;
+
+import cn.cstqb.exam.testmaker.dao.QuestionTypeDao;
+import cn.cstqb.exam.testmaker.entities.QuestionType;
+import cn.cstqb.exam.testmaker.services.IQuestionTypeService;
+
+public class QuestionTypeServiceImpl implements IQuestionTypeService {
+<span class="nc" id="L17">	Logger logger = LoggerFactory.getLogger(getClass());</span>
+	private QuestionTypeDao dao;
+	
+	@Inject
+<span class="nc" id="L21">	public QuestionTypeServiceImpl(QuestionTypeDao dao) {</span>
+<span class="nc" id="L22">		this.dao = dao;</span>
+<span class="nc" id="L23">	}</span>
+	
+	@Override
+	public void saveOrUpdate(QuestionType questionType) {
+<span class="nc bnc" id="L27" title="All 2 branches missed.">		Preconditions.checkArgument(questionType != null, &quot;QuestionTyperService.saveOrUpdate: empty entity loaded!&quot;);</span>
+<span class="nc" id="L28">		QuestionType persisted = dao.findById(questionType.getId());</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">		if (persisted == null) {</span>
+<span class="nc" id="L30">			dao.create(questionType);</span>
+		} else {
+<span class="nc" id="L32">			dao.update(questionType);</span>
+		}
+<span class="nc" id="L34">	}</span>
+
+	@Override
+	public void delete(QuestionType questionType) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">		Preconditions.checkArgument(questionType != null, &quot;QuestionTypeService.delete: empty entity loaded!&quot;);</span>
+<span class="nc" id="L39">		dao.delete(questionType);</span>
+<span class="nc" id="L40">	}</span>
+
+	@Override
+	public List&lt;QuestionType&gt; findAll() {
+<span class="nc" id="L44">		return dao.findAll();</span>
+	}
+
+	@Override
+	public boolean exists(QuestionType questionType) {
+<span class="nc" id="L49">		QuestionType persisted = null;</span>
+<span class="nc bnc" id="L50" title="All 4 branches missed.">		if (questionType.getId() != null &amp;&amp; questionType.getId() &gt; 0) {</span>
+<span class="nc" id="L51">			persisted = dao.findById(questionType.getId());</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">		}else if (!Strings.isNullOrEmpty(questionType.getName())) {</span>
+<span class="nc" id="L53">			persisted = dao.findSingleResult(&quot;name&quot;, questionType.getName());</span>
+		}
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		return persisted != null;</span>
+	}
+
+	@Override
+	public QuestionType findQuestionType(QuestionType questionType) {
+<span class="nc bnc" id="L60" title="All 4 branches missed.">		if (questionType.getId() != null &amp;&amp; questionType.getId() &gt; 0) {</span>
+<span class="nc" id="L61">			return dao.findById(questionType.getId());</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">		} else if (!Strings.isNullOrEmpty(questionType.getName())) {</span>
+<span class="nc" id="L63">			return dao.findSingleResult(&quot;name&quot;, questionType.getName());</span>
+		}
+<span class="nc" id="L65">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

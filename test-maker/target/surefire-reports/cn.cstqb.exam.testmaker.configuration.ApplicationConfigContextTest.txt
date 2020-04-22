@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 Test set: cn.cstqb.exam.testmaker.configuration.ApplicationConfigContextTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.001 sec <<< FAILURE!
+Tests run: 5, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.008 sec <<< FAILURE!
 testDynamicProperty(cn.cstqb.exam.testmaker.configuration.ApplicationConfigContextTest)  Time elapsed: 0 sec  <<< FAILURE!
 java.lang.AssertionError
 	at org.junit.Assert.fail(Assert.java:86)

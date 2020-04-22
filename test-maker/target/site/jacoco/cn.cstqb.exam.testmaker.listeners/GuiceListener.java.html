@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GuiceListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.listeners</a> &gt; <span class="el_source">GuiceListener.java</span></div><h1>GuiceListener.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.listeners;
+
+import cn.cstqb.exam.testmaker.configuration.AppInjector;
+import com.google.inject.Injector;
+import com.google.inject.persist.PersistService;
+import com.google.inject.servlet.GuiceServletContextListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletContextEvent;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/10
+ * Time: 16:19
+ */
+<span class="nc" id="L18">public class GuiceListener extends GuiceServletContextListener {</span>
+    private AppInjector appInjector;
+<span class="nc" id="L20">    private Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+<span class="nc" id="L24">        appInjector = AppInjector.getInstance();</span>
+<span class="nc" id="L25">        logger.info(&quot;GuiceListener.contextInitialized: Injector initialized: {}&quot;, appInjector.getClass().getName() );</span>
+<span class="nc" id="L26">    }</span>
+
+    @Override
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+<span class="nc" id="L30">        super.contextDestroyed(servletContextEvent);</span>
+<span class="nc" id="L31">        logger.info(&quot;Stopping Guiced JPA Persistence Service....&quot;);</span>
+<span class="nc" id="L32">        getInjector().getInstance(PersistService.class).stop();</span>
+<span class="nc" id="L33">    }</span>
+
+    /**
+     * Override this method to create (or otherwise obtain a reference to) your
+     * injector.
+     */
+    @Override
+    protected Injector getInjector() {
+
+<span class="nc" id="L42">        return appInjector.getInjector();</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

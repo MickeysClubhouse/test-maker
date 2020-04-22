@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionStatusServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">QuestionStatusServiceImpl.java</span></div><h1>QuestionStatusServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import cn.cstqb.exam.testmaker.dao.QuestionStatusDao;
+import cn.cstqb.exam.testmaker.dao.QuestionStatusTransitionDao;
+import cn.cstqb.exam.testmaker.entities.QuestionStatus;
+import cn.cstqb.exam.testmaker.entities.QuestionStatusTransition;
+import cn.cstqb.exam.testmaker.services.IQuestionStatusService;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/18
+ * Time: 22:57
+ */
+public class QuestionStatusServiceImpl implements IQuestionStatusService {
+	private QuestionStatusDao dao;
+	private QuestionStatusTransitionDao transitionDao;
+<span class="nc" id="L28">	private Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+	@Inject
+	public QuestionStatusServiceImpl(QuestionStatusDao dao,
+<span class="nc" id="L32">			QuestionStatusTransitionDao transitionDao) {</span>
+<span class="nc" id="L33">		this.dao = dao;</span>
+<span class="nc" id="L34">		this.transitionDao = transitionDao;</span>
+<span class="nc" id="L35">	}</span>
+
+    private boolean isValidStatus(QuestionStatus status) {
+<span class="nc bnc" id="L38" title="All 6 branches missed.">        return status!=null &amp;&amp; status.validate() &amp;&amp; status.isValidID();</span>
+    }
+
+    /**
+     * Create or update a question status
+     * @param status
+     */
+	@Override
+	public void saveOrUpdate(QuestionStatus status) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		Preconditions.checkArgument(status != null , &quot;Invalid status. Provided: %s&quot;, status);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		Preconditions.checkArgument(!Strings.isNullOrEmpty(status.getName()),&quot;The content of status cannot be null or empty.&quot;);</span>
+<span class="nc" id="L49">        QuestionStatus persisted = dao.findById(status.getId());</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		if (persisted == null) {</span>
+<span class="nc" id="L51">			dao.create(status);</span>
+		} else {
+<span class="nc" id="L53">            persisted.setName(status.getName());</span>
+<span class="nc" id="L54">            persisted.setStart(status.isStart());</span>
+<span class="nc" id="L55">            persisted.setFinish(status.isFinish());</span>
+<span class="nc" id="L56">            persisted.setAccessibleByAuthor(status.isAccessibleByAuthor());</span>
+<span class="nc" id="L57">            persisted.setAccessibleByFacilitator(status.isAccessibleByFacilitator());</span>
+<span class="nc" id="L58">            persisted.setAccessibleByQualityAdmin(status.isAccessibleByQualityAdmin());</span>
+<span class="nc" id="L59">            persisted.setAccessibleByReviewer(status.isAccessibleByReviewer());</span>
+<span class="nc" id="L60">			dao.update(persisted);</span>
+		}
+<span class="nc" id="L62">	}</span>
+
+	/**
+     * Delete a question status
+     * @param status
+     */
+	@Override
+	public void delete(QuestionStatus status) {
+<span class="nc" id="L70">		Preconditions.checkArgument(isValidStatus(status),&quot;Invalid status. Provided: %s&quot;, status);</span>
+<span class="nc" id="L71">        QuestionStatus persisted = dao.findById(status.getId());</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (persisted==null) {</span>
+<span class="nc" id="L73">            logger.error(&quot;QuestionStatusServiceImpl.delete: FAILED. Status does not exist. {}&quot;, status );</span>
+<span class="nc" id="L74">            return;</span>
+        }
+<span class="nc" id="L76">        transitionDao.deleteTransitions(status);</span>
+<span class="nc" id="L77">        dao.delete(persisted);</span>
+<span class="nc" id="L78">	}</span>
+
+	/**
+     * Find a question status for the given id
+     * @param id
+     * @return
+     */
+	@Override
+	public QuestionStatus findStatus(int id) {
+<span class="nc" id="L87">		return dao.findById(id);</span>
+	}
+
+    /**
+     * Finds the the first question status in the question status transition workflow.
+     *
+     * @return QuestionStatus
+     */
+    @Override
+    public QuestionStatus findStartStatus() {
+<span class="nc" id="L97">        return dao.findStart();</span>
+    }
+
+    /**
+     * Find a question status for the given name
+     * @param name
+     * @return
+     */
+	@Override
+	public QuestionStatus findStatus(String name) {
+<span class="nc" id="L107">		return dao.findByName(name);</span>
+	}
+
+    /**
+     * @return
+     */
+    @Override
+    public List&lt;QuestionStatus&gt; findAllStatuses() {
+<span class="nc" id="L115">        return dao.findAll();</span>
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public boolean canAddAsStartState() {
+<span class="nc" id="L123">        return dao.canAddStartStatus();</span>
+    }
+
+    /**
+	 * Find a list of statuses the given status can transit to.
+	 *
+	 * @param status
+	 * @return
+	 */
+	@Override
+	public List&lt;QuestionStatusTransition&gt; findTransitions(QuestionStatus status) {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (status==null) {</span>
+<span class="nc" id="L135">            logger.info(&quot;QuestionStatusServiceImpl.findTransitions: The query status is null. Returning all transitions.&quot; );</span>
+<span class="nc" id="L136">            return transitionDao.findAll();</span>
+        }
+
+        /*
+         * The status now should be Non-Null and the ID should valid
+         */
+<span class="nc bnc" id="L142" title="All 4 branches missed.">        Preconditions.checkArgument(status.getId() &gt; 0 &amp;&amp; !Strings.isNullOrEmpty(status.getName()),</span>
+                &quot;The status id or name is not valid. Provided: %s&quot;, status);
+<span class="nc" id="L144">        List&lt;QuestionStatusTransition&gt; transitions = transitionDao.findTransitions(status);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        logger.debug(&quot;QuestionStatusServiceImpl.findTransitions: {} transitions found for status [{}]&quot;, transitions != null ? transitions.size() : 0, status.getName());</span>
+<span class="nc" id="L146">        return transitions;</span>
+    }
+
+    @Override
+    public java.util.Set&lt;QuestionStatus&gt; findTransitionalStates(QuestionStatus status) {
+<span class="nc bnc" id="L151" title="All 6 branches missed.">        Preconditions.checkArgument(status!=null &amp;&amp; status.validate() &amp;&amp; status.isValidID(), &quot;Invalid status provided. %s&quot;, status);</span>
+<span class="nc" id="L152">        return transitionDao.findTransitionalStatus(status);</span>
+    }
+
+    @Override
+    public List&lt;QuestionStatus&gt; findTransitionalStates(int statusId) {
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        Preconditions.checkArgument(statusId&gt;0,&quot;ID must be greater than zero.&quot;);</span>
+<span class="nc" id="L158">        return transitionDao.findTransitionalStatus(statusId);</span>
+    }
+
+    /**
+     * @param status
+     * @param nextStatus
+     * @return
+     */
+    @Override
+    public boolean existsTransition(QuestionStatus status, QuestionStatus nextStatus) {
+<span class="nc bnc" id="L168" title="All 4 branches missed.">        Preconditions.checkArgument(status!=null &amp;&amp; nextStatus!=null);</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">        Preconditions.checkState(status.isValidID() &amp;&amp; nextStatus.isValidID(), &quot;ID must be provided for the transition check.&quot;);</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        Preconditions.checkState(!status.getId().equals(nextStatus.getId()), &quot;A status cannot transit to itself. Given: %s&quot;, status);</span>
+<span class="nc" id="L171">        return transitionDao.existsTransition(status, nextStatus);</span>
+    }
+
+    /**
+     * @param transition
+     */
+    @Override
+    public void saveTransition(QuestionStatusTransition transition) {
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        Preconditions.checkArgument(transition!=null);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        Preconditions.checkState(transition.getTransitionPK()!=null,&quot;ID is required for the transition to work. The ID is the combination of two status ids.&quot;);</span>
+<span class="nc" id="L181">        logger.debug(&quot;QuestionStatusServiceImpl.saveTransition: saving transition {}&quot;, transition );</span>
+<span class="nc" id="L182">        QuestionStatusTransition persisted = transitionDao.findById(transition.getTransitionPK());</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (persisted == null) {</span>
+<span class="nc" id="L184">            transitionDao.create(transition);</span>
+        } else {
+<span class="nc" id="L186">            transitionDao.update(transition);</span>
+        }
+<span class="nc" id="L188">    }</span>
+
+    @Override
+    public void saveTransitionalStates(QuestionStatus status, Set&lt;QuestionStatus&gt; statuses) {
+<span class="nc" id="L192">        Preconditions.checkNotNull(status);</span>
+<span class="nc bnc" id="L193" title="All 4 branches missed.">        Preconditions.checkArgument(status.validate() &amp;&amp; status.isValidID(), &quot;Status is invalid: %s&quot;, status);</span>
+<span class="nc" id="L194">        Preconditions.checkNotNull(statuses);</span>
+<span class="nc" id="L195">        transitionDao.clearTransitions(status);</span>
+
+<span class="nc" id="L197">        transitionDao.saveTransitionalStates(status, statuses);</span>
+<span class="nc" id="L198">    }</span>
+
+    /**
+     * Clear all mappings for the status
+     *
+     * @param status
+     */
+    @Override
+    public void clearTransitions(QuestionStatus status) {
+<span class="nc bnc" id="L207" title="All 6 branches missed.">        Preconditions.checkArgument(status!=null &amp;&amp; status.validate() &amp;&amp; status.isValidID(),&quot;Status is invalid: %s&quot;, status);</span>
+<span class="nc" id="L208">        transitionDao.clearTransitions(status);</span>
+<span class="nc" id="L209">    }</span>
+
+    /**
+     * @param status
+     * @param statuses
+     */
+    @Override
+    public void deleteTransitionalStates(QuestionStatus status, Set&lt;QuestionStatus&gt; statuses) {
+<span class="nc bnc" id="L217" title="All 6 branches missed.">        Preconditions.checkArgument(status!=null &amp;&amp; status.validate() &amp;&amp; status.isValidID(),&quot;Status is invalid: %s&quot;, status);</span>
+<span class="nc" id="L218">        Preconditions.checkNotNull(statuses);</span>
+<span class="nc" id="L219">        transitionDao.deleteTransitionalStates(status, statuses);</span>
+<span class="nc" id="L220">    }</span>
+
+    /**
+     * @param transition
+     */
+    @Override
+    public void removeTransition(QuestionStatusTransition transition)  {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        Preconditions.checkArgument(transition!=null);</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">        Preconditions.checkState(transition.getTransitionPK()!=null,&quot;ID is required for the transition to work. The ID is the combination of two status ids.&quot;);</span>
+<span class="nc" id="L229">        QuestionStatusTransition persisted = transitionDao.findById(transition.getTransitionPK());</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (persisted != null) {</span>
+<span class="nc" id="L231">            transitionDao.delete(persisted);</span>
+        } else {
+<span class="nc" id="L233">            logger.error(&quot;QuestionStatusServiceImpl.removeTransition: Transition does not exist in DB {}&quot;, transition );</span>
+        }
+<span class="nc" id="L235">    }</span>
+
+    /**
+     * Finds all transitions in this system.
+     *
+     * @return
+     */
+    @Override
+    public List&lt;QuestionStatusTransition&gt; findAllTransitions() {
+<span class="nc" id="L244">        return transitionDao.findAll();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

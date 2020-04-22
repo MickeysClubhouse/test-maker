@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChapterDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao.impl</a> &gt; <span class="el_source">ChapterDaoImpl.java</span></div><h1>ChapterDaoImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao.impl;
+
+import cn.cstqb.exam.testmaker.dao.ChapterDao;
+import cn.cstqb.exam.testmaker.entities.Chapter;
+import cn.cstqb.exam.testmaker.entities.Syllabus;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/26
+ * Time: 18:57
+ */
+<span class="fc" id="L14">public class ChapterDaoImpl extends GenericJpaDaoImpl&lt;Chapter, Integer&gt;</span>
+        implements ChapterDao {
+    /**
+     * find the chapter with the given title
+     *
+     * @param title
+     * @return The chapter object matching the title or &lt;i&gt;null&lt;/i&gt; if not found
+     */
+    @Override
+    public Chapter findChapter(String title) {
+<span class="nc" id="L24">        List&lt;Chapter&gt; results = findResultList(&quot;title&quot;, title);</span>
+<span class="nc bnc" id="L25" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">            logger.debug(&quot;chapters matched for [{}]: {}&quot;, title, results != null ? results.size() : 0);</span>
+        }
+<span class="nc bnc" id="L28" title="All 4 branches missed.">        return results != null &amp;&amp; !results.isEmpty() ? results.get(0) : null;</span>
+    }
+
+    /**
+     * Find chapters with the given syllabus
+     *
+     * @param syllabus
+     * @return The chapter objects matching the syllabus or &lt;i&gt;null&lt;/i&gt; if not
+     * found
+     */
+    @Override
+    public List&lt;Chapter&gt; findChapters(Syllabus syllabus) {
+<span class="nc" id="L40">        List&lt;Chapter&gt; chapters = findResultList(&quot;syllabus&quot;, syllabus);</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L42">            logger.debug(&quot;Chapters detail for [{}] : {}&quot;, syllabus, chapters);</span>
+        }
+<span class="nc" id="L44">        return chapters;</span>
+    }
+
+    @Override
+    public List&lt;Chapter&gt; findChapters(int syllabusId) {
+<span class="nc" id="L49">        return provider.get()</span>
+<span class="nc" id="L50">                .createQuery(&quot;SELECT c FROM Chapter c WHERE c.syllabus.id = :syllabusId&quot;, Chapter.class)</span>
+<span class="nc" id="L51">                .setParameter(&quot;syllabusId&quot;, syllabusId)</span>
+<span class="nc" id="L52">                .getResultList();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

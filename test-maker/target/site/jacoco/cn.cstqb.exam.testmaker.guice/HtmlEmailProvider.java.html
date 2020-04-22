@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HtmlEmailProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.guice</a> &gt; <span class="el_source">HtmlEmailProvider.java</span></div><h1>HtmlEmailProvider.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.guice;
+
+import cn.cstqb.exam.testmaker.configuration.ApplicationConfigContext;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.throwingproviders.CheckedProvider;
+import com.typesafe.config.Config;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/4/1
+ * Time: 23:58
+ */
+public class HtmlEmailProvider implements Provider&lt;HtmlEmail&gt; {
+<span class="fc" id="L21">    private final Logger logger = LoggerFactory.getLogger(getClass());</span>
+    private final ApplicationConfigContext configContext;
+
+    @Inject
+<span class="fc" id="L25">    public HtmlEmailProvider(ApplicationConfigContext configContext) {</span>
+<span class="fc" id="L26">        this.configContext = configContext;</span>
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Provides a fully-constructed and injected instance of {@code T}.
+     *
+     * @throws RuntimeException if the injector encounters an error while
+     *                          providing an instance. For example, if an injectable member on
+     *                          {@code T} throws an exception, the injector may wrap the exception
+     *                          and throw it to the caller of {@code get()}. Callers should not try
+     *                          to handle such exceptions as the behavior may vary across injector
+     *                          implementations and even different configurations of the same injector.
+     */
+    @Override
+    public HtmlEmail get() {
+<span class="fc" id="L41">        logger.debug(&quot;HtmlEmailProvider.get: Creating instance of HtmlEmail...&quot; );</span>
+<span class="fc" id="L42">        Config config=configContext.getConfig();</span>
+<span class="fc" id="L43">        HtmlEmail mail=new HtmlEmail();</span>
+<span class="fc" id="L44">        mail.setHostName(config.getString(&quot;mail.smtp.host&quot;));</span>
+<span class="fc" id="L45">        mail.setSmtpPort(config.getInt(&quot;mail.smtp.port&quot;));</span>
+<span class="fc" id="L46">        mail.setSSLOnConnect(config.getBoolean(&quot;mail.smtp.ssl&quot;));</span>
+<span class="fc" id="L47">        mail.setCharset(config.getString(&quot;mail.charset&quot;));</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (config.getBoolean(&quot;mail.smtp.authenticate&quot;)) {</span>
+<span class="fc" id="L49">            mail.setAuthentication(config.getString(&quot;mail.smtp.user&quot;), config.getString(&quot;mail.smtp.password&quot;));</span>
+        }
+        try {
+<span class="fc" id="L52">            mail.setFrom(config.getString(&quot;mail.from.address&quot;),</span>
+<span class="fc" id="L53">                    config.getString(&quot;mail.from.name&quot;),</span>
+<span class="fc" id="L54">                    config.getString(&quot;mail.charset&quot;));</span>
+<span class="nc" id="L55">        } catch (EmailException e) {</span>
+<span class="nc" id="L56">            e.printStackTrace();</span>
+<span class="nc" id="L57">            logger.error(&quot;HtmlEmailProvider.get: {}&quot;,e );</span>
+<span class="fc" id="L58">        }</span>
+<span class="fc" id="L59">        mail.setDebug(config.getBoolean(&quot;mail.debug&quot;));</span>
+
+<span class="fc" id="L61">        return mail;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MailMessenger.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.mailing</a> &gt; <span class="el_source">MailMessenger.java</span></div><h1>MailMessenger.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.mailing;
+
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/4/2
+ * Time: 16:31
+ */
+public class MailMessenger {
+<span class="fc" id="L19">    private final Logger logger = LoggerFactory.getLogger(getClass());</span>
+
+<span class="fc" id="L21">    public MailMessenger() {</span>
+<span class="fc" id="L22">    }</span>
+
+    public void send(SendMailTask mailTask) {
+<span class="nc" id="L25">        Preconditions.checkNotNull(mailTask);</span>
+<span class="nc" id="L26">        logger.debug(&quot;MailMessenger.send: {}: {}&quot;, mailTask.getClass().getName(), mailTask);</span>
+<span class="nc" id="L27">        Thread mailer = new Thread(mailTask, &quot;Messenger&quot;);</span>
+<span class="nc" id="L28">        mailer.start();</span>
+<span class="nc" id="L29">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

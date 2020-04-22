@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SavePaper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.projects.current</a> &gt; <span class="el_source">SavePaper.java</span></div><h1>SavePaper.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.projects.current;
+
+import cn.cstqb.exam.testmaker.actions.BaseAction;
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.*;
+import cn.cstqb.exam.testmaker.services.IPaperQuestionService;
+import cn.cstqb.exam.testmaker.services.IPaperService;
+import cn.cstqb.exam.testmaker.services.IQuestionService;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * created by 姜向阳
+ * on 2020/4/9
+ */
+<span class="nc" id="L19">public class SavePaper extends BaseAction {</span>
+    //Ignore
+    @Inject
+    private IPaperService paperService;
+    @Inject
+    private IQuestionService questionService;
+    @Inject
+    private IPaperQuestionService paperQuestionService;
+    private Paper paper;
+    private String ids;
+
+
+    @Override
+    public void validateInput() {
+
+<span class="nc" id="L34">    }</span>
+
+    //TODO
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L39">        logger.debug(&quot;SaveProjectQuestion.executeImpl: Saving question...&quot; );</span>
+        /*
+         * If the incoming question does not have project attribute, then it is a new entity,
+         * attach current session project to it
+         */
+<span class="nc" id="L44">        logger.info(ids);</span>
+<span class="nc" id="L45">        Project project = (Project) session.get(Constants.ATTR_PROJECT);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (project == null) {</span>
+<span class="nc" id="L47">            addActionError(getText(&quot;error.user.auth.notLoggedIn&quot;));</span>
+<span class="nc" id="L48">            return Constants.RESULT_USER_NOT_AUTHENTICATED;</span>
+        }
+<span class="nc" id="L50">        int score = 0;</span>
+<span class="nc" id="L51">        String[] temp = ids.split(&quot;\\.&quot;);</span>
+<span class="nc" id="L52">        List&lt;Question&gt; questions = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L53">        logger.info(temp.length+&quot; &quot;);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        for (String idString : temp){</span>
+<span class="nc" id="L55">            Question question = questionService.findQuestion(Integer.parseInt(idString));</span>
+<span class="nc" id="L56">            questions.add(question);</span>
+<span class="nc" id="L57">            score += question.getScore();</span>
+<span class="nc" id="L58">            logger.info(idString);</span>
+<span class="nc" id="L59">            logger.info(question.getScore()+&quot;    &quot;);</span>
+        }
+
+<span class="nc" id="L62">        paper.setScore(score);</span>
+<span class="nc" id="L63">        paper.setProject(project);</span>
+<span class="nc" id="L64">        paperService.save(paper);//save paper</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (Question question : questions){//for each save paper question</span>
+<span class="nc" id="L66">            paperQuestionService.save(new PaperQuestion(paper, question));</span>
+<span class="nc" id="L67">        }</span>
+<span class="nc" id="L68">        return null;</span>
+    }
+
+    public void setPaper(Paper paper) {
+<span class="nc" id="L72">        this.paper = paper;</span>
+<span class="nc" id="L73">    }</span>
+
+
+
+    public String getIds() {
+<span class="nc" id="L78">        return ids;</span>
+    }
+
+    public void setIds(String ids) {
+<span class="nc" id="L82">        this.ids = ids;</span>
+<span class="nc" id="L83">    }</span>
+
+    public IQuestionService getQuestionService() {
+<span class="nc" id="L86">        return questionService;</span>
+    }
+
+    public void setQuestionService(IQuestionService questionService) {
+<span class="nc" id="L90">        this.questionService = questionService;</span>
+<span class="nc" id="L91">    }</span>
+
+    public IPaperQuestionService getPaperQuestionService() {
+<span class="nc" id="L94">        return paperQuestionService;</span>
+    }
+
+    public void setPaperQuestionService(IPaperQuestionService paperQuestionService) {
+<span class="nc" id="L98">        this.paperQuestionService = paperQuestionService;</span>
+<span class="nc" id="L99">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

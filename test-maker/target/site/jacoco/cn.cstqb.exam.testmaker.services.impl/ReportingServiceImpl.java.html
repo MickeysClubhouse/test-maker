@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportingServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">ReportingServiceImpl.java</span></div><h1>ReportingServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import cn.cstqb.exam.testmaker.dao.QuestionReportingDao;
+import cn.cstqb.exam.testmaker.entities.Project;
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.reporting.QuestionTaskEntry;
+import cn.cstqb.exam.testmaker.services.IReportingService;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.*;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/30
+ * Time: 21:14
+ */
+<span class="nc" id="L29">public class ReportingServiceImpl implements IReportingService {</span>
+<span class="nc" id="L30">    private static final Logger logger = LoggerFactory.getLogger(ReportingServiceImpl.class);</span>
+    @Inject private QuestionReportingDao qsd;
+
+    @Override
+    public QuestionTaskEntry getProjectSummary(Project sessionProject) {
+<span class="nc" id="L35">        return qsd.getProjectSummary(sessionProject);</span>
+    }
+
+    /**
+     * Get all questions that are near to the due date
+     *
+     * @param project
+     * @param username
+     * @param threshold
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; getExpiringQuestions(Project project, String username, int threshold) {
+<span class="nc bnc" id="L48" title="All 6 branches missed.">        checkArgument(project!=null &amp;&amp; project.validate() &amp;&amp; project.isValidID(), &quot;Invalid project provided: %s&quot;, project);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        checkArgument(threshold&gt;0,&quot;The threshold must be greater than zero: %d&quot;, threshold);</span>
+<span class="nc" id="L51">        return filterQuestions(qsd.getExpiringQuestions(project, username, threshold));</span>
+    }
+
+    /**
+     *
+     * @param project
+     * @param username
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; getExpiredQuestions(Project project, String username) {
+<span class="nc bnc" id="L62" title="All 6 branches missed.">        checkArgument(project!=null &amp;&amp; project.validate() &amp;&amp; project.isValidID(), &quot;Invalid project provided: %s&quot;, project);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc" id="L64">        return filterQuestions(qsd.getExpiredQuestions(project, username));</span>
+    }
+
+    /**
+     * @param project
+     * @param threshold
+     * @return
+     */
+    @Override
+    public List&lt;Question&gt; getExpiringQuestions(Project project, int threshold) {
+<span class="nc bnc" id="L74" title="All 6 branches missed.">        checkArgument(project!=null &amp;&amp; project.validate() &amp;&amp; project.isValidID(), &quot;Invalid project provided: %s&quot;, project);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        checkArgument(threshold&gt;0,&quot;The threshold must be greater than zero: %d&quot;, threshold);</span>
+<span class="nc" id="L76">        return filterQuestions(qsd.getExpiringQuestions(project, threshold));</span>
+    }
+
+    @Override
+    public Set&lt;QuestionTaskEntry&gt; getTasks(Project project, String username) {
+<span class="nc bnc" id="L81" title="All 6 branches missed.">        checkArgument(project!=null &amp;&amp; project.validate() &amp;&amp; project.isValidID(), &quot;Invalid project provided: %s&quot;, project);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc" id="L83">        logger.debug(&quot;StatisticsServiceImpl: Getting task info for {}&quot;, username);</span>
+<span class="nc" id="L84">        return qsd.getTasks(project, username);</span>
+    }
+
+    @Override
+    public QuestionTaskEntry getTaskSummary(Project project, String username) {
+<span class="nc bnc" id="L89" title="All 6 branches missed.">        checkArgument(project!=null &amp;&amp; project.validate() &amp;&amp; project.isValidID(), &quot;Invalid project provided: %s&quot;, project);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc" id="L91">        logger.debug(&quot;StatisticsServiceImpl: Getting task info for {}&quot;, username);</span>
+<span class="nc" id="L92">        return qsd.getTaskSummary(project, username);</span>
+    }
+
+    @Override
+    public QuestionTaskEntry getAuthorTask(Project project, String username) {
+<span class="nc bnc" id="L97" title="All 6 branches missed.">        checkArgument(project!=null &amp;&amp; project.validate() &amp;&amp; project.isValidID(), &quot;Invalid project provided: %s&quot;, project);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc" id="L99">        logger.debug(&quot;StatisticsServiceImpl: Getting task info for {}&quot;, username);</span>
+<span class="nc" id="L100">        return qsd.getAuthorTask(project, username);</span>
+    }
+
+    @Override
+    public QuestionTaskEntry getReviewerTask(Project project, String username) {
+<span class="nc bnc" id="L105" title="All 6 branches missed.">        checkArgument(project!=null &amp;&amp; project.validate() &amp;&amp; project.isValidID(), &quot;Invalid project provided: %s&quot;, project);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc" id="L107">        logger.debug(&quot;StatisticsServiceImpl: Getting task info for {}&quot;, username);</span>
+<span class="nc" id="L108">        return qsd.getReviewerTask(project,username);</span>
+    }
+
+    @Override
+    public QuestionTaskEntry getQATask(Project project, String username) {
+<span class="nc bnc" id="L113" title="All 6 branches missed.">        checkArgument(project!=null &amp;&amp; project.validate() &amp;&amp; project.isValidID(), &quot;Invalid project provided: %s&quot;, project);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        checkArgument(!Strings.isNullOrEmpty(username));</span>
+<span class="nc" id="L115">        logger.debug(&quot;StatisticsServiceImpl: Getting task info for {}&quot;, username);</span>
+<span class="nc" id="L116">        return qsd.getQATask(project, username);</span>
+    }
+
+
+    private List&lt;Question&gt; filterQuestions(Collection&lt;Question&gt; questions) {
+<span class="nc" id="L121">        Collection&lt;Question&gt; filtered= Collections2.filter(questions, new Predicate&lt;Question&gt;() {</span>
+            @Override
+            public boolean apply(@Nullable Question input) {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                if (input != null) {</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                    return !input.getStatus().isFinish();</span>
+                } else {
+<span class="nc" id="L127">                    return false;</span>
+                }
+            }
+        });
+
+<span class="nc" id="L132">        return new ArrayList&lt;&gt;(filtered);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

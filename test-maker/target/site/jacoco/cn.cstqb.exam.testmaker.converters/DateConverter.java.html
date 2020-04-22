@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DateConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.converters</a> &gt; <span class="el_source">DateConverter.java</span></div><h1>DateConverter.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.converters;
+
+import cn.cstqb.exam.testmaker.configuration.ApplicationConfigContext;
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import org.apache.struts2.util.StrutsTypeConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/2/9
+ * Time: 9:47
+ */
+public class DateConverter extends StrutsTypeConverter {
+<span class="nc" id="L23">    private static final Logger logger = LoggerFactory.getLogger(DateConverter.class);</span>
+<span class="nc" id="L24">    private static final ApplicationConfigContext configContext = ApplicationConfigContext.getInstance();</span>
+    private static SimpleDateFormat dateFormat;
+
+<span class="nc" id="L27">    public DateConverter() {</span>
+<span class="nc" id="L28">        dateFormat = new SimpleDateFormat(configContext.getDefaultDateFormat(), Locale.SIMPLIFIED_CHINESE);</span>
+<span class="nc" id="L29">    }</span>
+
+    /**
+     * Converts one or more String values to the specified class.
+     *
+     * @param context the action context
+     * @param values  the String values to be converted, such as those submitted from an HTML form
+     * @param toClass the class to convert to
+     * @return the converted object
+     */
+    @Override
+    public Object convertFromString(Map context, String[] values, Class toClass) {
+<span class="nc" id="L41">        String input = values[0];</span>
+<span class="nc" id="L42">        Date target=null;</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (toClass.equals(Date.class)) {</span>
+            try {
+<span class="nc" id="L45">                target = dateFormat.parse(input);</span>
+<span class="nc" id="L46">            } catch (ParseException e) {</span>
+<span class="nc" id="L47">                e.printStackTrace();</span>
+<span class="nc" id="L48">                logger.error(&quot;DateConverter.convertFromString: Invalid input date value {}&quot;, input );</span>
+<span class="nc" id="L49">            }</span>
+        }
+<span class="nc" id="L51">        return target;</span>
+    }
+
+    /**
+     * Converts the specified object to a String.
+     *
+     * @param context the action context
+     * @param o       the object to be converted
+     * @return the converted String
+     */
+    @Override
+    public String convertToString(Map context, Object o) {
+<span class="nc" id="L63">        String output = &quot;&quot;;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (o instanceof Date) {</span>
+<span class="nc" id="L65">            Date date = (Date) o;</span>
+<span class="nc" id="L66">            output = dateFormat.format(date);</span>
+<span class="nc" id="L67">            logger.info(&quot;DateConverter.convertToString: {}&quot;,output );</span>
+        }
+<span class="nc" id="L69">        return output;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

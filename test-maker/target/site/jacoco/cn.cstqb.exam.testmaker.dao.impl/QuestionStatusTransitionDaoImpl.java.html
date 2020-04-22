@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionStatusTransitionDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao.impl</a> &gt; <span class="el_source">QuestionStatusTransitionDaoImpl.java</span></div><h1>QuestionStatusTransitionDaoImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao.impl;
+
+import cn.cstqb.exam.testmaker.dao.QuestionStatusTransitionDao;
+import cn.cstqb.exam.testmaker.entities.QuestionStatus;
+import cn.cstqb.exam.testmaker.entities.QuestionStatusTransition;
+import cn.cstqb.exam.testmaker.entities.QuestionStatusTransitionPK;
+import com.google.common.base.Preconditions;
+import com.google.inject.persist.Transactional;
+
+import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import java.util.*;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/5
+ * Time: 2:30
+ */
+<span class="nc" id="L21">public class QuestionStatusTransitionDaoImpl extends GenericJpaDaoImpl&lt;QuestionStatusTransition, QuestionStatusTransitionPK&gt;</span>
+    implements QuestionStatusTransitionDao{
+    private boolean isValidStatus(QuestionStatus status) {
+<span class="nc bnc" id="L24" title="All 6 branches missed.">        return status!=null &amp;&amp; status.validate() &amp;&amp; status.isValidID();</span>
+    }
+
+    @Transactional
+    @Override
+    public void create(QuestionStatusTransition entity) {
+<span class="nc" id="L30">        Objects.requireNonNull(entity, &quot;Entity object must not be null&quot;);</span>
+<span class="nc" id="L31">        QuestionStatusTransitionPK pk = entity.getTransitionPK();</span>
+<span class="nc" id="L32">        QuestionStatusTransition _saved = super.findById(pk);</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        if (_saved == null) {</span>
+<span class="nc" id="L34">            super.create(entity);</span>
+        } else {
+<span class="nc" id="L36">            logger.warn(&quot;Entity already saved. {}&quot;, entity);</span>
+<span class="nc" id="L37">            return;</span>
+        }
+<span class="nc" id="L39">    }</span>
+
+    @Transactional
+    public void clearTransitions(QuestionStatus status) {
+<span class="nc" id="L43">        logger.debug(&quot;QuestionStatusTransitionDaoImpl.clearTransitions: clearing transitions for {}&quot;, status );</span>
+<span class="nc" id="L44">        EntityManager em=provider.get();</span>
+<span class="nc" id="L45">        int rows=em.createQuery(&quot;DELETE FROM QuestionStatusTransition t WHERE t.id.status =:status&quot;)</span>
+<span class="nc" id="L46">                .setParameter(&quot;status&quot;, status)</span>
+<span class="nc" id="L47">                .executeUpdate();</span>
+<span class="nc" id="L48">        logger.debug(&quot;QuestionStatusTransitionDaoImpl.clearTransitions: {} transitions deleted&quot;, rows );</span>
+<span class="nc" id="L49">    }</span>
+
+    @Override
+    @Transactional
+    public void saveTransitionalStates(QuestionStatus status, Set&lt;QuestionStatus&gt; statuses) {
+<span class="nc" id="L54">        EntityManager em=provider.get();</span>
+<span class="nc" id="L55">        int count=0;</span>
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        for (QuestionStatus nextStatus : statuses) {</span>
+<span class="nc" id="L58">            QuestionStatusTransitionPK pk = new QuestionStatusTransitionPK(status, nextStatus);</span>
+<span class="nc" id="L59">            boolean persistedAlready=em.contains(nextStatus);</span>
+<span class="nc" id="L60">            logger.info(&quot;QuestionStatusTransitionDaoImpl.saveTransitionalStates: next status persisted: {}. {}&quot;, persistedAlready, nextStatus);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            if (persistedAlready) {</span>
+<span class="nc" id="L62">                logger.warn(&quot;QuestionStatusTransitionDaoImpl.saveTransitionalStates: The target status {} is already mapped to current status: {}&quot;,</span>
+<span class="nc" id="L63">                        nextStatus.getName(), status.getName());</span>
+<span class="nc" id="L64">                continue;</span>
+            }
+
+            //The sequence is not set yet. This will be implemented on demand.
+<span class="nc" id="L68">            QuestionStatusTransition transition = new QuestionStatusTransition(pk);</span>
+<span class="nc" id="L69">            em.merge(transition);</span>
+<span class="nc" id="L70">            count++;</span>
+<span class="nc" id="L71">        }</span>
+<span class="nc" id="L72">        logger.info(&quot;QuestionStatusTransitionDaoImpl.saveTransitionalStates: {} transitions saved!&quot;, count );</span>
+<span class="nc" id="L73">    }</span>
+
+    @Override
+    @Transactional
+    public void deleteTransitionalStates(QuestionStatus status, Set&lt;QuestionStatus&gt; statuses) {
+<span class="nc" id="L78">        EntityManager em=provider.get();</span>
+<span class="nc" id="L79">        int count=0;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (QuestionStatus nextStatus : statuses) {</span>
+<span class="nc" id="L81">            QuestionStatusTransition persisted = findById(new QuestionStatusTransitionPK(status, nextStatus));</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (persisted==null) {</span>
+<span class="nc" id="L83">                logger.warn(&quot;QuestionStatusTransitionDaoImpl.deleteTransitionalStates: SKIPPED. The target status [#1] is NOT mapped to current status yet: #0&quot;,</span>
+<span class="nc" id="L84">                        status.getName(), nextStatus.getName() );</span>
+<span class="nc" id="L85">                continue;</span>
+            }
+<span class="nc" id="L87">            em.remove(nextStatus);</span>
+<span class="nc" id="L88">            count++;</span>
+<span class="nc" id="L89">        }</span>
+<span class="nc" id="L90">        logger.info(&quot;QuestionStatusTransitionDaoImpl.deleteTransitionalStates: {} transitions deleted!&quot;, count );</span>
+<span class="nc" id="L91">    }</span>
+
+    /**
+     * Delete any transition that is associated with this status either in current field or in next status field
+     *
+     * @param status The status whose transitions will be deleted.
+     */
+    @Override
+    @Transactional
+    public void deleteTransitions(QuestionStatus status) {
+<span class="nc" id="L101">        Preconditions.checkArgument(isValidStatus(status),&quot;Invalid question status: %s&quot;, status);</span>
+<span class="nc" id="L102">        EntityManager em = provider.get();</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (em.contains(status)) {</span>
+<span class="nc" id="L105">            logger.debug(&quot;QuestionStatusTransitionDaoImpl.deleteTransitions: Status already in PersistenceContext. {}&quot;, status.getId());</span>
+        } else {
+<span class="nc" id="L107">            logger.info(&quot;QuestionStatusTransitionDaoImpl.deleteTransitions: Status NOT FOUND in PersistenceContext. Checking DB {}&quot;, status.getId());</span>
+<span class="nc" id="L108">            status = em.find(QuestionStatus.class, status.getId());</span>
+        }
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (status==null) {</span>
+<span class="nc" id="L112">            logger.error(&quot;QuestionStatusTransitionDaoImpl.deleteTransitions: Status NOT FOUND IN DB: {}&quot;, status );</span>
+<span class="nc" id="L113">            return;</span>
+        }
+<span class="nc" id="L115">        logger.info(&quot;QuestionStatusTransitionDaoImpl.deleteTransitions: DELETING {}&quot;, status );</span>
+<span class="nc" id="L116">        int rows=em.createQuery(&quot;DELETE FROM QuestionStatusTransition t WHERE t.transitionPK.status = :status OR t.transitionPK.nextStatus = :status &quot;)</span>
+<span class="nc" id="L117">                .setParameter(&quot;status&quot;, status)</span>
+<span class="nc" id="L118">                .executeUpdate();</span>
+<span class="nc" id="L119">        logger.info(&quot;QuestionStatusTransitionDaoImpl.deleteTransitions: Rows deleted: {}&quot;, rows );</span>
+<span class="nc" id="L120">    }</span>
+
+    @Override
+    @Transactional
+    public List&lt;QuestionStatusTransition&gt; findTransitions(QuestionStatus status) {
+<span class="nc" id="L125">        EntityManager em = provider.get();</span>
+<span class="nc" id="L126">        List&lt;QuestionStatusTransition&gt; transitions =</span>
+<span class="nc" id="L127">                em.createQuery(&quot;SELECT t FROM QuestionStatusTransition t WHERE t.transitionPK.status = :status ORDER BY t.sequence ASC &quot;, QuestionStatusTransition.class)</span>
+<span class="nc" id="L128">                .setParameter(&quot;status&quot;, status)</span>
+<span class="nc" id="L129">                .getResultList();</span>
+<span class="nc" id="L130">        return transitions;</span>
+    }
+
+    /**
+     * Lists all possible transitional statuses for this statue. Sequence is ignored
+     *
+     * @param status
+     * @return
+     */
+    @Override
+    public Set&lt;QuestionStatus&gt; findTransitionalStatus(@Nonnull QuestionStatus status) {
+<span class="nc" id="L141">        EntityManager em = provider.get();</span>
+<span class="nc" id="L142">        List&lt;QuestionStatus&gt; statuses=</span>
+<span class="nc" id="L143">                em.createQuery(&quot;SELECT DISTINCT t.transitionPK.nextStatus FROM QuestionStatusTransition t WHERE t.transitionPK.status=:status&quot;, QuestionStatus.class)</span>
+<span class="nc" id="L144">                        .setParameter(&quot;status&quot;, status)</span>
+<span class="nc" id="L145">                        .getResultList();</span>
+<span class="nc" id="L146">        logger.debug(&quot;QuestionStatusTransitionDaoImpl.findTransitionalStatus: transitional statuses found: {}&quot;, statuses.size() );</span>
+<span class="nc" id="L147">        return new LinkedHashSet&lt;&gt;(statuses);</span>
+    }
+
+    @Override
+    public List&lt;QuestionStatus&gt; findTransitionalStatus(int statusId) {
+<span class="nc" id="L152">        EntityManager em = provider.get();</span>
+<span class="nc" id="L153">        List&lt;QuestionStatus&gt; statuses=</span>
+<span class="nc" id="L154">                em.createQuery(&quot;SELECT t.transitionPK.nextStatus FROM QuestionStatusTransition t WHERE t.transitionPK.status.id=:statusId&quot;, QuestionStatus.class)</span>
+<span class="nc" id="L155">                        .setParameter(&quot;statusId&quot;, statusId)</span>
+<span class="nc" id="L156">                        .getResultList();</span>
+<span class="nc" id="L157">        logger.debug(&quot;QuestionStatusTransitionDaoImpl.findTransitionalStatus: transitional statuses found: {}&quot;, statuses.size() );</span>
+<span class="nc" id="L158">        return statuses;</span>
+    }
+
+    /**
+     * Check if the provided transition exists in DB
+     *
+     * @param status
+     * @param nextStatus
+     * @return
+     */
+    @Override
+    @Transactional
+    public boolean existsTransition(QuestionStatus status, QuestionStatus nextStatus) {
+<span class="nc" id="L171">        EntityManager em=provider.get();</span>
+<span class="nc" id="L172">        TypedQuery&lt;Long&gt; query = em.createQuery(&quot;SELECT count(t) FROM QuestionStatusTransition t WHERE t.transitionPK.status =:status and t.transitionPK.nextStatus = :nextStatus &quot;, Long.class);</span>
+<span class="nc" id="L173">        query.setParameter(&quot;status&quot;, status);</span>
+<span class="nc" id="L174">        query.setParameter(&quot;nextStatus&quot;, nextStatus);</span>
+<span class="nc" id="L175">        Long result= query.getSingleResult();</span>
+<span class="nc" id="L176">        logger.debug(&quot;QuestionStatusTransitionDaoImpl.existsTransition: {}&quot;, result );</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        return result &gt; 0;</span>
+    }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

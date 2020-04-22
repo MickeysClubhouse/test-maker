@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CharacterEncodingFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.filters</a> &gt; <span class="el_source">CharacterEncodingFilter.java</span></div><h1>CharacterEncodingFilter.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.filters;
+
+import javax.servlet.*;
+import java.io.IOException;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/13
+ * Time: 21:01
+ */
+<span class="nc" id="L12">public class CharacterEncodingFilter implements Filter {</span>
+    private String encoding;
+<span class="nc" id="L14">    public void destroy() {}</span>
+
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
+<span class="nc" id="L17">        req.setCharacterEncoding(encoding);</span>
+        /**
+         * Set the default response content type and encoding
+         */
+<span class="nc" id="L21">        resp.setContentType(&quot;text/html;charset=UTF-8&quot;);</span>
+<span class="nc" id="L22">        resp.setCharacterEncoding(&quot;UTF-8&quot;);</span>
+
+<span class="nc" id="L24">        chain.doFilter(req, resp);</span>
+<span class="nc" id="L25">    }</span>
+
+    public void init(FilterConfig config) throws ServletException {
+<span class="nc" id="L28">        this.encoding = config.getInitParameter(&quot;encoding&quot;);</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        if (encoding == null) {</span>
+<span class="nc" id="L30">            encoding = &quot;UTF-8&quot;;</span>
+        }
+<span class="nc" id="L32">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

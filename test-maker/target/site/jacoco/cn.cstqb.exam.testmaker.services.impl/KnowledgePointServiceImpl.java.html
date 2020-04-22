@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KnowledgePointServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">KnowledgePointServiceImpl.java</span></div><h1>KnowledgePointServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import cn.cstqb.exam.testmaker.dao.KnowledgePointDao;
+import cn.cstqb.exam.testmaker.entities.Chapter;
+import cn.cstqb.exam.testmaker.entities.KnowledgePoint;
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.entities.Syllabus;
+import cn.cstqb.exam.testmaker.services.IKnowledgePointService;
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * @author wushuang
+ *
+ */
+
+public class KnowledgePointServiceImpl implements IKnowledgePointService {
+<span class="fc" id="L25">	private Logger logger = LoggerFactory.getLogger(getClass());</span>
+	private KnowledgePointDao knowledgePointDao;
+
+	@Inject
+<span class="fc" id="L29">	public KnowledgePointServiceImpl(KnowledgePointDao knowledgePointDao) {</span>
+<span class="fc" id="L30">		this.knowledgePointDao = knowledgePointDao;</span>
+<span class="fc" id="L31">	}</span>
+
+	/**
+	 * Creates or updates the provided knowledge point.
+	 *
+	 * @param knowledgePoint
+	 *            The knowledge point to be created or updated.
+	 */
+	@Override
+	public void saveOrUpdate(KnowledgePoint knowledgePoint) {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">		checkArgument(knowledgePoint != null,&quot;Entity to be persisted cannot be null! %s&quot;, knowledgePoint.getClass().getSimpleName());</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">		checkArgument(knowledgePoint.validate()</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">						&amp;&amp; knowledgePoint.getChapter() != null,</span>
+				&quot;The content of knowledge point can not be null or empty.&quot;);
+<span class="nc" id="L45">		KnowledgePoint persisted = knowledgePointDao.findById(knowledgePoint</span>
+<span class="nc" id="L46">				.getId());</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		if (persisted == null) {</span>
+<span class="nc" id="L48">			knowledgePointDao.create(knowledgePoint);</span>
+		} else {
+<span class="nc" id="L50">			knowledgePointDao.update(knowledgePoint);</span>
+		}
+<span class="nc" id="L52">	}</span>
+
+	/**
+	 * Deletes the given knowledge point.
+	 *
+	 * @param knowledgePoint
+	 *            knowledge point to be deleted.
+	 */
+	@Override
+	public void delete(KnowledgePoint knowledgePoint) {
+<span class="nc bnc" id="L62" title="All 6 branches missed.">		checkArgument(knowledgePoint != null &amp;&amp; knowledgePoint.validate() &amp;&amp; knowledgePoint.isValidID());</span>
+<span class="nc" id="L63">		knowledgePointDao.delete(knowledgePoint);</span>
+<span class="nc" id="L64">	}</span>
+
+	/**
+	 * Gets all knowledge point objects in the system.
+	 *
+	 * @return All knowledge points.
+	 */
+	@Override
+	public List&lt;KnowledgePoint&gt; findAll() {
+<span class="nc" id="L73">		return knowledgePointDao.findAll();</span>
+	}
+
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(Chapter chapter) {
+<span class="nc bnc" id="L78" title="All 4 branches missed.">        if (chapter == null || !chapter.validate() ) {</span>
+<span class="nc" id="L79">            logger.warn(&quot;KnowledgePointServiceImpl.findKnowledgePoint: The provided chapter is null or invalid. All knowledge points will be returned. {}&quot;, chapter);</span>
+<span class="nc" id="L80">            return findAll();</span>
+        } else {
+<span class="nc" id="L82">            return knowledgePointDao.findResultList(&quot;chapter&quot;, chapter);</span>
+        }
+    }
+
+    /**
+     * @param chapterId
+     * @return
+     */
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(int chapterId) {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        Preconditions.checkArgument(chapterId&gt;0,&quot;Chapter id must be greater than zero.&quot;);</span>
+<span class="nc" id="L93">        return knowledgePointDao.findKnowledgePoints(chapterId);</span>
+    }
+
+    @Override
+	public KnowledgePoint findKnowledgePoint(int id) {
+<span class="nc" id="L98">		return knowledgePointDao.findKnowledgePoint(id);</span>
+	}
+
+	@Override
+	public KnowledgePoint findKnowledgePoint(String title) {
+<span class="nc" id="L103">		return knowledgePointDao.findKnowledgePoint(title);</span>
+	}
+
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(int pageSize, int pageNumber) {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        Preconditions.checkArgument(pageSize&gt;1,&quot;Page size must be greater than 1.&quot;);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        Preconditions.checkArgument(pageNumber&gt;0,&quot;Page number must be greater than 0.&quot;);</span>
+<span class="nc" id="L110">        return knowledgePointDao.findAll(pageSize, pageNumber);</span>
+    }
+
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(Chapter chapter, int pageSize, int pageNumber) {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (chapter == null) {</span>
+<span class="nc" id="L116">            return findKnowledgePoints(pageSize, pageNumber);</span>
+        }
+<span class="nc" id="L118">        Preconditions.checkState(chapter.validate(), &quot;Invalid chapter content. %s&quot;, chapter);</span>
+<span class="nc" id="L119">        logger.debug(&quot;KnowledgePointServiceImpl.findKnowledgePoints: Loading knowledge points for [{}]&quot;, chapter );</span>
+<span class="nc" id="L120">        return knowledgePointDao.findResultList(&quot;chapter&quot;, chapter, pageSize, pageNumber);</span>
+    }
+
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(Syllabus syllabus) {
+<span class="nc" id="L125">        checkNotNull(syllabus);</span>
+<span class="nc" id="L126">        return knowledgePointDao.findKnowledgePoints(syllabus);</span>
+    }
+
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(Syllabus syllabus, int pageSize, int pageNumber) {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (syllabus == null) {</span>
+<span class="nc" id="L132">            return findKnowledgePoints(pageSize, pageNumber);</span>
+        }
+<span class="nc" id="L134">        return knowledgePointDao.findKnowledgePoints(syllabus, pageSize, pageNumber);</span>
+    }
+
+    @Override
+    public Long size() {
+<span class="nc" id="L139">        return knowledgePointDao.size();</span>
+    }
+
+    @Override
+    public List&lt;Question&gt; findUsingQuestions(KnowledgePoint knowledgePoint) {
+<span class="nc" id="L144">        checkNotNull(knowledgePoint);</span>
+<span class="nc" id="L145">        checkArgument(knowledgePoint.validate());</span>
+<span class="nc" id="L146">        return knowledgePointDao.findUsingQuestions(knowledgePoint);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

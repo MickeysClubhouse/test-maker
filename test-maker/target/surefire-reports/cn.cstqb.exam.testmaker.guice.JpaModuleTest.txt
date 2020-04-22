@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: cn.cstqb.exam.testmaker.guice.JpaModuleTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.054 sec <<< FAILURE!
-test(cn.cstqb.exam.testmaker.guice.JpaModuleTest)  Time elapsed: 1.051 sec  <<< FAILURE!
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.681 sec <<< FAILURE!
+test(cn.cstqb.exam.testmaker.guice.JpaModuleTest)  Time elapsed: 0.673 sec  <<< FAILURE!
 java.lang.AssertionError
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)

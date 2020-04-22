@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectStatus.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.entities</a> &gt; <span class="el_source">ProjectStatus.java</span></div><h1>ProjectStatus.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.entities;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/29
+ * Time: 22:09
+ */
+@Entity
+public class ProjectStatus extends AbstractEntityStatus {
+    public ProjectStatus(String name) {
+<span class="nc" id="L18">        super(name);</span>
+<span class="nc" id="L19">    }</span>
+
+<span class="fc" id="L21">    public ProjectStatus() {</span>
+<span class="fc" id="L22">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L27" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="nc" id="L29">        ProjectStatus that = (ProjectStatus) o;</span>
+
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        return Objects.equal(this.id, that.id) &amp;&amp;</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">                Objects.equal(this.name, that.name) &amp;&amp;</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">                Objects.equal(this.isStart, that.isStart) &amp;&amp;</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">                Objects.equal(this.isFinish, that.isFinish) &amp;&amp;</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">                Objects.equal(this.createdOn, that.createdOn) &amp;&amp;</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">                Objects.equal(this.updatedOn, that.updatedOn);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L41">        return Objects.hashCode(id, name, isStart, isFinish, createdOn, updatedOn);</span>
+    }
+
+
+    @Override
+    public String toString() {
+<span class="nc" id="L47">        return MoreObjects.toStringHelper(this)</span>
+<span class="nc" id="L48">                .add(&quot;id&quot;, id)</span>
+<span class="nc" id="L49">                .add(&quot;name&quot;, name)</span>
+<span class="nc" id="L50">                .add(&quot;isStart&quot;, isStart)</span>
+<span class="nc" id="L51">                .add(&quot;isFinish&quot;, isFinish)</span>
+<span class="nc" id="L52">                .add(&quot;createdOn&quot;, createdOn)</span>
+<span class="nc" id="L53">                .add(&quot;updatedOn&quot;, updatedOn)</span>
+<span class="nc" id="L54">                .toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

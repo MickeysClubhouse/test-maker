@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BaseQuestionAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.question</a> &gt; <span class="el_source">BaseQuestionAction.java</span></div><h1>BaseQuestionAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.question;
+
+import cn.cstqb.exam.testmaker.actions.BaseAction;
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.*;
+import cn.cstqb.exam.testmaker.mailing.MailMessenger;
+import cn.cstqb.exam.testmaker.mailing.MailNotificationFactory;
+import cn.cstqb.exam.testmaker.mailing.SendMailTask;
+import cn.cstqb.exam.testmaker.services.IQuestionChoiceService;
+import cn.cstqb.exam.testmaker.services.IQuestionService;
+import cn.cstqb.exam.testmaker.services.IQuestionStatusService;
+import cn.cstqb.exam.testmaker.services.IReviewCommentService;
+import cn.cstqb.exam.testmaker.util.ServletUtils;
+import com.google.common.collect.Lists;
+import freemarker.template.TemplateException;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
+
+import javax.inject.Inject;
+import javax.mail.internet.AddressException;
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/30
+ * Time: 3:15
+ */
+public abstract class BaseQuestionAction extends BaseAction {
+    protected Question question;
+    protected int numOfCorrectAnswer;
+    @Inject
+    protected IQuestionService questionService;
+    @Inject
+    protected IQuestionStatusService statusService;
+    @Inject
+    protected IReviewCommentService commentService;
+    @Inject
+    protected IQuestionChoiceService choiceService;
+    @Inject
+    protected MailNotificationFactory mailFactory;
+    @Inject
+    protected MailMessenger messenger;
+
+    public BaseQuestionAction() {
+<span class="nc" id="L47">        super();</span>
+<span class="nc" id="L48">        injector.injectMembers(this);</span>
+<span class="nc" id="L49">    }</span>
+
+    @Override
+    public void validateInput() {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (question == null) {</span>
+<span class="nc" id="L54">            addActionError(getText(&quot;error.entity.invalid&quot;, Lists.newArrayList(getText(&quot;label.entity.question&quot;))));</span>
+<span class="nc" id="L55">            return;</span>
+        }
+
+        /*
+         * This part checks existing entity
+         */
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (question.getId() != null) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (question.getId() &lt; 1) {</span>
+<span class="nc" id="L63">                addActionError(getText(&quot;error.entity.invalid&quot;, Lists.newArrayList(Question.class.getSimpleName())));</span>
+<span class="nc" id="L64">                return;</span>
+            }
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if (!question.validate()) {</span>
+<span class="nc" id="L67">                addActionError(getText(&quot;error.entity.validation.incomplete&quot;, Lists.newArrayList(getText(&quot;message.question.requiredFields&quot;))));</span>
+<span class="nc" id="L68">                return;</span>
+            }
+        }
+
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!question.validateBasicFields()) {</span>
+<span class="nc" id="L73">            addActionError(getText(&quot;error.entity.validation.incomplete&quot;, Lists.newArrayList(getText(&quot;label.entity.question&quot;), getText(&quot;message.question.requiredFields.basic&quot;))));</span>
+<span class="nc" id="L74">            return;</span>
+        }
+
+        /**
+         * author, reviewer and quality admin should be distinct
+         */
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        for (User reviewer : question.getReviewers()) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            if (question.getAuthor().equals(reviewer)) {</span>
+<span class="nc" id="L82">                addActionError(getText(&quot;error.question.distinct.role&quot;));</span>
+<span class="nc" id="L83">                return;</span>
+            }
+<span class="nc" id="L85">        }</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (question.getAuthor().equals(question.getQualityAdmin())) {</span>
+<span class="nc" id="L87">            addActionError(getText(&quot;error.question.distinct.role&quot;));</span>
+<span class="nc" id="L88">            return;</span>
+        }
+
+        /**
+         * date judgment
+         */
+<span class="nc bnc" id="L94" title="All 8 branches missed.">        if (question.getAuthoringStartDate() == null || question.getAuthoringFinishDate() == null || question.getReviewingStartDate() == null || question.getReviewingFinishDate() == null) {</span>
+<span class="nc" id="L95">            addActionError(getText(&quot;error.question.missing.date.info&quot;));</span>
+<span class="nc" id="L96">            return;</span>
+        }
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if (question.getAuthoringFinishDate().before(question.getAuthoringStartDate())) {</span>
+<span class="nc" id="L99">            addActionError(getText(&quot;error.question.authoringFinishDate.earlierThanStart&quot;, Lists.newArrayList(dateFormat.format(question.getAuthoringStartDate()), dateFormat.format(question.getAuthoringFinishDate()))));</span>
+<span class="nc" id="L100">            return;</span>
+        }
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (question.getReviewingFinishDate().before(question.getReviewingStartDate())) {</span>
+<span class="nc" id="L103">            addActionError(getText(&quot;error.question.reviewingFinishDate.earlierThanStart&quot;, Lists.newArrayList(dateFormat.format(question.getReviewingStartDate()), dateFormat.format(question.getReviewingFinishDate()))));</span>
+<span class="nc" id="L104">            return;</span>
+        }
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (question.getReviewingStartDate().before(question.getAuthoringStartDate())) {</span>
+<span class="nc" id="L107">            addActionError(getText(&quot;error.question.reviewingStartDate.earlierThan.authoringStartDate&quot;));</span>
+<span class="nc" id="L108">            return;</span>
+        }
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (question.getReviewingFinishDate().before(question.getAuthoringFinishDate())) {</span>
+<span class="nc" id="L111">            addActionError(getText(&quot;error.question.reviewingFinishDate.earlierThan.authoringFinishDate&quot;));</span>
+<span class="nc" id="L112">            return;</span>
+        }
+<span class="nc bnc" id="L114" title="All 4 branches missed.">        if (question.getAuthoringStartDate().before(((Project) session.get(Constants.ATTR_PROJECT)).getStartDate()) || question.getReviewingStartDate().before(((Project) session.get(Constants.ATTR_PROJECT)).getStartDate())) {</span>
+<span class="nc" id="L115">            addActionError(getText(&quot;error.question.startDate.earlierThan.projectStartDate&quot;));</span>
+<span class="nc" id="L116">            return;</span>
+        }
+<span class="nc bnc" id="L118" title="All 4 branches missed.">        if (question.getAuthoringFinishDate().after(((Project) session.get(Constants.ATTR_PROJECT)).getFinishDate()) || question.getReviewingFinishDate().after(((Project) session.get(Constants.ATTR_PROJECT)).getFinishDate())) {</span>
+<span class="nc" id="L119">            addActionError(getText(&quot;error.question.finishDate.laterThan.projectFinishDate&quot;));</span>
+<span class="nc" id="L120">            return;</span>
+        }
+
+<span class="nc bnc" id="L123" title="All 4 branches missed.">        if (question.getId() != null &amp;&amp; choiceService.findQuestionChoices(question.getId()) != null) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (!choiceService.correctAnswerMatchType(question)) {</span>
+<span class="nc" id="L125">                addActionError(getText(&quot;error.questionChoice.correctAnswer.not.match.questionType&quot;));</span>
+<span class="nc" id="L126">                return;</span>
+            }
+        }
+
+//		if (choiceService.findQuestionChoices(question.getId()) != null) {
+//			numOfCorrectAnswer = 0;
+//			for (QuestionChoice questionChoice: choiceService.findQuestionChoices(question.getId())) {
+//				if (questionChoice.getIsCorrectAnswer()) {
+//					numOfCorrectAnswer++;
+//					if (numOfCorrectAnswer &gt; 1 &amp;&amp; question.isMultipleChoice()) {
+//						addActionError(getText(&quot;error.questionChoice.correctAnswer.not.match.questionType&quot;));
+//					}
+//				}
+//			}
+//		}
+<span class="nc" id="L141">    }</span>
+
+    public Question getQuestion() {
+<span class="nc" id="L144">        return question;</span>
+    }
+
+    public void setQuestion(Question question) {
+<span class="nc" id="L148">        this.question = question;</span>
+<span class="nc" id="L149">    }</span>
+
+
+    protected void sendMailToQuestionUser(Question question, QuestionRole role) throws AddressException, TemplateException, EmailException, IOException {
+<span class="nc" id="L153">        mailFactory.setContextPath(ServletUtils.getBaseUrl(request));</span>
+<span class="nc" id="L154">        List&lt;QuestionChoice&gt; choices = choiceService.findQuestionChoices(question);</span>
+<span class="nc" id="L155">        HtmlEmail email = mailFactory.buildQuestionNotification(question, choices, role);</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (email != null) {</span>
+<span class="nc" id="L157">            messenger.send(new SendMailTask(email));</span>
+        }
+<span class="nc" id="L159">    }</span>
+
+    protected void sendMailToAllRoles(Question question) throws AddressException, TemplateException, IOException, EmailException {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        for (QuestionRole role : QuestionRole.values()) {</span>
+<span class="nc" id="L163">            sendMailToQuestionUser(question, role);</span>
+        }
+<span class="nc" id="L165">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

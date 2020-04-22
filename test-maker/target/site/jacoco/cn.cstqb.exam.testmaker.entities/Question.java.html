@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Question.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.entities</a> &gt; <span class="el_source">Question.java</span></div><h1>Question.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.entities;
+
+import cn.cstqb.exam.testmaker.configuration.ApplicationConfigContext;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/29
+ * Time: 22:38
+ */
+@Entity
+public class Question extends AbstractBaseEntity {
+    @Column(length = 40)
+    private String description;
+
+    @Transient
+    private Map&lt;Integer, String&gt; difficultyMapping;
+
+    @Column(columnDefinition = &quot;TEXT&quot;)
+    private String scenario;
+
+    //TODO facilitator can edit show as a reminder to others
+    @JsonIgnore
+    private String memo;
+
+    /*
+     * Make stem to be nullable is for create only a skeleton of the question entity.
+     */
+    @Column(nullable = true, columnDefinition = &quot;TEXT&quot;)
+    private String stem;
+
+    @Column(nullable = false)
+    private int difficulty;
+
+    @Transient
+    @JsonIgnore
+    private String difficultyLabel;
+
+    @OneToOne
+    @JoinColumn(nullable = false)
+    private QuestionLanguage language;
+
+    @OneToOne
+    @JoinColumn(nullable = false)
+    private QuestionType type;
+
+    @Column(nullable = false, columnDefinition = &quot;BIT(1) DEFAULT 0&quot;)
+    private boolean multipleChoice;
+
+    @Column(nullable = false)
+    private short score;
+
+
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    private KnowledgePoint knowledgePoint;
+
+    @ManyToMany
+    @JoinTable(
+            joinColumns = {
+                    @JoinColumn(name = &quot;question_id&quot;),
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = &quot;reviewer_id&quot;)
+            }
+    )
+    private Set&lt;User&gt; reviewers;
+
+    @Transient
+    @OneToMany(mappedBy = &quot;question&quot;)
+    private Set&lt;QuestionChoice&gt; choices;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;project_id&quot;, nullable = false)
+    @JsonIgnore
+    private Project project;
+
+    @OneToOne
+    @JoinColumn(name = &quot;author_id&quot;, nullable = false)
+    private User author;
+
+    @Temporal(TemporalType.DATE)
+    @Column(nullable = false)
+    @JsonIgnore
+    private Date authoringStartDate;
+
+    @Temporal(TemporalType.DATE)
+    @Column(nullable = false)
+    @JsonIgnore
+    private Date authoringFinishDate;
+
+    @Temporal(TemporalType.DATE)
+    @JsonIgnore
+    private Date reviewingStartDate;
+
+    @Temporal(TemporalType.DATE)
+    @JsonIgnore
+    private Date reviewingFinishDate;
+
+    @OneToOne
+    @JoinColumn(name = &quot;qualityAdmin_id&quot;, nullable = false)
+    private User qualityAdmin;
+
+    @OneToOne
+    @JoinColumn(nullable = false)
+    private QuestionStatus status;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date published;
+
+    @OneToMany(mappedBy = &quot;question&quot;)
+    private Set&lt;QuestionImage&gt; images;
+
+    @Column(columnDefinition = &quot;TEXT&quot;)
+    private String remark;
+
+    @JsonIgnore
+    private String customFiled1;
+    @JsonIgnore
+    private String customField2;
+    @JsonIgnore
+    private String customField3;
+
+    public Question(String stem, int difficulty, QuestionLanguage language,
+<span class="nc" id="L132">                    QuestionType type, short score, Project project, User author) {</span>
+<span class="nc" id="L133">        this.stem = stem;</span>
+<span class="nc" id="L134">        this.difficulty = difficulty;</span>
+<span class="nc" id="L135">        this.language = language;</span>
+<span class="nc" id="L136">        this.type = type;</span>
+<span class="nc" id="L137">        this.score = score;</span>
+<span class="nc" id="L138">        this.project = project;</span>
+<span class="nc" id="L139">        this.author = author;</span>
+<span class="nc" id="L140">        difficultyMapping = ApplicationConfigContext.getInstance().getQuestionDifficultyLevels();</span>
+<span class="nc" id="L141">    }</span>
+
+<span class="nc" id="L143">    public Question(Project project) {</span>
+<span class="nc" id="L144">        this.project = project;</span>
+<span class="nc" id="L145">        difficultyMapping = ApplicationConfigContext.getInstance().getQuestionDifficultyLevels();</span>
+<span class="nc" id="L146">    }</span>
+
+<span class="fc" id="L148">    public Question() {</span>
+<span class="fc" id="L149">        difficultyMapping = ApplicationConfigContext.getInstance().getQuestionDifficultyLevels();</span>
+<span class="fc" id="L150">    }</span>
+
+    public String getScenario() {
+<span class="nc" id="L153">        return scenario;</span>
+    }
+
+    public void setScenario(String scenario) {
+<span class="nc" id="L157">        this.scenario = scenario;</span>
+<span class="nc" id="L158">    }</span>
+
+    public String getStem() {
+<span class="nc" id="L161">        return stem;</span>
+    }
+
+    public void setStem(String stem) {
+<span class="nc" id="L165">        this.stem = stem;</span>
+<span class="nc" id="L166">    }</span>
+
+    public int getDifficulty() {
+<span class="nc" id="L169">        return difficulty;</span>
+    }
+
+    public void setDifficulty(int difficulty) {
+<span class="nc" id="L173">        this.difficulty = difficulty;</span>
+<span class="nc" id="L174">    }</span>
+
+    public QuestionLanguage getLanguage() {
+<span class="nc" id="L177">        return language;</span>
+    }
+
+    public void setLanguage(QuestionLanguage language) {
+<span class="nc" id="L181">        this.language = language;</span>
+<span class="nc" id="L182">    }</span>
+
+    public QuestionType getType() {
+<span class="nc" id="L185">        return type;</span>
+    }
+
+    public void setType(QuestionType type) {
+<span class="nc" id="L189">        this.type = type;</span>
+<span class="nc" id="L190">    }</span>
+
+    public boolean isMultipleChoice() {
+<span class="nc" id="L193">        return multipleChoice;</span>
+    }
+
+    public void setMultipleChoice(boolean multipleChoice) {
+<span class="nc" id="L197">        this.multipleChoice = multipleChoice;</span>
+<span class="nc" id="L198">    }</span>
+
+    public short getScore() {
+<span class="nc" id="L201">        return score;</span>
+    }
+
+    public void setScore(short score) {
+<span class="nc" id="L205">        this.score = score;</span>
+<span class="nc" id="L206">    }</span>
+
+    public Set&lt;QuestionChoice&gt; getChoices() {
+<span class="nc" id="L209">        return choices;</span>
+    }
+
+    public void setChoices(Set&lt;QuestionChoice&gt; choices) {
+<span class="nc" id="L213">        this.choices = choices;</span>
+<span class="nc" id="L214">    }</span>
+
+    public KnowledgePoint getKnowledgePoint() {
+<span class="nc" id="L217">        return knowledgePoint;</span>
+    }
+
+    public void setKnowledgePoint(KnowledgePoint knowledgePoint) {
+<span class="nc" id="L221">        this.knowledgePoint = knowledgePoint;</span>
+<span class="nc" id="L222">    }</span>
+
+    public Project getProject() {
+<span class="nc" id="L225">        return project;</span>
+    }
+
+    public void setProject(Project project) {
+<span class="nc" id="L229">        this.project = project;</span>
+<span class="nc" id="L230">    }</span>
+
+    public User getAuthor() {
+<span class="nc" id="L233">        return author;</span>
+    }
+
+    public void setAuthor(User author) {
+<span class="nc" id="L237">        this.author = author;</span>
+<span class="nc" id="L238">    }</span>
+
+    public Date getAuthoringStartDate() {
+<span class="nc" id="L241">        return authoringStartDate;</span>
+    }
+
+    public void setAuthoringStartDate(Date authoringStartDate) {
+<span class="nc" id="L245">        this.authoringStartDate = authoringStartDate;</span>
+<span class="nc" id="L246">    }</span>
+
+    public Date getAuthoringFinishDate() {
+<span class="nc" id="L249">        return authoringFinishDate;</span>
+    }
+
+    public void setAuthoringFinishDate(Date authoringFinishDate) {
+<span class="nc" id="L253">        this.authoringFinishDate = authoringFinishDate;</span>
+<span class="nc" id="L254">    }</span>
+
+    public Date getReviewingStartDate() {
+<span class="nc" id="L257">        return reviewingStartDate;</span>
+    }
+
+    public void setReviewingStartDate(Date reviewingStartDate) {
+<span class="nc" id="L261">        this.reviewingStartDate = reviewingStartDate;</span>
+<span class="nc" id="L262">    }</span>
+
+    public Date getReviewingFinishDate() {
+<span class="nc" id="L265">        return reviewingFinishDate;</span>
+    }
+
+    public void setReviewingFinishDate(Date reviewingFinishDate) {
+<span class="nc" id="L269">        this.reviewingFinishDate = reviewingFinishDate;</span>
+<span class="nc" id="L270">    }</span>
+
+    public User getQualityAdmin() {
+<span class="nc" id="L273">        return qualityAdmin;</span>
+    }
+
+    public void setQualityAdmin(User qualityAdmin) {
+<span class="nc" id="L277">        this.qualityAdmin = qualityAdmin;</span>
+<span class="nc" id="L278">    }</span>
+
+    public QuestionStatus getStatus() {
+<span class="nc" id="L281">        return status;</span>
+    }
+
+    public void setStatus(QuestionStatus status) {
+<span class="nc" id="L285">        this.status = status;</span>
+<span class="nc" id="L286">    }</span>
+
+    public Date getPublished() {
+<span class="nc" id="L289">        return published;</span>
+    }
+
+    public void setPublished(Date published) {
+<span class="nc" id="L293">        this.published = published;</span>
+<span class="nc" id="L294">    }</span>
+
+    public String getDifficultyLabel() {
+<span class="nc" id="L297">        return this.difficultyLabel;</span>
+    }
+
+    public Set&lt;User&gt; getReviewers() {
+<span class="nc" id="L301">        return reviewers;</span>
+    }
+
+    public void setReviewers(Set&lt;User&gt; reviewers) {
+<span class="nc" id="L305">        this.reviewers = reviewers;</span>
+<span class="nc" id="L306">    }</span>
+
+    public Set&lt;QuestionImage&gt; getImages() {
+<span class="nc" id="L309">        return images;</span>
+    }
+
+/*    public void setImages(Set&lt;QuestionImage&gt; images) {
+        this.images = images;
+    }*/
+
+    public String getDescription() {
+<span class="nc" id="L317">        return description;</span>
+    }
+
+    public void setDescription(String description) {
+<span class="nc" id="L321">        this.description = description;</span>
+<span class="nc" id="L322">    }</span>
+
+    public String getMemo() {
+<span class="nc" id="L325">        return memo;</span>
+    }
+
+    public void setMemo(String memo) {
+<span class="nc" id="L329">        this.memo = memo;</span>
+<span class="nc" id="L330">    }</span>
+
+    public String getRemark() {
+<span class="nc" id="L333">        return remark;</span>
+    }
+
+    public void setRemark(String customField1) {
+<span class="nc" id="L337">        this.remark = customField1;</span>
+<span class="nc" id="L338">    }</span>
+
+    public String getCustomFiled1() {
+<span class="nc" id="L341">        return customFiled1;</span>
+    }
+
+    public void setCustomFiled1(String customFiled1) {
+<span class="nc" id="L345">        this.customFiled1 = customFiled1;</span>
+<span class="nc" id="L346">    }</span>
+
+    public String getCustomField2() {
+<span class="nc" id="L349">        return customField2;</span>
+    }
+
+    public void setCustomField2(String customField2) {
+<span class="nc" id="L353">        this.customField2 = customField2;</span>
+<span class="nc" id="L354">    }</span>
+
+    public String getCustomField3() {
+<span class="nc" id="L357">        return customField3;</span>
+    }
+
+    public void setCustomField3(String customField3) {
+<span class="nc" id="L361">        this.customField3 = customField3;</span>
+<span class="nc" id="L362">    }</span>
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L366">        return Objects.hashCode(description, difficultyMapping, scenario, stem, difficulty, difficultyLabel, language, type, multipleChoice, score, reviewers, project, author, authoringStartDate, authoringFinishDate, reviewingStartDate, reviewingFinishDate, qualityAdmin, status, published);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L372">            return true;</span>
+        }
+<span class="nc bnc" id="L374" title="All 4 branches missed.">        if (obj == null || getClass() != obj.getClass()) {</span>
+<span class="nc" id="L375">            return false;</span>
+        }
+<span class="nc" id="L377">        final Question other = (Question) obj;</span>
+<span class="nc bnc" id="L378" title="All 38 branches missed.">        return Objects.equal(this.description, other.description) &amp;&amp; Objects.equal(this.difficultyMapping, other.difficultyMapping) &amp;&amp; Objects.equal(this.scenario, other.scenario) &amp;&amp; Objects.equal(this.stem, other.stem) &amp;&amp; Objects.equal(this.difficulty, other.difficulty) &amp;&amp; Objects.equal(this.difficultyLabel, other.difficultyLabel) &amp;&amp; Objects.equal(this.language, other.language) &amp;&amp; Objects.equal(this.type, other.type) &amp;&amp; Objects.equal(this.multipleChoice, other.multipleChoice) &amp;&amp; Objects.equal(this.score, other.score) &amp;&amp; Objects.equal(this.project, other.project) &amp;&amp; Objects.equal(this.author, other.author) &amp;&amp; Objects.equal(this.authoringStartDate, other.authoringStartDate) &amp;&amp; Objects.equal(this.authoringFinishDate, other.authoringFinishDate) &amp;&amp; Objects.equal(this.reviewingStartDate, other.reviewingStartDate) &amp;&amp; Objects.equal(this.reviewingFinishDate, other.reviewingFinishDate) &amp;&amp; Objects.equal(this.qualityAdmin, other.qualityAdmin) &amp;&amp; Objects.equal(this.status, other.status) &amp;&amp; Objects.equal(this.published, other.published);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L383">        return MoreObjects.toStringHelper(this)</span>
+<span class="nc" id="L384">                .omitNullValues()</span>
+<span class="nc" id="L385">                .add(&quot;id&quot;, id)</span>
+<span class="nc" id="L386">                .add(&quot;description&quot;, description)</span>
+<span class="nc" id="L387">                .add(&quot;difficultyMapping&quot;, difficultyMapping)</span>
+<span class="nc" id="L388">                .add(&quot;scenario&quot;, scenario)</span>
+<span class="nc" id="L389">                .add(&quot;stem&quot;, stem)</span>
+<span class="nc" id="L390">                .add(&quot;difficulty&quot;, difficulty)</span>
+<span class="nc" id="L391">                .add(&quot;language&quot;, language)</span>
+<span class="nc" id="L392">                .add(&quot;type&quot;, type)</span>
+<span class="nc" id="L393">                .add(&quot;multipleChoice&quot;, multipleChoice)</span>
+<span class="nc" id="L394">                .add(&quot;score&quot;, score)</span>
+<span class="nc" id="L395">                .add(&quot;project&quot;, project)</span>
+<span class="nc" id="L396">                .add(&quot;author&quot;, author)</span>
+<span class="nc" id="L397">                .add(&quot;authoringStartDate&quot;, authoringStartDate)</span>
+<span class="nc" id="L398">                .add(&quot;authoringFinishDate&quot;, authoringFinishDate)</span>
+<span class="nc" id="L399">                .add(&quot;reviewingStartDate&quot;, reviewingStartDate)</span>
+<span class="nc" id="L400">                .add(&quot;reviewingFinishDate&quot;, reviewingFinishDate)</span>
+<span class="nc" id="L401">                .add(&quot;qualityAdmin&quot;, qualityAdmin)</span>
+<span class="nc" id="L402">                .add(&quot;status&quot;, status)</span>
+<span class="nc" id="L403">                .add(&quot;published&quot;, published)</span>
+<span class="nc" id="L404">                .add(&quot;createdOn&quot;, createdOn)</span>
+<span class="nc" id="L405">                .add(&quot;updatedOn&quot;, updatedOn)</span>
+<span class="nc" id="L406">                .toString();</span>
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void setDefaults() {
+<span class="nc" id="L412">        this.difficulty = 2;</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">        if (knowledgePoint != null) {</span>
+<span class="nc" id="L414">            this.score = knowledgePoint.getScore();</span>
+        }
+<span class="nc" id="L416">    }</span>
+
+    @PostLoad
+    private void onLoad() {
+<span class="nc" id="L420">        this.difficultyLabel = difficultyMapping.get(this.difficulty);</span>
+//        if (knowledgePoint != null &amp;&amp; this.score!=knowledgePoint.getScore()) {
+//            this.score=knowledgePoint.getScore();
+//        }
+<span class="nc" id="L424">    }</span>
+
+    /**
+     * Validate required fields for this entity
+     *
+     * @return
+     */
+    @Override
+    public boolean validate() {
+<span class="nc bnc" id="L433" title="All 16 branches missed.">        return project != null</span>
+                &amp;&amp; author != null
+                &amp;&amp; authoringStartDate != null
+                &amp;&amp; authoringFinishDate != null
+                &amp;&amp; qualityAdmin != null
+                &amp;&amp; type != null
+                &amp;&amp; language != null
+                &amp;&amp; status != null
+                ;
+    }
+
+    /**
+     * This method only checks basic mandatory fields. Fields that can be auto-populated are not checked.
+     *
+     * @return
+     */
+    public boolean validateBasicFields() {
+<span class="nc bnc" id="L450" title="All 12 branches missed.">        return author != null</span>
+                &amp;&amp; authoringStartDate != null
+                &amp;&amp; authoringFinishDate != null
+                &amp;&amp; qualityAdmin != null
+                &amp;&amp; type != null
+                &amp;&amp; language != null
+                ;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

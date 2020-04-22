@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractFileUploadAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions</a> &gt; <span class="el_source">AbstractFileUploadAction.java</span></div><h1>AbstractFileUploadAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions;
+
+import cn.cstqb.exam.testmaker.entities.Project;
+import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.struts2.ServletActionContext;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
+
+<span class="nc" id="L19">public abstract class AbstractFileUploadAction extends BaseAction{</span>
+    protected String caption;
+	protected String title;
+	protected String uploadFileName;
+	protected String uploadContentType;
+	protected File upload;
+    protected String targetFilePath; // target file name with UUID
+
+    /**
+     * This is a replacement for validate() method in ActionSupport in that the posted json
+     * data is not serialized yet in ActionSupport validate() method.
+     *
+     * @return The result string of the first error.
+     * @see cn.cstqb.exam.testmaker.configuration.Constants
+     */
+    @Override
+    public void validateInput() {
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (upload == null) {</span>
+<span class="nc" id="L37">            addActionError(getText(&quot;error.upload.file.notReceived&quot;));</span>
+<span class="nc" id="L38">            return;</span>
+        }
+
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (upload.length() &gt; 10000000) {</span>
+<span class="nc" id="L42">            addActionError(getText(&quot;struts.messages.upload.error.SizeLimitExceededException&quot;, Lists.newArrayList(FileUtils.byteCountToDisplaySize(10000000))));</span>
+<span class="nc" id="L43">            return;</span>
+        }
+<span class="nc" id="L45">    }</span>
+
+    /**
+     * Gets the path to the image file from the base directory.
+     * &lt;p&gt;
+     *     For example, if the base director is &lt;em&gt;/uploadFiles&lt;/em&gt; and the full path is
+     *     &lt;em&gt;/uploadFiles/TEST-FIRST-PROJECT/11/12/1429325173028@d01cd062-871e-4828-ab4b-470e590b008b.png&lt;/em&gt;,
+     *     this method should return &lt;em&gt;11/12/1429325173028@d01cd062-871e-4828-ab4b-470e590b008b.png&lt;/em&gt;
+     * &lt;/p&gt;
+     * @return The path below the base directory
+     */
+    protected abstract void initTargetFilePath();
+
+    protected abstract Project getContainingProject();
+
+    /**
+     * Generate a UUID hashed image name
+     * @return
+     */
+    protected String getTargetFileName() {
+<span class="nc" id="L65">        SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyyMMddHHmmsss&quot;);</span>
+<span class="nc" id="L66">        return String.format(&quot;%s@%s.%s&quot;,</span>
+<span class="nc" id="L67">                sdf.format(new Date()),</span>
+<span class="nc" id="L68">                UUID.randomUUID().toString(),</span>
+<span class="nc" id="L69">                getFileExtension());</span>
+    }
+
+    protected abstract void postUpload();
+
+    protected String getServerPath() {
+<span class="nc" id="L75">        String serverPath= String.format(&quot;%s/%s/%s&quot;,</span>
+<span class="nc" id="L76">                configContext.getConfigValue(&quot;application.uploads.dir&quot;),</span>
+<span class="nc" id="L77">                getContainingProject().getId(),</span>
+                targetFilePath
+        );
+<span class="nc" id="L80">        logger.info(&quot;AbstractFileUploadAction.getServerPath: Target file path is: [#0]&quot;, serverPath );</span>
+<span class="nc" id="L81">        return serverPath;</span>
+    }
+    /**
+     * The real action should be defined in this method. Do not use execute. otherwise you get nothing
+     *
+     * @return &lt;b&gt;null&lt;/b&gt; or empty string if action is successful; otherwise return your error result
+     * @throws Exception
+     */
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L91">        logger.debug(&quot;AbstractFileUploadAction.executeImpl: Preparing to upload image #0&quot;, uploadFileName);</span>
+<span class="nc" id="L92">        initTargetFilePath();</span>
+<span class="nc" id="L93">        logger.debug(&quot;AbstractFileUploadAction.preUpload: calculated target file name: [#0]&quot;, targetFilePath);</span>
+
+        try {
+<span class="nc" id="L96">            saveUploadFile();</span>
+<span class="nc" id="L97">        } catch (IOException e) {</span>
+<span class="nc" id="L98">            addActionError(getText(&quot;error.upload.failed&quot;, Lists.newArrayList(ExceptionUtils.getStackTrace(e))));</span>
+<span class="nc" id="L99">            return ERROR;</span>
+<span class="nc" id="L100">        }</span>
+
+<span class="nc" id="L102">        postUpload();</span>
+<span class="nc" id="L103">        logger.debug(&quot;AbstractFileUploadAction.executeImpl: Image [#0] uploaded.&quot;, uploadFileName);</span>
+<span class="nc" id="L104">        return null;</span>
+    }
+
+    protected void saveUploadFile() throws IOException {
+
+<span class="nc" id="L109">        _saveUploadFile(false);</span>
+<span class="nc" id="L110">        _saveUploadFile(true);</span>
+<span class="nc" id="L111">    }</span>
+
+    private void _saveUploadFile(boolean isBackUp) throws IOException {
+<span class="nc" id="L114">        String realBaseDir = &quot;&quot;;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (isBackUp) {</span>
+<span class="nc" id="L116">            realBaseDir = configContext.getUploadBackUpDir(getContainingProject());</span>
+        } else {
+<span class="nc" id="L118">            realBaseDir = ServletActionContext.getServletContext().getRealPath(configContext.getConfigValue(&quot;application.uploads.dir&quot;));</span>
+        }
+
+<span class="nc" id="L121">        logger.debug(&quot;AbstractFileUploadAction._saveUploadFile: real base dir: [#0]&quot;,realBaseDir );</span>
+
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        Path outputFile = isBackUp?Paths.get(realBaseDir, targetFilePath):Paths.get(realBaseDir, getContainingProject().getId().toString(), targetFilePath);</span>
+<span class="nc" id="L124">        logger.debug(&quot;AbstractFileUploadAction._saveUploadFile: target file full path: [#0]&quot;, outputFile);</span>
+<span class="nc" id="L125">        Files.createDirectories(outputFile.getParent());</span>
+<span class="nc" id="L126">        Files.copy(new FileInputStream(upload), outputFile);</span>
+<span class="nc" id="L127">    }</span>
+
+
+    /**
+     * parse the file type
+     * from format &quot;image/png&quot; to &quot;png&quot;
+     * @return the real file type string like &quot;png&quot; in windows OS
+     */
+    protected String getFileExtension() {
+<span class="nc" id="L136">        return uploadContentType.substring(uploadContentType.indexOf('/')+1);</span>
+    }
+
+	public void setTitle(String title) {
+<span class="nc" id="L140">		this.title = title;</span>
+<span class="nc" id="L141">	}</span>
+
+	public void setUploadFileName(String uploadFileName) {
+<span class="nc" id="L144">		this.uploadFileName = uploadFileName;</span>
+<span class="nc" id="L145">	}</span>
+
+	public void setUploadContentType(String uploadContentType) {
+<span class="nc" id="L148">		this.uploadContentType = uploadContentType;</span>
+<span class="nc" id="L149">	}</span>
+
+	public void setUpload(File upload) {
+<span class="nc" id="L152">		this.upload = upload;</span>
+<span class="nc" id="L153">	}</span>
+
+    public void setCaption(String caption) {
+<span class="nc" id="L156">        this.caption = caption;</span>
+<span class="nc" id="L157">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

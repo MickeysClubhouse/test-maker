@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionLanguageServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">QuestionLanguageServiceImpl.java</span></div><h1>QuestionLanguageServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
+import cn.cstqb.exam.testmaker.dao.QuestionLanguageDao;
+import cn.cstqb.exam.testmaker.entities.QuestionLanguage;
+import cn.cstqb.exam.testmaker.guice.DaoModule;
+import cn.cstqb.exam.testmaker.services.IQuestionLanguageService;
+
+public class QuestionLanguageServiceImpl implements IQuestionLanguageService {
+<span class="fc" id="L19">	private Logger logger = LoggerFactory.getLogger(getClass());</span>
+	private QuestionLanguageDao questionLanguageDao;
+	
+	@Inject
+<span class="fc" id="L23">	public QuestionLanguageServiceImpl (QuestionLanguageDao questionLanguageDao) {</span>
+<span class="fc" id="L24">		this.questionLanguageDao = questionLanguageDao;</span>
+<span class="fc" id="L25">	}</span>
+	
+	/**
+	 * Create or update a question language
+	 * @param questionLanguage
+	 */
+	@Override
+	public void saveOrUpdate(QuestionLanguage questionLanguage) {
+<span class="nc bnc" id="L33" title="All 2 branches missed.">		Preconditions.checkArgument(questionLanguage != null, &quot;Invalid question language.&quot;);</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">		Preconditions.checkArgument(!Strings.isNullOrEmpty(questionLanguage.getName()), &quot;The name of question language cannot be null or empty&quot;);</span>
+<span class="nc" id="L35">		QuestionLanguage persisted = questionLanguageDao.findById(questionLanguage.getId());</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">		if (persisted == null) {</span>
+<span class="nc" id="L37">			questionLanguageDao.create(questionLanguage);</span>
+		} else {
+<span class="nc" id="L39">			questionLanguageDao.update(questionLanguage);</span>
+		}
+<span class="nc" id="L41">	}</span>
+
+	/**
+	 * Delete a question language
+	 * @param questionLanguage
+	 */
+	@Override
+	public void delete(QuestionLanguage questionLanguage) {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		Preconditions.checkArgument(questionLanguage != null, &quot;Invalid question language.&quot;);</span>
+<span class="nc" id="L50">		questionLanguageDao.delete(questionLanguage);</span>
+<span class="nc" id="L51">	}</span>
+
+	/**
+	 * Get all language objects
+	 * @return
+	 */
+	@Override
+	public List&lt;QuestionLanguage&gt; findAll() {
+<span class="nc" id="L59">		return questionLanguageDao.findAll();</span>
+	}
+
+	@Override
+	public boolean exists(QuestionLanguage questionLanguage) {
+//		if (questionLanguage != null) {
+//			logger.debug(&quot;QuestionLanguageService.exists: question language object loaded is null.&quot;);
+//			return false;
+//		}
+<span class="nc" id="L68">		QuestionLanguage persisted = null;</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">		if (questionLanguage.getId() != null &amp;&amp; questionLanguage.getId() &gt; 0){</span>
+<span class="nc" id="L70">			persisted = questionLanguageDao.findById(questionLanguage.getId());</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		} else if (Strings.isNullOrEmpty(questionLanguage.getName())){</span>
+<span class="nc" id="L72">			persisted = questionLanguageDao.findSingleResult(&quot;name&quot;, questionLanguage.getName());</span>
+		}
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		return persisted != null;</span>
+	}
+
+	@Override
+	public QuestionLanguage findQuestionLanguage(
+			QuestionLanguage questionLanguage) {
+<span class="nc" id="L80">		return questionLanguageDao.findById(questionLanguage.getId());</span>
+	}
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

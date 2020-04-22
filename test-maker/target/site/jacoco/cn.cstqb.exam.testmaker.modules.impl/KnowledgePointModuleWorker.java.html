@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KnowledgePointModuleWorker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.modules.impl</a> &gt; <span class="el_source">KnowledgePointModuleWorker.java</span></div><h1>KnowledgePointModuleWorker.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.modules.impl;
+
+import java.util.List;
+
+import com.google.inject.Inject;
+
+import cn.cstqb.exam.testmaker.entities.KnowledgePoint;
+import cn.cstqb.exam.testmaker.exceptions.EntityPersistenceException;
+import cn.cstqb.exam.testmaker.modules.AbstractModuleWorker;
+import cn.cstqb.exam.testmaker.modules.IKnowledgePointModuleWorker;
+import cn.cstqb.exam.testmaker.services.IKnowledgePointService;
+
+public class KnowledgePointModuleWorker extends AbstractModuleWorker implements IKnowledgePointModuleWorker {
+	private IKnowledgePointService knowledgePointService;
+	
+	@Inject
+<span class="nc" id="L17">	public KnowledgePointModuleWorker(IKnowledgePointService knowledgePointService) {</span>
+<span class="nc" id="L18">		this.knowledgePointService = knowledgePointService;</span>
+<span class="nc" id="L19">	}</span>
+	
+	@Override
+	public boolean isIllegible() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L24">		return false;</span>
+	}
+	
+	@Override
+	public boolean knowledgePointExists(KnowledgePoint point) {
+		//return knowledgePointService.exists(point);
+<span class="nc" id="L30">		return false;</span>
+	}
+
+	@Override
+	public void createOrUpdate(KnowledgePoint point)
+			throws EntityPersistenceException {
+		// TODO Auto-generated method stub
+
+<span class="nc" id="L38">	}</span>
+
+	@Override
+	public void delete(KnowledgePoint point) throws EntityPersistenceException {
+		// TODO Auto-generated method stub
+
+<span class="nc" id="L44">	}</span>
+
+	@Override
+	public KnowledgePoint findKnowledgePoint(int id) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L49">		return null;</span>
+	}
+
+	@Override
+	public KnowledgePoint findKnowledgePoint(KnowledgePoint point) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L55">		return null;</span>
+	}
+
+	@Override
+	public List&lt;KnowledgePoint&gt; findAll() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L61">		return null;</span>
+	}
+
+	
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

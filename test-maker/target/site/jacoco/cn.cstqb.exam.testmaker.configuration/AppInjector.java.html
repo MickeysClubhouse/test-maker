@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppInjector.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.configuration</a> &gt; <span class="el_source">AppInjector.java</span></div><h1>AppInjector.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.configuration;
+
+import cn.cstqb.exam.testmaker.guice.ApplicationModule;
+import cn.cstqb.exam.testmaker.guice.DaoModule;
+import cn.cstqb.exam.testmaker.guice.JpaModule;
+import cn.cstqb.exam.testmaker.guice.SharedModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.persist.PersistService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/27
+ * Time: 8:34
+ */
+public class AppInjector {
+<span class="fc" id="L23">    private static Logger logger = LoggerFactory.getLogger(AppInjector.class);</span>
+    private Injector injector;
+    private Injector parent;
+    private UUID uuid;
+    private static AppInjector instance;
+
+
+<span class="fc" id="L30">    private AppInjector() {</span>
+<span class="fc" id="L31">        uuid = UUID.randomUUID();</span>
+<span class="fc" id="L32">        parent = Guice.createInjector(new SharedModule());</span>
+<span class="fc" id="L33">        init();</span>
+<span class="fc" id="L34">    }</span>
+
+    private void init() {
+<span class="fc" id="L37">        List&lt;Module&gt; modules = Arrays.asList(new Module[]{</span>
+                new ApplicationModule()
+        });
+<span class="fc" id="L40">        this.injector = parent.createChildInjector(modules);</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     *
+     * @return The singleton instance of AppInjector
+     */
+    public static AppInjector getInstance() {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (instance != null) {</span>
+<span class="fc" id="L49">            logger.debug(&quot;Getting existing {} instance. UUID=[{}]...&quot;, AppInjector.class.getName(), instance.getUuid());</span>
+        }else {
+<span class="fc" id="L51">            instance = new AppInjector();</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">            if (logger.isDebugEnabled()) {</span>
+<span class="fc" id="L53">                logger.debug(&quot;Created new {} instance. UUID=[{}]...&quot;, AppInjector.class.getName(), instance.getUuid());</span>
+            }
+        }
+<span class="fc" id="L56">        return instance;</span>
+    }
+
+    public Injector getInjector() {
+<span class="fc" id="L60">        return injector;</span>
+    }
+
+    public UUID getUuid() {
+<span class="fc" id="L64">        return uuid;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

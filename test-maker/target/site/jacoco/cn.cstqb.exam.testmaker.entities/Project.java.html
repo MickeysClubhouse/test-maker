@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Project.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.entities</a> &gt; <span class="el_source">Project.java</span></div><h1>Project.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/27
+ * Time: 17:18
+ */
+@Entity
+public class Project extends AbstractBaseEntity {
+
+    @Column(nullable = false,unique = true)
+    private String name;
+
+    @OneToOne
+    @JoinColumn(name = &quot;FACILITATOR_ID&quot;, nullable = false)
+    private User facilitator;
+
+    @Temporal(TemporalType.DATE)
+    private Date startDate;
+    @Temporal(TemporalType.DATE)
+    private Date finishDate;
+
+    @OneToOne
+    @JoinColumn(name = &quot;STATUS_ID&quot;, nullable = false)
+    private ProjectStatus status;
+
+    @OneToOne
+    @JoinColumn(name = &quot;SYLLABUS_ID&quot;)
+//    @JsonIgnore
+    private Syllabus syllabus;
+
+    @ManyToMany
+    @JoinTable(
+            joinColumns={@JoinColumn(name=&quot;PROJECT_ID&quot;, referencedColumnName=&quot;ID&quot;)},
+            inverseJoinColumns={@JoinColumn(name=&quot;USER_ID&quot;, referencedColumnName=&quot;ID&quot;)}
+    )
+    @JsonIgnore
+    private List&lt;User&gt; users;
+
+    @JsonIgnore
+    private String customField1;
+    @JsonIgnore
+    private String customField2;
+    @JsonIgnore
+    private String customField3;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date exportedOn;
+
+    @OneToOne
+    private User exportedBy;
+
+<span class="nc" id="L64">    public Project(String name, User facilitator, ProjectStatus status) {</span>
+<span class="nc" id="L65">        this.name = name;</span>
+<span class="nc" id="L66">        this.facilitator = facilitator;</span>
+<span class="nc" id="L67">        this.status = status;</span>
+<span class="nc" id="L68">    }</span>
+
+<span class="nc" id="L70">    public Project(String name) {</span>
+<span class="nc" id="L71">        this.name = name;</span>
+<span class="nc" id="L72">    }</span>
+
+<span class="fc" id="L74">    public Project() {</span>
+<span class="fc" id="L75">    }</span>
+
+    public String getName() {
+<span class="nc" id="L78">        return name;</span>
+    }
+
+    public void setName(String name) {
+<span class="nc" id="L82">        this.name = name;</span>
+<span class="nc" id="L83">    }</span>
+
+    public User getFacilitator() {
+<span class="nc" id="L86">        return facilitator;</span>
+    }
+
+    public void setFacilitator(User facilitator) {
+<span class="nc" id="L90">        this.facilitator = facilitator;</span>
+<span class="nc" id="L91">    }</span>
+
+    public Date getStartDate() {
+<span class="nc" id="L94">        return startDate;</span>
+    }
+
+    public void setStartDate(Date startDate) {
+<span class="nc" id="L98">        this.startDate = startDate;</span>
+<span class="nc" id="L99">    }</span>
+
+    public Date getFinishDate() {
+<span class="nc" id="L102">        return finishDate;</span>
+    }
+
+    public void setFinishDate(Date finishDate) {
+<span class="nc" id="L106">        this.finishDate = finishDate;</span>
+<span class="nc" id="L107">    }</span>
+
+    public ProjectStatus getStatus() {
+<span class="nc" id="L110">        return status;</span>
+    }
+
+    public void setStatus(ProjectStatus status) {
+<span class="nc" id="L114">        this.status = status;</span>
+<span class="nc" id="L115">    }</span>
+
+    public List&lt;User&gt; getUsers() {
+<span class="nc" id="L118">        return users;</span>
+    }
+
+    public void setUsers(List&lt;User&gt; users) {
+<span class="nc" id="L122">        this.users = users;</span>
+<span class="nc" id="L123">    }</span>
+
+    public void addUser(User user) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (users == null) {</span>
+<span class="nc" id="L127">            users = new ArrayList&lt;&gt;();</span>
+        }
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (!users.contains(user)) {</span>
+<span class="nc" id="L130">            users.add(user);</span>
+        }
+<span class="nc" id="L132">    }</span>
+
+    public Syllabus getSyllabus() {
+<span class="nc" id="L135">        return syllabus;</span>
+    }
+
+    public void setSyllabus(Syllabus syllabus) {
+<span class="nc" id="L139">        this.syllabus = syllabus;</span>
+<span class="nc" id="L140">    }</span>
+
+    public String getCustomField1() {
+<span class="nc" id="L143">        return customField1;</span>
+    }
+
+    public void setCustomField1(String customField1) {
+<span class="nc" id="L147">        this.customField1 = customField1;</span>
+<span class="nc" id="L148">    }</span>
+
+    public String getCustomField2() {
+<span class="nc" id="L151">        return customField2;</span>
+    }
+
+    public void setCustomField2(String customField2) {
+<span class="nc" id="L155">        this.customField2 = customField2;</span>
+<span class="nc" id="L156">    }</span>
+
+    public String getCustomField3() {
+<span class="nc" id="L159">        return customField3;</span>
+    }
+
+    public void setCustomField3(String customField3) {
+<span class="nc" id="L163">        this.customField3 = customField3;</span>
+<span class="nc" id="L164">    }</span>
+
+    public Date getExportedOn() {
+<span class="nc" id="L167">        return exportedOn;</span>
+    }
+
+    public void setExportedOn(Date exportedOn) {
+<span class="nc" id="L171">        this.exportedOn = exportedOn;</span>
+<span class="nc" id="L172">    }</span>
+
+    public User getExportedBy() {
+<span class="nc" id="L175">        return exportedBy;</span>
+    }
+
+    public void setExportedBy(User exportedBy) {
+<span class="nc" id="L179">        this.exportedBy = exportedBy;</span>
+<span class="nc" id="L180">    }</span>
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L184">        return Objects.hash(name, facilitator, status);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L190">            return true;</span>
+        }
+<span class="nc bnc" id="L192" title="All 4 branches missed.">        if (obj == null || getClass() != obj.getClass()) {</span>
+<span class="nc" id="L193">            return false;</span>
+        }
+<span class="nc" id="L195">        final Project other = (Project) obj;</span>
+<span class="nc bnc" id="L196" title="All 6 branches missed.">        return Objects.equals(this.name, other.name) &amp;&amp; Objects.equals(this.facilitator, other.facilitator) &amp;&amp; Objects.equals(this.status, other.status);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L201">        return MoreObjects.toStringHelper(this)</span>
+<span class="nc" id="L202">                .omitNullValues()</span>
+<span class="nc" id="L203">                .add(&quot;id&quot;, id)</span>
+<span class="nc" id="L204">                .add(&quot;name&quot;, name)</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                .add(&quot;facilitator&quot;, facilitator != null ? facilitator.getUsername() : null)</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                .add(&quot;syllabus&quot;, syllabus != null ? String.format(&quot;%s (%s)&quot;, syllabus.getLevel(), syllabus.getVersion()) : null)</span>
+<span class="nc" id="L207">                .add(&quot;startDate&quot;, startDate)</span>
+<span class="nc" id="L208">                .add(&quot;finishDate&quot;, finishDate)</span>
+<span class="nc" id="L209">                .add(&quot;status&quot;, status)</span>
+<span class="nc" id="L210">                .toString();</span>
+    }
+
+    /**
+     * Validate required fields for this entity
+     *
+     * @return
+     */
+    @Override
+    public boolean validate() {
+<span class="nc bnc" id="L220" title="All 4 branches missed.">        return !Strings.isNullOrEmpty(name) &amp;&amp; facilitator!=null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

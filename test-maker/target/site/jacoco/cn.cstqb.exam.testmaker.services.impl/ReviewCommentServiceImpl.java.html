@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReviewCommentServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.services.impl</a> &gt; <span class="el_source">ReviewCommentServiceImpl.java</span></div><h1>ReviewCommentServiceImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.services.impl;
+
+import cn.cstqb.exam.testmaker.dao.ReviewCommentDao;
+
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.entities.ReviewComment;
+
+import cn.cstqb.exam.testmaker.services.IReviewCommentService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.google.common.base.Preconditions.*;
+
+import javax.inject.Inject;
+
+import java.util.List;
+
+public class ReviewCommentServiceImpl implements
+        IReviewCommentService {
+<span class="nc" id="L21">	private Logger Logger = LoggerFactory.getLogger(getClass());</span>
+	private ReviewCommentDao reviewCommentDao;
+
+	@Inject
+<span class="nc" id="L25">	public ReviewCommentServiceImpl(ReviewCommentDao reviewCommentDao) {</span>
+<span class="nc" id="L26">		this.reviewCommentDao = reviewCommentDao;</span>
+<span class="nc" id="L27">	}</span>
+
+	/**
+	 * Create or update a review comment
+	 *
+	 * @param comment
+	 */
+	@Override
+	public void saveOrUpdate(ReviewComment comment) {
+<span class="nc bnc" id="L36" title="All 2 branches missed.">		checkArgument(comment != null, &quot;Comment cannot be null.&quot;);</span>
+<span class="nc" id="L37">        ReviewComment persisted = reviewCommentDao.findById(comment.getId());</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">		if (persisted == null) {</span>
+<span class="nc" id="L39">			reviewCommentDao.create(comment);</span>
+		} else {
+<span class="nc" id="L41">			reviewCommentDao.update(comment);</span>
+		}
+<span class="nc" id="L43">	}</span>
+
+	/**
+	 * Delete a comment
+	 *
+	 * @param comment
+	 */
+	@Override
+	public void delete(ReviewComment comment) {
+<span class="nc bnc" id="L52" title="All 4 branches missed.">		checkArgument(comment != null &amp;&amp; comment.getId() &gt; 0,</span>
+<span class="nc" id="L53">				&quot;Invalid comment. id : %s&quot;, comment.getId());</span>
+<span class="nc" id="L54">		reviewCommentDao.delete(comment);</span>
+<span class="nc" id="L55">	}</span>
+
+    @Override
+    public ReviewComment find(int id) {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        checkArgument(id&gt;0,&quot;Comment ID must be greater than zero! Given: %s&quot;, id);</span>
+<span class="nc" id="L60">        return reviewCommentDao.findById(id);</span>
+    }
+
+    @Override
+	public List&lt;ReviewComment&gt; getReviewComments(Question question) {
+<span class="nc" id="L65">        checkNotNull(question);</span>
+<span class="nc bnc" id="L66" title="All 4 branches missed.">        checkState(question.validate() &amp;&amp; question.isValidID());</span>
+<span class="nc" id="L67">		return reviewCommentDao.find(question, false);</span>
+	}
+
+    /**
+     * Find all final review comments for the given question
+     *
+     * @param question
+     * @return
+     */
+    @Override
+    public List&lt;ReviewComment&gt; getQAComments(Question question) {
+<span class="nc" id="L78">        checkNotNull(question);</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">        checkState(question.validate() &amp;&amp; question.isValidID());</span>
+<span class="nc" id="L80">        return reviewCommentDao.find(question, true);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

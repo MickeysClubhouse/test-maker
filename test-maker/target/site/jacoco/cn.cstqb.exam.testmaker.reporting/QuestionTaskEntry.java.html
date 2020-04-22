@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionTaskEntry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.reporting</a> &gt; <span class="el_source">QuestionTaskEntry.java</span></div><h1>QuestionTaskEntry.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.reporting;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/30
+ * Time: 20:36
+ */
+public class QuestionTaskEntry {
+    private EntryType type;
+    private long total;
+    private long pending;
+
+<span class="nc" id="L17">    public QuestionTaskEntry(EntryType type, long total, long pending) {</span>
+<span class="nc" id="L18">        this.type = type;</span>
+<span class="nc" id="L19">        this.total = total;</span>
+<span class="nc" id="L20">        this.pending = pending;</span>
+<span class="nc" id="L21">    }</span>
+
+<span class="nc" id="L23">    public QuestionTaskEntry() {</span>
+<span class="nc" id="L24">    }</span>
+
+    public EntryType getType() {
+<span class="nc" id="L27">        return type;</span>
+    }
+
+    public void setType(EntryType type) {
+<span class="nc" id="L31">        this.type = type;</span>
+<span class="nc" id="L32">    }</span>
+
+    public long getTotal() {
+<span class="nc" id="L35">        return total;</span>
+    }
+
+    public void setTotal(long total) {
+<span class="nc" id="L39">        this.total = total;</span>
+<span class="nc" id="L40">    }</span>
+
+    public long getPending() {
+<span class="nc" id="L43">        return pending;</span>
+    }
+
+    public void setPending(long pending) {
+<span class="nc" id="L47">        this.pending = pending;</span>
+<span class="nc" id="L48">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L53" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="nc" id="L55">        QuestionTaskEntry that = (QuestionTaskEntry) o;</span>
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        return Objects.equal(this.type, that.type) &amp;&amp;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                Objects.equal(this.total, that.total) &amp;&amp;</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">                Objects.equal(this.pending, that.pending);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L64">        return Objects.hashCode(type, total, pending);</span>
+    }
+
+
+    @Override
+    public String toString() {
+<span class="nc" id="L70">        return MoreObjects.toStringHelper(this)</span>
+<span class="nc" id="L71">                .add(&quot;role&quot;, type)</span>
+<span class="nc" id="L72">                .add(&quot;total&quot;, total)</span>
+<span class="nc" id="L73">                .add(&quot;pending&quot;, pending)</span>
+<span class="nc" id="L74">                .toString();</span>
+    }
+
+<span class="nc" id="L77">    public static enum EntryType {</span>
+<span class="nc" id="L78">        ALL,</span>
+<span class="nc" id="L79">        AUTHOR,</span>
+<span class="nc" id="L80">        REVIEWER,</span>
+<span class="nc" id="L81">        QA</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

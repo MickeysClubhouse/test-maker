@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao.impl</a> &gt; <span class="el_source">ProjectDaoImpl.java</span></div><h1>ProjectDaoImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao.impl;
+
+import cn.cstqb.exam.testmaker.dao.ProjectDao;
+import cn.cstqb.exam.testmaker.entities.Project;
+import cn.cstqb.exam.testmaker.entities.ProjectStatus;
+import cn.cstqb.exam.testmaker.entities.User;
+import com.google.inject.persist.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA. User: Jian-Min Gao Date: 2014/12/27 Time: 18:13
+ */
+<span class="fc" id="L19">public class ProjectDaoImpl extends GenericJpaDaoImpl&lt;Project, Integer&gt;</span>
+		implements ProjectDao {
+    /**
+     * Finds project by name
+     *
+     * @param projectName
+     * @return
+     */
+    @Override
+    public Project find(String projectName) {
+<span class="nc" id="L29">        return findSingleResult(&quot;name&quot;, projectName);</span>
+    }
+
+    /**
+	 * Find projects with the given facilitator
+	 *
+	 * @param user
+	 * @return The project objects matching the facilitator or &lt;i&gt;null&lt;/i&gt; if
+	 *         not found
+	 */
+	@Override
+	public List&lt;Project&gt; findByFacilitator(User user) {
+<span class="nc" id="L41">		return findResultList(&quot;facilitator&quot;, user);</span>
+	}
+
+	/**
+	 * Find projects with the given status
+	 *
+	 * @param projectStatus
+	 * @return The project objects matching the status or &lt;i&gt;null&lt;/i&gt; if not
+	 *         found
+	 */
+	@Override
+	public List&lt;Project&gt; findByStatus(ProjectStatus projectStatus) {
+<span class="nc" id="L53">		return findResultList(&quot;status&quot;, projectStatus);</span>
+	}
+
+    /**
+     * Find not finished projects
+     *
+     * @return
+     */
+    @Override
+    @Transactional
+    public List&lt;Project&gt; findActive() {
+<span class="nc" id="L64">        EntityManager em = provider.get();</span>
+<span class="nc" id="L65">        return em.createQuery(&quot;SELECT p FROM Project p WHERE p.status.isFinish = false ORDER BY p.name ASC&quot;, Project.class)</span>
+<span class="nc" id="L66">                .getResultList();</span>
+    }
+
+    @Override
+    @Transactional
+    public List&lt;Project&gt; findAll() {
+<span class="nc" id="L72">        EntityManager em = provider.get();</span>
+<span class="nc" id="L73">        return em.createQuery(&quot;SELECT p FROM Project p ORDER BY p.name ASC&quot;, Project.class).getResultList();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

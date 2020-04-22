@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: cn.cstqb.exam.testmaker.dao.SyllabusDaoTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.001 sec <<< FAILURE!
-cn.cstqb.exam.testmaker.dao.SyllabusDaoTest  Time elapsed: 0.001 sec  <<< ERROR!
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0 sec <<< FAILURE!
+cn.cstqb.exam.testmaker.dao.SyllabusDaoTest  Time elapsed: 0 sec  <<< ERROR!
 java.lang.IllegalStateException: Persistence service was already initialized.
 	at com.google.common.base.Preconditions.checkState(Preconditions.java:173)
 	at com.google.inject.persist.jpa.JpaPersistService.start(JpaPersistService.java:104)

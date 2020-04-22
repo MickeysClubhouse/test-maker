@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListQuestionsByRole.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.question</a> &gt; <span class="el_source">ListQuestionsByRole.java</span></div><h1>ListQuestionsByRole.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.question;
+
+import cn.cstqb.exam.testmaker.entities.Project;
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.entities.QuestionRole;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import org.apache.struts2.json.annotations.JSON;
+
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/17
+ * Time: 22:48
+ */
+<span class="nc" id="L18">public class ListQuestionsByRole extends BaseQuestionAction {</span>
+    protected String username;
+    protected Project project;
+    private String role;
+    private QuestionRole questionRole;
+    protected List&lt;Question&gt; questions;
+
+    /**
+     * This is a replacement for validate() method in ActionSupport in that the posted json
+     * data is not serialized yet in ActionSupport validate() method.
+     *
+     * @return The result string of the first error.
+     * @see cn.cstqb.exam.testmaker.configuration.Constants
+     */
+    @Override
+    public void validateInput() {
+<span class="nc" id="L34">        userValidator.validateExistingUser(username);</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if (Strings.isNullOrEmpty(role)) {</span>
+<span class="nc" id="L36">            addActionError(getText(&quot;error.entity.field.missing.required&quot;, Lists.newArrayList(getText(&quot;label.entity.question.role&quot;))));</span>
+<span class="nc" id="L37">            return;</span>
+        }
+        try {
+<span class="nc" id="L40">            questionRole = QuestionRole.valueOf(role);</span>
+<span class="nc" id="L41">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L42">            addActionError(getText(&quot;error.question.role.invalidName&quot;, Lists.newArrayList(role)));</span>
+<span class="nc" id="L43">        }</span>
+<span class="nc" id="L44">    }</span>
+
+    /**
+     * The real action should be defined in this method. Do not use execute. otherwise you get nothing
+     *
+     * @return &lt;b&gt;null&lt;/b&gt; or empty string if action is successful; otherwise return your error result
+     * @throws Exception
+     */
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L54">        logger.debug(&quot;ListQuestionsByRole.executeImpl: finding questions for username [#0] in current project #1.&quot;, username,project.getName() );</span>
+<span class="nc" id="L55">        loadQuestions(questionRole,project);</span>
+<span class="nc" id="L56">        return null;</span>
+    }
+
+    protected void loadQuestions(QuestionRole role, Project project) throws Exception {
+<span class="nc bnc" id="L60" title="All 4 branches missed.">        switch (role) {</span>
+            case Author:
+<span class="nc" id="L62">                this.questions = questionService.findByAuthor(project, username);</span>
+<span class="nc" id="L63">                break;</span>
+            case Reviewer:
+<span class="nc" id="L65">                this.questions = questionService.findByReviewer(project, username);</span>
+<span class="nc" id="L66">                break;</span>
+            case QA:
+<span class="nc" id="L68">                this.questions = questionService.findByQA(project, username);</span>
+                break;
+        }
+<span class="nc" id="L71">    }</span>
+
+    @JSON(serialize = false)
+    public String getUsername() {
+<span class="nc" id="L75">        return username;</span>
+    }
+
+    public void setUsername(String username) {
+<span class="nc" id="L79">        this.username = username;</span>
+<span class="nc" id="L80">    }</span>
+
+    public List&lt;Question&gt; getQuestions() {
+<span class="nc" id="L83">        return questions;</span>
+    }
+
+    public void setQuestions(List&lt;Question&gt; questions) {
+<span class="nc" id="L87">        this.questions = questions;</span>
+<span class="nc" id="L88">    }</span>
+
+    @JSON(serialize = false)
+    public Project getProject() {
+<span class="nc" id="L92">        return project;</span>
+    }
+
+    public void setProject(Project project) {
+<span class="nc" id="L96">        this.project = project;</span>
+<span class="nc" id="L97">    }</span>
+
+    @JSON(serialize = false)
+    public String getRole() {
+<span class="nc" id="L101">        return role;</span>
+    }
+
+    public void setRole(String role) {
+<span class="nc" id="L105">        this.role = role;</span>
+<span class="nc" id="L106">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

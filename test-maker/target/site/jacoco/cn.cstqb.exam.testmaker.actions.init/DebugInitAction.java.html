@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DebugInitAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.init</a> &gt; <span class="el_source">DebugInitAction.java</span></div><h1>DebugInitAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.init;
+
+import cn.cstqb.exam.testmaker.actions.BaseAction;
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.*;
+import cn.cstqb.exam.testmaker.modules.ISyllabusModuleWorker;
+import cn.cstqb.exam.testmaker.services.IDebugInitializationService;
+import cn.cstqb.exam.testmaker.services.IProjectService;
+import cn.cstqb.exam.testmaker.services.IUserService;
+
+import javax.inject.Inject;
+import java.util.Objects;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/31
+ * Time: 14:32
+ */
+public class DebugInitAction extends BaseAction {
+    @Inject
+    private IDebugInitializationService initService;
+    @Inject
+    private IUserService userService;
+    @Inject private IProjectService projectService;
+    @Inject
+    private ISyllabusModuleWorker syllabusWorker;
+
+    private User user;
+    private Project project;
+<span class="nc" id="L31">    private int dataSize=10;</span>
+<span class="nc" id="L32">    public DebugInitAction() {</span>
+<span class="nc" id="L33">        injector.injectMembers(this);</span>
+<span class="nc" id="L34">    }</span>
+
+    /**
+     * This is a replacement for validate() method in ActionSupport in that the posted json
+     * data is not serialized yet in ActionSupport validate() method.
+     *
+     * @return The result string of the first error.
+     * @see cn.cstqb.exam.testmaker.configuration.Constants
+     */
+    @Override
+    public void validateInput() {
+<span class="nc" id="L45">        initService.setCount(dataSize);</span>
+<span class="nc" id="L46">    }</span>
+
+    /**
+     * The real action should be defined in this method. Do not use execute. otherwise you get nothing
+     *
+     * @return &lt;b&gt;null&lt;/b&gt; or empty string if action is successful; otherwise return your error result
+     * @throws Exception
+     */
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L56">        initUserAndProject();</span>
+<span class="nc" id="L57">        return null;</span>
+    }
+
+    public String initUserAndProject() throws Exception {
+<span class="nc" id="L61">        logger.debug(&quot;Initializing user and project information for debugging....&quot;);</span>
+<span class="nc" id="L62">        initService.setCount(dataSize);</span>
+<span class="nc" id="L63">        user = userService.findFirstUser();</span>
+<span class="nc" id="L64">        logger.info(&quot;Debug user to be used: #0&quot;, Objects.toString(user));</span>
+
+        //init syllabus
+<span class="nc" id="L67">        initService.initSyllabus();</span>
+
+<span class="nc" id="L69">        initProject();</span>
+
+<span class="nc" id="L71">        initService.initUsers();</span>
+<span class="nc" id="L72">        initService.initQuestionAttributes();</span>
+<span class="nc" id="L73">        return SUCCESS;</span>
+    }
+    public String loadData() {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L77">            logger.debug(&quot;Loading user and project information for debugging....&quot;);</span>
+        }
+<span class="nc" id="L79">        user = getLoggedInUser();</span>
+<span class="nc" id="L80">        project = (Project) session.get(Constants.ATTR_PROJECT);</span>
+<span class="nc" id="L81">        return SUCCESS;</span>
+    }
+
+    private void initProject() {
+<span class="nc" id="L85">        project = projectService.findFirst();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="nc" id="L87">            logger.info(&quot;Debug project to be used: {}:{}&quot;, project.getId().toString(), project.getName());</span>
+        }
+<span class="nc" id="L89">        Syllabus syllabus=syllabusWorker.findSyllabus(1);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (project.getSyllabus() ==null) {</span>
+<span class="nc" id="L91">            project.setSyllabus(syllabus);</span>
+        }
+<span class="nc" id="L93">        project.addUser(user);</span>
+<span class="nc" id="L94">        projectService.saveOrUpdate(project);</span>
+<span class="nc" id="L95">    }</span>
+
+    public User getUser() {
+<span class="nc" id="L98">        return user;</span>
+    }
+
+    public Project getProject() {
+<span class="nc" id="L102">        return project;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

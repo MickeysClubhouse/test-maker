@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CheckUserNameAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.user</a> &gt; <span class="el_source">CheckUserNameAction.java</span></div><h1>CheckUserNameAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.user;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/2/22
+ * Time: 21:42
+ */
+<span class="nc" id="L9">public class CheckUserNameAction extends BaseUserAction {</span>
+    private String username;
+    private boolean isExists;
+    /**
+     * This is a replacement for validate() method in ActionSupport in that the posted json
+     * data is not serialized yet in ActionSupport validate() method.
+     *
+     * @return The result string of the first error.
+     * @see cn.cstqb.exam.testmaker.configuration.Constants
+     */
+    @Override
+    public void validateInput() {
+<span class="nc" id="L21">        userValidator.validateUserName(username);</span>
+<span class="nc" id="L22">    }</span>
+
+    /**
+     * The real action should be defined in this method. Do not use execute. otherwise you get nothing
+     *
+     * @return &lt;b&gt;null&lt;/b&gt; or empty string if action is successful; otherwise return your error result
+     * @throws Exception
+     */
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L32">        isExists = userService.isUserNameExists(username);</span>
+<span class="nc" id="L33">        return null;</span>
+    }
+
+    public String getUsername() {
+<span class="nc" id="L37">        return username;</span>
+    }
+
+    public void setUsername(String username) {
+<span class="nc" id="L41">        this.username = username;</span>
+<span class="nc" id="L42">    }</span>
+
+    public boolean isExists() {
+<span class="nc" id="L45">        return isExists;</span>
+    }
+
+    public void setExists(boolean isExists) {
+<span class="nc" id="L49">        this.isExists = isExists;</span>
+<span class="nc" id="L50">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

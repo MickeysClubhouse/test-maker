@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateProfileAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.projects.current</a> &gt; <span class="el_source">UpdateProfileAction.java</span></div><h1>UpdateProfileAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.projects.current;
+
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.User;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/4/10
+ * Time: 23:37
+ */
+<span class="nc" id="L14">public class UpdateProfileAction extends BaseCurrentProjectAction {</span>
+    private String fullName;
+    private String phone;
+    private String email;
+    private boolean isModified;
+    /**
+     * This is a replacement for validate() method in ActionSupport in that the posted json
+     * data is not serialized yet in ActionSupport validate() method.
+     *
+     * @return The result string of the first error.
+     * @see cn.cstqb.exam.testmaker.configuration.Constants
+     */
+    @Override
+    public void validateInput() {
+        //super.validateInput();
+<span class="nc" id="L29">        sessionUser = getLoggedInUser();</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        if (Strings.isNullOrEmpty(fullName)) {</span>
+<span class="nc" id="L31">            addActionError(getText(&quot;error.entity.field.missing.required&quot;, Lists.newArrayList(getText(&quot;label.entity.user.fullName&quot;))));</span>
+<span class="nc" id="L32">            return;</span>
+        }
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (Strings.isNullOrEmpty(email)) {</span>
+<span class="nc" id="L35">            addActionError(getText(&quot;error.entity.field.missing.required&quot;, Lists.newArrayList(getText(&quot;label.entity.user.email&quot;))));</span>
+<span class="nc" id="L36">            return;</span>
+        }
+<span class="nc bnc" id="L38" title="All 4 branches missed.">        if (!email.equals(sessionUser.getEmail()) &amp;&amp; userService.isEmailExists(email)) {</span>
+<span class="nc" id="L39">            addActionError(getText(&quot;error.user.email.alreadyUsed&quot;, Lists.newArrayList(email)));</span>
+        }
+
+<span class="nc" id="L42">    }</span>
+
+    public String checkIsModified() throws Exception {
+<span class="nc" id="L45">        validateInput();</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (!email.equals(sessionUser.getEmail())</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            || !fullName.equals(sessionUser.getFullName())</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            ||!phone.equals(sessionUser.getPhone())) {</span>
+<span class="nc" id="L49">            isModified = true;</span>
+        }
+<span class="nc" id="L51">        logger.warn(&quot;UpdateProfileAction.checkIsModified: Is user info modified? [#0]&quot;, isModified);</span>
+<span class="nc" id="L52">        return SUCCESS;</span>
+    }
+
+    /**
+     * The real action should be defined in this method. Do not use execute. otherwise you get nothing
+     *
+     * @return &lt;b&gt;null&lt;/b&gt; or empty string if action is successful; otherwise return your error result
+     * @throws Exception
+     */
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L63">        logger.debug(&quot;UpdateProfileAction.executeImpl: update profile for user： #0&quot;, sessionUser.getUsername() );</span>
+<span class="nc" id="L64">        checkIsModified();</span>
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (!fullName.equals(sessionUser.getFullName())) {</span>
+<span class="nc" id="L67">            sessionUser.setFullName(fullName);</span>
+        }
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (!email.equals(sessionUser.getEmail())) {</span>
+<span class="nc" id="L70">            sessionUser.setEmail(email);</span>
+        }
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (!phone.equals(sessionUser.getPhone())) {</span>
+<span class="nc" id="L73">            sessionUser.setPhone(phone);</span>
+        }
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (!isModified) {</span>
+<span class="nc" id="L76">            return null;</span>
+        }
+<span class="nc" id="L78">        User updatedUser=userService.update(sessionUser);</span>
+<span class="nc" id="L79">        session.put(Constants.ATTR_USER, updatedUser);</span>
+<span class="nc" id="L80">        logger.debug(&quot;UpdateProfileAction.executeImpl: User profile updated successfully.&quot; );</span>
+<span class="nc" id="L81">        return null;</span>
+    }
+
+    public void setFullName(String fullName) {
+<span class="nc" id="L85">        this.fullName = fullName;</span>
+<span class="nc" id="L86">    }</span>
+
+    public void setPhone(String phone) {
+<span class="nc" id="L89">        this.phone = phone;</span>
+<span class="nc" id="L90">    }</span>
+
+    public void setEmail(String email) {
+<span class="nc" id="L93">        this.email = email;</span>
+<span class="nc" id="L94">    }</span>
+
+    public boolean isModified() {
+<span class="nc" id="L97">        return isModified;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

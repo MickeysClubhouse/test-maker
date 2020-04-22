@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HashUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.util</a> &gt; <span class="el_source">HashUtil.java</span></div><h1>HashUtil.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.util;
+
+import com.google.common.base.Charsets;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/1/8
+ * Time: 22:27
+ */
+<span class="nc" id="L23">public class HashUtil {</span>
+<span class="fc" id="L24">    private static final Logger logger = LoggerFactory.getLogger(HashUtil.class);</span>
+    public static final String hash(String input) {
+<span class="fc" id="L26">        return Hashing.sha256().hashString(input, Charsets.UTF_8).toString();</span>
+    }
+
+    /**
+     * Gets the md5 checksum value for the input file.
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     */
+    public static String getCheckSum(File file) throws IOException, NoSuchAlgorithmException {
+<span class="nc" id="L37">        HashCode md5 = Files.hash(file, Hashing.md5());</span>
+<span class="nc" id="L38">        String md5Hex = md5.toString();</span>
+<span class="nc" id="L39">        logger.debug(&quot;MD5 checksum for {} is: {}&quot;, file, md5Hex);</span>
+<span class="nc" id="L40">        return md5Hex.toUpperCase();</span>
+    }
+
+    /**
+     * Creates a md5checksum file
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     */
+    public static File createCheckSum(File file) throws IOException, NoSuchAlgorithmException {
+<span class="nc" id="L51">        String md5Checksum = getCheckSum(file);</span>
+<span class="nc" id="L52">        String fileName = file.getName();</span>
+<span class="nc" id="L53">        String content = String.format(&quot;%s *%s&quot;,md5Checksum, fileName);</span>
+<span class="nc" id="L54">        logger.debug(&quot;HashUtil.createCheckSum: {}&quot;, content );</span>
+
+        //creates the checksum file
+<span class="nc" id="L57">        File sumFile=new File(file.getParent(),Files.getNameWithoutExtension(fileName)+&quot;.md5&quot;);</span>
+<span class="nc" id="L58">        PrintWriter pw = new PrintWriter(sumFile);</span>
+<span class="nc" id="L59">        pw.println(content);</span>
+<span class="nc" id="L60">        pw.close();</span>
+<span class="nc" id="L61">        return sumFile;</span>
+    }
+
+    public static Path createCheckSum(Path file) throws IOException, NoSuchAlgorithmException {
+<span class="nc" id="L65">        return createCheckSum(file.toFile()).toPath();</span>
+    }
+
+    /**
+     * Generates a random string
+     * @return The generated random string
+     */
+    public static String generateRandom() {
+<span class="fc" id="L73">        return RandomStringUtils.randomAlphanumeric(8);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

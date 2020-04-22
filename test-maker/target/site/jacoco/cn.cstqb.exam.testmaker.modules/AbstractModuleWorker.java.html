@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractModuleWorker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.modules</a> &gt; <span class="el_source">AbstractModuleWorker.java</span></div><h1>AbstractModuleWorker.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.modules;
+
+import cn.cstqb.exam.testmaker.configuration.AppInjector;
+import com.google.inject.Injector;
+import com.opensymphony.xwork2.ActionSupport;
+import org.apache.struts2.dispatcher.SessionMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/2/11
+ * Time: 20:51
+ */
+public abstract class AbstractModuleWorker extends ActionSupport implements IModuleWorker {
+<span class="nc" id="L19">    protected final Logger logger = LoggerFactory.getLogger(getClass());</span>
+    protected Injector injector;
+    protected SessionMap&lt;String,Object&gt; session;
+
+<span class="nc" id="L23">    protected AbstractModuleWorker() {</span>
+<span class="nc" id="L24">        injector = AppInjector.getInstance().getInjector();</span>
+<span class="nc" id="L25">    }</span>
+
+    /**
+     * Sets the Map of session attributes in the implementing class.
+     *
+     * @param session a Map of HTTP session attribute name/value pairs.
+     */
+    @Override
+    public void setSession(Map&lt;String, Object&gt; session) {
+<span class="nc" id="L34">        this.session = (SessionMap&lt;String, Object&gt;) session;</span>
+<span class="nc" id="L35">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

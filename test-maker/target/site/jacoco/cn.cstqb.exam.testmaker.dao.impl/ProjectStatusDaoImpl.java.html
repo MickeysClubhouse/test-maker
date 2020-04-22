@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectStatusDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao.impl</a> &gt; <span class="el_source">ProjectStatusDaoImpl.java</span></div><h1>ProjectStatusDaoImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao.impl;
+
+import cn.cstqb.exam.testmaker.dao.ProjectStatusDao;
+import cn.cstqb.exam.testmaker.entities.ProjectStatus;
+import com.google.inject.persist.Transactional;
+
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/29
+ * Time: 22:14
+ */
+<span class="fc" id="L15">public class ProjectStatusDaoImpl extends GenericJpaDaoImpl&lt;ProjectStatus, Integer&gt; implements ProjectStatusDao {</span>
+    /**
+     * Find the project status with the given name
+     *
+     * @param statusName
+     * @return
+     */
+    @Override
+    public ProjectStatus findByName(String statusName) {
+<span class="nc" id="L24">        return findSingleResult(&quot;name&quot;, statusName);</span>
+    }
+
+    /**
+     * Check if it's OK to add new Start status. There should be only 1 start
+     *
+     * @return &lt;b&gt;True&lt;/b&gt; if it's OK to add a Start status; otherwise false.
+     */
+    @Override
+    public boolean canAddStartStatus() {
+<span class="nc" id="L34">        List&lt;ProjectStatus&gt; statuses = findResultList(&quot;isStart&quot;, true);</span>
+<span class="nc bnc" id="L35" title="All 4 branches missed.">        return statuses == null || statuses.isEmpty();</span>
+    }
+
+    @Override
+    public ProjectStatus findStart() {
+<span class="nc" id="L40">        List&lt;ProjectStatus&gt; statuses = findResultList(&quot;isStart&quot;, true);</span>
+<span class="nc bnc" id="L41" title="All 4 branches missed.">        if(statuses == null || statuses.isEmpty()) return null;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (logger.isWarnEnabled()) {</span>
+<span class="nc" id="L43">            logger.warn(&quot;More than one START statuses found: {}&quot;, statuses);</span>
+        }
+<span class="nc" id="L45">        return statuses.get(0);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

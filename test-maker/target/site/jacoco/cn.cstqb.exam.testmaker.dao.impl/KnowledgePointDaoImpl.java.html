@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KnowledgePointDaoImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.dao.impl</a> &gt; <span class="el_source">KnowledgePointDaoImpl.java</span></div><h1>KnowledgePointDaoImpl.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.dao.impl;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import cn.cstqb.exam.testmaker.dao.KnowledgePointDao;
+import cn.cstqb.exam.testmaker.entities.Chapter;
+import cn.cstqb.exam.testmaker.entities.KnowledgePoint;
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.entities.Syllabus;
+
+/**
+ * Created with IntelliJ IDEA. User: Jian-Min Gao Date: 2014/12/26 Time: 19:14
+ */
+<span class="fc" id="L17">public class KnowledgePointDaoImpl extends</span>
+		GenericJpaDaoImpl&lt;KnowledgePoint, Integer&gt; implements KnowledgePointDao {
+	/**
+	 * Find knowledge points with the given chapter
+	 *
+	 * @param chapter
+	 * @return The knowledge point objects matching the chapter or &lt;i&gt;null&lt;/i&gt; if not
+	 *         found
+	 */
+	@Override
+	public List&lt;KnowledgePoint&gt; findKnowledgePoints(Chapter chapter) {
+<span class="nc" id="L28">        List&lt;KnowledgePoint&gt; knowledgePoints = findResultList(&quot;chapter&quot;, chapter);</span>
+
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L31">            logger.debug(&quot;Knowledge points details for [{}] : {}&quot;, chapter, knowledgePoints);</span>
+        }
+<span class="nc" id="L33">        return knowledgePoints;</span>
+    }
+
+    private TypedQuery&lt;KnowledgePoint&gt; buildQueryBySyllabus(Syllabus syllabus) {
+<span class="nc" id="L37">        return provider.get().createQuery(&quot;SELECT k FROM KnowledgePoint k WHERE k.chapter.syllabus =:syllabus ORDER BY k.title ASC&quot;, KnowledgePoint.class)</span>
+<span class="nc" id="L38">                .setParameter(&quot;syllabus&quot;, syllabus);</span>
+    }
+
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(Syllabus syllabus, int pageSize, int pageNumber) {
+<span class="nc" id="L43">        logger.debug(&quot;KnowledgePointDaoImpl.findKnowledgePoints: Finding paginated knowledge points for syllabus id [{}]&quot;, syllabus.getId() );</span>
+<span class="nc" id="L44">        TypedQuery&lt;KnowledgePoint&gt; query = buildQueryBySyllabus(syllabus);</span>
+<span class="nc" id="L45">        return queryListPaginated(query, pageSize, pageNumber);</span>
+    }
+
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(Syllabus syllabus) {
+<span class="nc" id="L50">        logger.debug(&quot;KnowledgePointDaoImpl.findKnowledgePoints: Finding knowledge points for syllabus id [{}]&quot;, syllabus.getId() );</span>
+<span class="nc" id="L51">        return buildQueryBySyllabus(syllabus)</span>
+<span class="nc" id="L52">                .getResultList();</span>
+    }
+
+    /**
+     * @param chapterId
+     * @return
+     */
+    @Override
+    public List&lt;KnowledgePoint&gt; findKnowledgePoints(int chapterId) {
+<span class="nc" id="L61">        EntityManager em=provider.get();</span>
+<span class="nc" id="L62">        return em.createQuery(&quot;SELECT k FROM KnowledgePoint k WHERE k.chapter.id =:chapterId ORDER BY k.title ASC&quot;, KnowledgePoint.class)</span>
+<span class="nc" id="L63">                .setParameter(&quot;chapterId&quot;, chapterId)</span>
+<span class="nc" id="L64">                .getResultList();</span>
+    }
+
+    @Override
+    public List&lt;Question&gt; findUsingQuestions(KnowledgePoint knowledgePoint) {
+<span class="nc" id="L69">        logger.debug(&quot;KnowledgePointDaoImpl.findUsingQuestions: Finding questions using knowledge point #{}.&quot;, knowledgePoint.getId() );</span>
+<span class="nc" id="L70">        EntityManager em=provider.get();</span>
+<span class="nc" id="L71">        return em.createQuery(&quot;SELECT q FROM Question q WHERE q.knowledgePoint =:knowledgePoint&quot;, Question.class)</span>
+<span class="nc" id="L72">                .setParameter(&quot;knowledgePoint&quot;,knowledgePoint)</span>
+<span class="nc" id="L73">                .getResultList();</span>
+    }
+
+    @Override
+	public KnowledgePoint findKnowledgePoint(int id) {
+<span class="nc" id="L78">		return findSingleResult(&quot;id&quot;, id);</span>
+	}
+
+	@Override
+	public KnowledgePoint findKnowledgePoint(String title) {
+<span class="nc" id="L83">		return findSingleResult(&quot;title&quot;, title);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

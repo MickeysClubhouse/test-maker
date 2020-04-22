@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManageExistingUserAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.user</a> &gt; <span class="el_source">ManageExistingUserAction.java</span></div><h1>ManageExistingUserAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.user;
+
+import cn.cstqb.exam.testmaker.configuration.Constants;
+import cn.cstqb.exam.testmaker.entities.User;
+import com.google.common.collect.Lists;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/2/22
+ * Time: 23:08
+ */
+<span class="nc" id="L17">public class ManageExistingUserAction extends BaseUserAction {</span>
+    private List&lt;User&gt; users;
+    /**
+     * This is a replacement for validate() method in ActionSupport in that the posted json
+     * data is not serialized yet in ActionSupport validate() method.
+     *
+     * @return The result string of the first error.
+     * @see cn.cstqb.exam.testmaker.configuration.Constants
+     */
+    @Override
+    public void validateInput() {
+<span class="nc bnc" id="L28" title="All 4 branches missed.">        if (users==null || users.isEmpty()) {</span>
+<span class="nc" id="L29">            addActionError(getText(&quot;error.status.notModified&quot;, Lists.newArrayList(getText(&quot;label.entity.user&quot;))));</span>
+<span class="nc" id="L30">            return;</span>
+        }
+<span class="nc" id="L32">        Iterator&lt;User&gt; iterator=users.iterator();</span>
+<span class="nc" id="L33">        int count = 0;</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        while (iterator.hasNext()) {</span>
+<span class="nc" id="L35">            User user = iterator.next();</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">            if (!validateSingleUser(user)) {</span>
+<span class="nc" id="L37">                logger.warn(&quot;ManageExistingUserAction.validateInput: User is invalid. Removing from queue...&quot;, Objects.toString(user) );</span>
+<span class="nc" id="L38">                iterator.remove();</span>
+<span class="nc" id="L39">                count++;</span>
+            }
+<span class="nc" id="L41">        }</span>
+<span class="nc" id="L42">        logger.info(&quot;ManageExistingUserAction.validateInput: Invalid users removed: &quot;+ count );</span>
+<span class="nc" id="L43">    }</span>
+
+    private boolean validateSingleUser(User user) {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (user==null) {</span>
+<span class="nc" id="L47">            addActionError(getText(&quot;error.entity.invalid&quot;, Lists.newArrayList(getText(&quot;label.entity.user&quot;))));</span>
+<span class="nc" id="L48">            return false;</span>
+        }
+
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (!user.isValidID()) {</span>
+<span class="nc" id="L52">            addActionError(getText(&quot;error.entity.id.invalid&quot;, Lists.newArrayList(user.getId())));</span>
+<span class="nc" id="L53">            return false;</span>
+        }
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (userService.findUser(user.getId()) == null) {</span>
+<span class="nc" id="L56">            addActionError(getText(&quot;error.user.not.found&quot;, Lists.newArrayList(user.getUsername())));</span>
+<span class="nc" id="L57">            return false;</span>
+        }
+<span class="nc" id="L59">        String username = user.getUsername();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (!userValidator.validateUserName(username)){</span>
+<span class="nc" id="L61">            return false;</span>
+        }
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (!userService.isUserNameExists(username)) {</span>
+<span class="nc" id="L64">            logger.warn(&quot;ManageExistingUserAction.validateSingleUser: User name does not exist: {}&quot;, username );</span>
+<span class="nc" id="L65">            return false;</span>
+        }
+
+<span class="nc" id="L68">        return true;</span>
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String toggleAdminState() {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (!isValidInput()) {</span>
+<span class="nc" id="L77">            logger.error(&quot;ManageExistingUserAction.deactivate: Error in provided user details: [{}]&quot;, users );</span>
+<span class="nc" id="L78">            return Constants.RESULT_FORM_INVALID;</span>
+        }
+        try{
+<span class="nc bnc" id="L81" title="All 2 branches missed.">            for (User user : users) {</span>
+<span class="nc" id="L82">                User persisted = userService.findUser(user.getId());</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                persisted.setAdmin(!persisted.isAdmin());</span>
+<span class="nc" id="L84">                userService.update(persisted);</span>
+<span class="nc" id="L85">            }</span>
+<span class="nc" id="L86">        }catch (Exception e){</span>
+<span class="nc" id="L87">            this.users.clear();</span>
+<span class="nc" id="L88">            addActionError(getText(&quot;error.exception&quot;, Lists.newArrayList(e.getMessage())));</span>
+<span class="nc" id="L89">            return ERROR;</span>
+<span class="nc" id="L90">        }</span>
+
+<span class="nc" id="L92">        this.users=null;</span>
+<span class="nc" id="L93">        return SUCCESS;</span>
+    }
+
+    /**
+     * Toggle use activation state
+     * @return
+     * @throws Exception
+     */
+    public String toggleState(){
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (!isValidInput()) {</span>
+<span class="nc" id="L103">            logger.error(&quot;ManageExistingUserAction.deactivate: Error in provided user details: [{}]&quot;, users );</span>
+<span class="nc" id="L104">            return Constants.RESULT_FORM_INVALID;</span>
+        }
+        try{
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (User user : users) {</span>
+<span class="nc" id="L108">                User persisted = userService.findUser(user.getId());</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                persisted.setEnabled(!persisted.isEnabled());</span>
+<span class="nc" id="L110">                userService.update(persisted);</span>
+<span class="nc" id="L111">            }</span>
+<span class="nc" id="L112">        }catch (Exception e){</span>
+<span class="nc" id="L113">            this.users.clear();</span>
+<span class="nc" id="L114">            addActionError(getText(&quot;error.exception&quot;, Lists.newArrayList(e.getMessage())));</span>
+<span class="nc" id="L115">            return ERROR;</span>
+<span class="nc" id="L116">        }</span>
+
+<span class="nc" id="L118">        this.users=null;</span>
+<span class="nc" id="L119">        return SUCCESS;</span>
+    }
+
+    /**
+     * The real action should be defined in this method. Do not use execute. otherwise you get nothing
+     *
+     * @return &lt;b&gt;null&lt;/b&gt; or empty string if action is successful; otherwise return your error result
+     * @throws Exception
+     */
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L130">        return null;</span>
+    }
+
+    private boolean isValidInput() {
+<span class="nc" id="L134">        validateInput();</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        return !hasActionErrors();</span>
+    }
+
+    public List&lt;User&gt; getUsers() {
+<span class="nc" id="L139">        return users;</span>
+    }
+
+    public void setUsers(List&lt;User&gt; users) {
+<span class="nc" id="L143">        this.users = users;</span>
+<span class="nc" id="L144">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

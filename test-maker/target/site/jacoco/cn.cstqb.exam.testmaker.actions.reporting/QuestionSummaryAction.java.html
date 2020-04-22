@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionSummaryAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.actions.reporting</a> &gt; <span class="el_source">QuestionSummaryAction.java</span></div><h1>QuestionSummaryAction.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.actions.reporting;
+
+import cn.cstqb.exam.testmaker.entities.Question;
+import cn.cstqb.exam.testmaker.reporting.QuestionTaskEntry;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2015/3/31
+ * Time: 13:02
+ */
+<span class="nc" id="L15">public class QuestionSummaryAction extends BaseReportingAction {</span>
+
+    private QuestionTaskEntry summary;
+
+    private Set&lt;QuestionTaskEntry&gt; tasks;
+
+    private List&lt;Question&gt; questions;
+
+
+
+    /**
+     * The real action should be defined in this method. Do not use execute. otherwise you get nothing
+     *
+     * @return &lt;b&gt;null&lt;/b&gt; or empty string if action is successful; otherwise return your error result
+     * @throws Exception
+     */
+    @Override
+    protected String executeImpl() throws Exception {
+<span class="nc" id="L33">        String currentUser=getLoggedInUser().getUsername();</span>
+<span class="nc" id="L34">        logger.debug(&quot;QuestionSummaryAction.executeImpl: Getting task summary info for #0 in project #1&quot;,  currentUser, sessionProject.getName());</span>
+<span class="nc" id="L35">        summary=reportingService.getTaskSummary(sessionProject, currentUser);</span>
+<span class="nc" id="L36">        tasks = reportingService.getTasks(sessionProject, currentUser);</span>
+<span class="nc" id="L37">        questions = reportingService.getExpiringQuestions(sessionProject, currentUser, warningThreshold);</span>
+
+<span class="nc" id="L39">        return null;</span>
+    }
+
+    public void setSummary(QuestionTaskEntry summary) {
+<span class="nc" id="L43">        this.summary = summary;</span>
+<span class="nc" id="L44">    }</span>
+
+    public QuestionTaskEntry getSummary() {
+<span class="nc" id="L47">        return summary;</span>
+    }
+
+    public Set&lt;QuestionTaskEntry&gt; getTasks() {
+<span class="nc" id="L51">        return tasks;</span>
+    }
+
+    public List&lt;Question&gt; getQuestions() {
+<span class="nc" id="L55">        return questions;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

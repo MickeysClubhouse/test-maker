@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>User.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test-maker</a> &gt; <a href="index.source.html" class="el_package">cn.cstqb.exam.testmaker.entities</a> &gt; <span class="el_source">User.java</span></div><h1>User.java</h1><pre class="source lang-java linenums">package cn.cstqb.exam.testmaker.entities;
+
+import cn.cstqb.exam.testmaker.util.HashUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
+import org.apache.struts2.json.annotations.JSON;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: Jian-Min Gao
+ * Date: 2014/12/26
+ * Time: 19:40
+ */
+@Entity
+@NamedQuery(name = &quot;User.findByUserName&quot;, query = &quot;SELECT u from User u where u.username = :username&quot;)
+public class User extends AbstractBaseEntity {
+    @Column(unique = true, nullable = false, updatable = false, length = 40)
+    private String username;
+
+    @Column(nullable = false, length = 40)
+    @JsonIgnore
+    private String fullName;
+
+    @Column(unique = true, nullable = false)
+    @JsonIgnore
+    private String email;
+
+    @JsonIgnore
+    private String phone;
+
+    @Column(nullable = false, length = 64,columnDefinition = &quot;CHAR(64)&quot;)
+    @JsonIgnore
+    private String password;
+
+<span class="pc" id="L41">    @JsonIgnore</span>
+    private boolean enabled=true;
+
+    @JsonIgnore
+    private int loginCount;
+
+    @JsonIgnore
+    private boolean isAdmin;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonIgnore
+    private Date lastLogin;
+
+    @ManyToMany(mappedBy = &quot;users&quot;, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List&lt;Project&gt; projects;
+
+<span class="nc" id="L58">    public User(int id, String username) {</span>
+<span class="nc" id="L59">        this.id = id;</span>
+<span class="nc" id="L60">        this.username = username;</span>
+<span class="nc" id="L61">    }</span>
+
+<span class="nc" id="L63">    public User(String username, String password) {</span>
+<span class="nc" id="L64">        this.username = username;</span>
+<span class="nc" id="L65">        this.password = password;</span>
+<span class="nc" id="L66">    }</span>
+
+<span class="nc" id="L68">    public User(String username) {</span>
+<span class="nc" id="L69">        this.username = username;</span>
+<span class="nc" id="L70">    }</span>
+
+<span class="fc" id="L72">    public User() {</span>
+<span class="fc" id="L73">    }</span>
+
+    public String getUsername() {
+<span class="nc" id="L76">        return username;</span>
+    }
+
+    public void setUsername(String username) {
+<span class="nc" id="L80">        this.username = username;</span>
+<span class="nc" id="L81">    }</span>
+
+    public String getEmail() {
+<span class="nc" id="L84">        return email;</span>
+    }
+
+    public void setEmail(String email) {
+<span class="nc" id="L88">        this.email = email;</span>
+<span class="nc" id="L89">    }</span>
+
+    public String getPhone() {
+<span class="nc" id="L92">        return phone;</span>
+    }
+
+    public void setPhone(String phone) {
+<span class="nc" id="L96">        this.phone = phone;</span>
+<span class="nc" id="L97">    }</span>
+
+    @JSON(serialize = false)
+    public String getPassword() {
+<span class="nc" id="L101">        return password;</span>
+    }
+
+    public void setPassword(String password) {
+<span class="nc" id="L105">        this.password = password;</span>
+<span class="nc" id="L106">    }</span>
+
+    public boolean isEnabled() {
+<span class="nc" id="L109">        return enabled;</span>
+    }
+
+    public void setEnabled(boolean enabled) {
+<span class="nc" id="L113">        this.enabled = enabled;</span>
+<span class="nc" id="L114">    }</span>
+
+    @JSON(serialize = false)
+    public Integer getLoginCount() {
+<span class="nc" id="L118">        return loginCount;</span>
+    }
+
+    public void setLoginCount(int loginCount) {
+<span class="nc" id="L122">        this.loginCount = loginCount;</span>
+<span class="nc" id="L123">    }</span>
+
+    public Date getLastLogin() {
+<span class="nc" id="L126">        return lastLogin;</span>
+    }
+
+    public void setLastLogin(Date lastLogin) {
+<span class="nc" id="L130">        this.lastLogin = lastLogin;</span>
+<span class="nc" id="L131">    }</span>
+
+    @JsonIgnore
+    public boolean isAdmin() {
+<span class="nc" id="L135">        return isAdmin;</span>
+    }
+
+    public void setAdmin(boolean isAdmin) {
+<span class="nc" id="L139">        this.isAdmin = isAdmin;</span>
+<span class="nc" id="L140">    }</span>
+
+    @JSON(serialize = false, deserialize = false)
+    public List&lt;Project&gt; getProjects() {
+<span class="nc" id="L144">        return projects;</span>
+    }
+
+    @JSON(deserialize = false)
+    public void setProjects(List&lt;Project&gt; projects) {
+<span class="nc" id="L149">        this.projects = projects;</span>
+<span class="nc" id="L150">    }</span>
+
+    public String getFullName() {
+<span class="nc" id="L153">        return fullName;</span>
+    }
+
+    public void setFullName(String fullName) {
+<span class="nc" id="L157">        this.fullName = fullName;</span>
+<span class="nc" id="L158">    }</span>
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L162">        return Objects.hash(username, email, phone, password, enabled, loginCount, isAdmin, lastLogin, fullName);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L168">            return true;</span>
+        }
+<span class="nc bnc" id="L170" title="All 4 branches missed.">        if (obj == null || getClass() != obj.getClass()) {</span>
+<span class="nc" id="L171">            return false;</span>
+        }
+<span class="nc" id="L173">        final User other = (User) obj;</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        return Objects.equals(this.username, other.username)</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                &amp;&amp; Objects.equals(this.email, other.email)</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">                &amp;&amp; Objects.equals(this.phone, other.phone)</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">                &amp;&amp; Objects.equals(this.password, other.password)</span>
+//                &amp;&amp; Objects.equals(this.enabled, other.enabled)
+//                &amp;&amp; Objects.equals(this.loginCount, other.loginCount)
+//                &amp;&amp; Objects.equals(this.isAdmin, other.isAdmin)
+//                &amp;&amp; Objects.equals(this.lastLogin, other.lastLogin)
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                &amp;&amp; Objects.equals(this.fullName, other.fullName)</span>
+                ;
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L188">        return MoreObjects.toStringHelper(this)</span>
+<span class="nc" id="L189">                .omitNullValues()</span>
+<span class="nc" id="L190">                .add(&quot;username&quot;, username)</span>
+<span class="nc" id="L191">                .add(&quot;email&quot;, email)</span>
+<span class="nc" id="L192">                .add(&quot;phone&quot;, phone)</span>
+//                .add(&quot;password&quot;, password)
+<span class="nc" id="L194">                .add(&quot;enabled&quot;, enabled)</span>
+<span class="nc" id="L195">                .add(&quot;loginCount&quot;, loginCount)</span>
+<span class="nc" id="L196">                .add(&quot;isAdmin&quot;, isAdmin)</span>
+<span class="nc" id="L197">                .add(&quot;lastLogin&quot;, lastLogin)</span>
+<span class="nc" id="L198">                .add(&quot;fullName&quot;, fullName)</span>
+<span class="nc" id="L199">                .toString();</span>
+    }
+
+
+    @PrePersist
+    @PreUpdate
+    private void hashPassword() {
+<span class="nc bnc" id="L206" title="All 4 branches missed.">        if (this.password!=null &amp;&amp; this.password.length() &lt; 64) {</span>
+<span class="nc" id="L207">            this.password = HashUtil.hash(password);</span>
+        }
+<span class="nc" id="L209">    }</span>
+
+    /**
+     * Validate required fields for this entity
+     *
+     * @return
+     */
+    @Override
+    public boolean validate() {
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        return !Strings.isNullOrEmpty(username)</span>
+//                &amp;&amp; !Strings.isNullOrEmpty(password)
+<span class="nc bnc" id="L220" title="All 2 branches missed.">                &amp;&amp; !Strings.isNullOrEmpty(email)</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                &amp;&amp; !Strings.isNullOrEmpty(fullName);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

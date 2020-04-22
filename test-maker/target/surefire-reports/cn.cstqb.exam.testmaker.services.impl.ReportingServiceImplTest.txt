@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 Test set: cn.cstqb.exam.testmaker.services.impl.ReportingServiceImplTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0 sec <<< FAILURE!
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.001 sec <<< FAILURE!
 cn.cstqb.exam.testmaker.services.impl.ReportingServiceImplTest  Time elapsed: 0 sec  <<< ERROR!
 java.lang.IllegalStateException: Persistence service was already initialized.
 	at com.google.common.base.Preconditions.checkState(Preconditions.java:173)
